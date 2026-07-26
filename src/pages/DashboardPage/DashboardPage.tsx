@@ -47,24 +47,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       )}
-
-      <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
-        Acceso rápido
-      </Typography>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-        {[
-          { label: 'Ir a Mercados', path: '/mercados' },
-          { label: 'Ir a Tiendas', path: '/tiendas' },
-          { label: 'Ir a Categorías', path: '/categorias' },
-          { label: 'Ir a Productos', path: '/productos' },
-        ].map(item => (
-          <Card key={item.path} onClick={() => navigate(item.path)} sx={{ cursor: 'pointer', '&:active': { transform: 'scale(0.98)' }, transition: 'transform 0.15s ease' }}>
-            <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
-              <Typography>{item.label}</Typography>
-            </CardContent>
-          </Card>
-        ))}
-      </Box>
     </Box>
   )
 }
