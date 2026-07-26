@@ -12,7 +12,8 @@ import Tooltip from '@mui/material/Tooltip'
 import TextField from '@mui/material/TextField'
 import InputAdornment from '@mui/material/InputAdornment'
 import SearchIcon from '@mui/icons-material/Search'
-import { productos as productosSignal, loadingProductos, loadProductos, categorias, loadCategorias, showSnackbar } from '@/store'
+import { productos as productosSignal, loadingProductos, loadProductos, categorias, loadCategorias, mercados, mercadoTiendas, mercadoTiendaCategorias, loadMercadoTiendas, loadCategoriasByTienda, showSnackbar } from '@/store'
+import { mercadoProductosService } from '@/services'
 import { useSignalValue } from '@/hooks/useSignalValue'
 import { productosService } from '@/services'
 import type { Producto, CreateProductoDto, UpdateProductoDto } from '@/models'
@@ -106,6 +107,19 @@ export default function ProductosPage() {
     setFormOpen(true)
   }
 
+  async function addToMarket(producto: Producto) {
+    const activo = mercados.value.find(m => m.estado === 'activo')
+    if (!activo) { showSnackbar('No hay mercado activo'); return }
+    await loadMercadoTiendas(activo.id)
+    const mt = mercadoTiendas.value[0]
+    if (!mt) { showSnackbar('El mercado activo no tiene tiendas'); return }
+    await loadCategoriasByTienda(mt.id)
+    const mtc = Object.values(mercadoTiendaCategorias.value).flat().find(c => c.categoria_id === producto.categoria_id)
+    if (!mtc) { showSnackbar(`${producto.categoria_id} no está en la tienda`); return }
+    try { await mercadoProductosService.add({ mercado_tienda_categoria_id: mtc.id, producto_id: producto.id, cantidad: 1 }); showSnackbar(`${producto.nombre} agregado al mercado`) }
+    catch { showSnackbar('Error al agregar') }
+  }
+
   if (isLoading) return <LoadingSpinner />
 
   return (
@@ -176,6 +190,7 @@ export default function ProductosPage() {
                 onEdit={openEdit}
                 onDelete={setDeleteTarget}
                 onToggleFavorito={toggleFavorito}
+                onAddToMarket={addToMarket}
               />
             ))}
           </Box>
