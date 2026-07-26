@@ -256,21 +256,25 @@ export default function MercadoDetailPage() {
                           getProductos(mtc.id).map(mp => (
                             <Card key={mp.id} sx={{ mb: 1, '&:active': { transform: 'scale(0.98)' }, transition: 'transform 0.15s ease' }}>
                               <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
                                   <Box sx={{ flex: 1 }}>
                                     <Typography variant="body2" sx={{ fontWeight: 500 }}>{mp.producto?.nombre}</Typography>
                                     <Typography variant="caption" color="text.secondary">
                                       {mp.cantidad} {mp.producto?.unidad}
                                     </Typography>
+                                    {mp.precio > 0 && (
+                                      <Typography variant="caption" color="text.disabled" sx={{ display: 'block', mt: 0.5 }}>
+                                        {mp.cantidad} × {formatCurrency(mp.precio)} = {formatCurrency(mp.precio * mp.cantidad)}
+                                      </Typography>
+                                    )}
                                   </Box>
-                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0.5 }}>
                                     {mp.precio > 0 && (
                                       <Typography
                                         variant="h5"
                                         sx={{
                                           fontWeight: 800,
                                           color: '#69f0ae',
-                                          textAlign: 'center',
                                           lineHeight: 1,
                                           letterSpacing: '-0.5px',
                                         }}
@@ -278,15 +282,17 @@ export default function MercadoDetailPage() {
                                         {formatCurrency(mp.precio)}
                                       </Typography>
                                     )}
-                                    <Chip
-                                      label={LABEL_ESTADOS[mp.estado]}
-                                      size="small"
-                                      color={mp.estado === 'encontrado' ? 'success' : mp.estado === 'no_habia' ? 'warning' : mp.estado === 'cancelado' ? 'error' : 'default'}
-                                      onClick={() => { setSelectedEstado(mp.estado); setPrecioEdit(mp.precio.toString()); setEstadoDialog({ open: true, item: mp }) }}
-                                    />
-                                    <IconButton size="small" onClick={() => setDeleteTarget({ type: 'producto', id: mp.id })}>
-                                      <DeleteIcon fontSize="small" />
-                                    </IconButton>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                      <Chip
+                                        label={LABEL_ESTADOS[mp.estado]}
+                                        size="small"
+                                        color={mp.estado === 'encontrado' ? 'success' : mp.estado === 'no_habia' ? 'warning' : mp.estado === 'cancelado' ? 'error' : 'default'}
+                                        onClick={() => { setSelectedEstado(mp.estado); setPrecioEdit(mp.precio.toString()); setEstadoDialog({ open: true, item: mp }) }}
+                                      />
+                                      <IconButton size="small" onClick={() => setDeleteTarget({ type: 'producto', id: mp.id })}>
+                                        <DeleteIcon fontSize="small" />
+                                      </IconButton>
+                                    </Box>
                                   </Box>
                                 </Box>
                               </CardContent>
