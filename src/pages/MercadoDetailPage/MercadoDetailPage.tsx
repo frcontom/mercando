@@ -87,6 +87,9 @@ export default function MercadoDetailPage() {
 
   useEffect(() => {
     if (selectedEstado === 'no_habia') { setCantidadEdit('0'); setPrecioEdit('') }
+    else if (estadoDialog.item && selectedEstado === 'encontrado') {
+      setCantidadEdit((estadoDialog.item.cantidad_encontrada || estadoDialog.item.cantidad).toString())
+    }
   }, [selectedEstado])
 
   function getCategorias(mtId: string) { return getCategoriasByTienda(mtId) }
