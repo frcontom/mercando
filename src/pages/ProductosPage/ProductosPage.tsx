@@ -134,6 +134,7 @@ export default function ProductosPage() {
         open={formOpen}
         producto={editing}
         categorias={categorias.value}
+        defaultCategoriaId={categoriaId}
         onSave={handleSave}
         onClose={() => { setFormOpen(false); setEditing(null) }}
       />

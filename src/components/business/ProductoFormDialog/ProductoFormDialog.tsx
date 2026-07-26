@@ -14,11 +14,12 @@ interface ProductoFormDialogProps {
   open: boolean
   producto?: Producto | null
   categorias: Categoria[]
+  defaultCategoriaId?: string
   onSave: (data: CreateProductoDto | UpdateProductoDto) => Promise<void>
   onClose: () => void
 }
 
-export function ProductoFormDialog({ open, producto, categorias, onSave, onClose }: ProductoFormDialogProps) {
+export function ProductoFormDialog({ open, producto, categorias, defaultCategoriaId, onSave, onClose }: ProductoFormDialogProps) {
   const [nombre, setNombre] = useState('')
   const [unidad, setUnidad] = useState('')
   const [categoriaId, setCategoriaId] = useState('')
@@ -29,7 +30,7 @@ export function ProductoFormDialog({ open, producto, categorias, onSave, onClose
     if (open) {
       setNombre(producto?.nombre ?? '')
       setUnidad(producto?.unidad ?? 'pieza')
-      setCategoriaId(producto?.categoria_id ?? (categorias[0]?.id ?? ''))
+      setCategoriaId(producto?.categoria_id ?? defaultCategoriaId ?? (categorias[0]?.id ?? ''))
     }
   }, [open, producto, categorias])
 
