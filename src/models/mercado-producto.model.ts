@@ -14,7 +14,7 @@ export interface MercadoProducto {
   producto?: Producto
 }
 
-export type EstadoProducto = 'pendiente' | 'encontrado' | 'no_habia' | 'reemplazado' | 'cancelado'
+export type EstadoProducto = 'pendiente' | 'encontrado' | 'no_habia'
 
 export type AddProductoDto = Pick<MercadoProducto, 'mercado_tienda_categoria_id' | 'producto_id' | 'cantidad'>
 export type UpdateMercadoProductoDto = Partial<Pick<MercadoProducto, 'precio' | 'cantidad' | 'estado' | 'observacion'>>

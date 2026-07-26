@@ -97,7 +97,7 @@ CREATE TABLE mercado_productos (
   cantidad NUMERIC(10, 2) NOT NULL DEFAULT 1,
   subtotal NUMERIC(10, 2) GENERATED ALWAYS AS (precio * cantidad) STORED,
   estado TEXT NOT NULL DEFAULT 'pendiente'
-    CHECK (estado IN ('pendiente', 'encontrado', 'no_habia', 'reemplazado', 'cancelado')),
+    CHECK (estado IN ('pendiente', 'encontrado', 'no_habia')),
   observacion TEXT,
   fecha_compra TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()

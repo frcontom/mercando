@@ -59,6 +59,7 @@ export default function MercadoDetailPage() {
   const [selectedEstado, setSelectedEstado] = useState<EstadoProducto>('pendiente')
   const [refreshKey, setRefreshKey] = useState(0)
   const [precioEdit, setPrecioEdit] = useState('')
+  const [cantidadEdit, setCantidadEdit] = useState('1')
 
   const mercado = mercados.value.find(m => m.id === id)
 
@@ -103,6 +104,7 @@ export default function MercadoDetailPage() {
     if (mp.precio === 0) {
       setSelectedEstado('encontrado')
       setPrecioEdit('')
+      setCantidadEdit(mp.cantidad.toString())
       setEstadoDialog({ open: true, item: mp })
       return
     }
@@ -156,9 +158,10 @@ export default function MercadoDetailPage() {
   async function handleSaveEstado() {
     const item = estadoDialog.item; if (!item) return
     const precio = Number(precioEdit) || 0
+    const cantidad = Number(cantidadEdit) || 1
     try {
-      await mercadoProductosService.update(item.id, { estado: selectedEstado, precio })
-      showSnackbar(`${item.producto?.nombre ?? 'Producto'} → ${LABEL_ESTADOS[selectedEstado]} · ${formatCurrency(precio)}`)
+      await mercadoProductosService.update(item.id, { estado: selectedEstado, precio, cantidad })
+      showSnackbar(`${item.producto?.nombre ?? 'Producto'} → ${LABEL_ESTADOS[selectedEstado]} · ${cantidad} × ${formatCurrency(precio)}`)
       setEstadoDialog({ open: false, item: null })
       setRefreshKey(k => k + 1)
       await loadProductosByCategoria(item.mercado_tienda_categoria_id)
@@ -348,7 +351,7 @@ export default function MercadoDetailPage() {
                                       {mp.precio > 0 && (
                                         <Typography variant="h5" sx={{ fontWeight: 800, color: '#69f0ae', lineHeight: 1, letterSpacing: '-0.5px' }}>{formatCurrency(mp.precio)}</Typography>
                                       )}
-                                      <Chip label={LABEL_ESTADOS[mp.estado]} size="small" color={mp.estado === 'encontrado' ? 'success' : mp.estado === 'no_habia' ? 'warning' : mp.estado === 'cancelado' ? 'error' : 'default'} onClick={() => { setSelectedEstado(mp.estado); setPrecioEdit(mp.precio.toString()); setEstadoDialog({ open: true, item: mp }) }} />
+                                      <Chip label={LABEL_ESTADOS[mp.estado]} size="small" color={mp.estado === 'encontrado' ? 'success' : mp.estado === 'no_habia' ? 'warning' : 'default'} onClick={() => { setSelectedEstado(mp.estado); setPrecioEdit(mp.precio.toString()); setCantidadEdit(mp.cantidad.toString()); setEstadoDialog({ open: true, item: mp }) }} />
                                       <IconButton size="small" onClick={() => setDeleteTarget({ type: 'producto', id: mp.id })}><DeleteIcon fontSize="small" /></IconButton>
                                     </Box>
                                   </Box>
@@ -415,12 +418,27 @@ export default function MercadoDetailPage() {
       </Dialog>
 
       <Dialog open={estadoDialog.open} onClose={() => setEstadoDialog({ open: false, item: null })} fullWidth maxWidth="xs">
-        <DialogTitle>Actualizar producto</DialogTitle>
+        <DialogTitle>
+          {estadoDialog.item?.producto?.nombre ?? 'Actualizar producto'}
+        </DialogTitle>
         <DialogContent>
           <TextField select fullWidth label="Estado" value={selectedEstado} onChange={e => setSelectedEstado(e.target.value as EstadoProducto)} sx={{ mb: 2, mt: 1 }}>
             {ESTADOS_PRODUCTO.map(e => (<MenuItem key={e} value={e}>{LABEL_ESTADOS[e]}</MenuItem>))}
           </TextField>
+          <TextField fullWidth type="number" label="¿Cuánto llevas?" value={cantidadEdit} onChange={e => setCantidadEdit(e.target.value)} slotProps={{ htmlInput: { min: 0 } }} sx={{ mb: 2 }} />
           <TextField fullWidth type="text" label="Precio" value={precioEdit} onChange={e => { const val = e.target.value.replace(/[^0-9]/g, ''); setPrecioEdit(val) }} slotProps={{ htmlInput: { inputMode: 'numeric' } }} />
+          {(precioEdit || Number(cantidadEdit) > 0) && (
+            <Box sx={{ mt: 2, px: 1, py: 0.5, borderRadius: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
+                <Typography variant="body2" color="text.secondary">Precio unitario</Typography>
+                <Typography variant="h6" sx={{ fontWeight: 700, color: '#69f0ae', minWidth: 120, textAlign: 'right' }}>{formatCurrency(Number(precioEdit) || 0)}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography variant="body2" color="text.secondary">{cantidadEdit} × {formatCurrency(Number(precioEdit) || 0)}</Typography>
+                <Typography variant="h6" sx={{ fontWeight: 800, color: '#69f0ae', minWidth: 120, textAlign: 'right' }}>{formatCurrency((Number(precioEdit) || 0) * (Number(cantidadEdit) || 0))}</Typography>
+              </Box>
+            </Box>
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setEstadoDialog({ open: false, item: null })}>Cancelar</Button>
