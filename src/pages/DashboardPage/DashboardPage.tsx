@@ -88,7 +88,7 @@ export default function DashboardPage() {
               mb: 3,
               background: 'linear-gradient(135deg, #0d1b2a 0%, #1b2838 50%, #1a1a3e 100%)',
               border: '1px solid rgba(144, 202, 249, 0.12)',
-              borderRadius: 2,
+              borderRadius: 1,
               position: 'relative',
               overflow: 'hidden',
               '&::before': {
@@ -135,11 +135,11 @@ export default function DashboardPage() {
                 <LinearProgress variant="determinate" value={pct} sx={{ height: 6, borderRadius: 3, bgcolor: 'rgba(255,255,255,0.06)' }} />
               </Box>
               <Box sx={{ display: 'flex', gap: 2, mt: 1.5 }}>
-                <Box sx={{ flex: 1, bgcolor: 'rgba(105,240,174,0.06)', borderRadius: 2, p: 1, textAlign: 'center' }}>
+                <Box sx={{ flex: 1, bgcolor: 'rgba(105,240,174,0.06)', borderRadius: 1, p: 1, textAlign: 'center' }}>
                   <Typography variant="caption" sx={{ color: '#69f0ae', fontWeight: 700, fontSize: '0.8rem' }}>{formatCurrency(totalEncontrados)}</Typography>
                   <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.3)', display: 'block', fontSize: '0.55rem' }}>Gastado</Typography>
                 </Box>
-                <Box sx={{ flex: 1, bgcolor: restante > 0 ? 'rgba(255,183,77,0.06)' : 'rgba(105,240,174,0.06)', borderRadius: 2, p: 1, textAlign: 'center' }}>
+                <Box sx={{ flex: 1, bgcolor: restante > 0 ? 'rgba(255,183,77,0.06)' : 'rgba(105,240,174,0.06)', borderRadius: 1, p: 1, textAlign: 'center' }}>
                   <Typography variant="caption" sx={{ color: restante > 0 ? '#ffb74d' : '#69f0ae', fontWeight: 700, fontSize: '0.8rem' }}>{formatCurrency(restante)}</Typography>
                   <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.3)', display: 'block', fontSize: '0.55rem' }}>Restante</Typography>
                 </Box>
@@ -166,7 +166,7 @@ export default function DashboardPage() {
                   gap: 2,
                   py: 1.5,
                   px: 2,
-                  borderRadius: 2,
+                  borderRadius: 1,
                   border: '1px dashed rgba(255,255,255,0.08)',
                   bgcolor: 'rgba(255,255,255,0.02)',
                   backdropFilter: 'blur(4px)',
@@ -196,7 +196,7 @@ export default function DashboardPage() {
                       gap: 2,
                       py: 1.5,
                       px: 2,
-                      borderRadius: 2,
+                      borderRadius: 1,
                       border: '1px solid rgba(255,255,255,0.04)',
                       bgcolor: 'rgba(255,255,255,0.015)',
                       '&:active': { transform: 'scale(0.98)' },
@@ -211,8 +211,8 @@ export default function DashboardPage() {
                         {total > 0 ? ` · ${formatCurrency(total)}` : ''}
                       </Typography>
                       {prods.length > 0 && (
-                        <Box sx={{ width: '100%', height: 3, bgcolor: 'rgba(255,255,255,0.04)', borderRadius: 2, mt: 0.5, overflow: 'hidden' }}>
-                          <Box sx={{ width: `${(enc / prods.length) * 100}%`, height: '100%', bgcolor: '#69f0ae', borderRadius: 2, transition: 'width 0.3s ease' }} />
+                        <Box sx={{ width: '100%', height: 3, bgcolor: 'rgba(255,255,255,0.04)', borderRadius: 1, mt: 0.5, overflow: 'hidden' }}>
+                          <Box sx={{ width: `${(enc / prods.length) * 100}%`, height: '100%', bgcolor: '#69f0ae', borderRadius: 1, transition: 'width 0.3s ease' }} />
                         </Box>
                       )}
                     </Box>
