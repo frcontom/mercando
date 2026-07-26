@@ -5,7 +5,8 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
-import type { Mercado, CreateMercadoDto, UpdateMercadoDto } from '@/models'
+import MenuItem from '@mui/material/MenuItem'
+import type { Mercado, MercadoEstado, CreateMercadoDto, UpdateMercadoDto } from '@/models'
 
 interface MercadoFormDialogProps {
   open: boolean
@@ -17,14 +18,16 @@ interface MercadoFormDialogProps {
 export function MercadoFormDialog({ open, mercado, onSave, onClose }: MercadoFormDialogProps) {
   const [nombre, setNombre] = useState('')
   const [fecha, setFecha] = useState('')
-  const [presupuesto, setPresupuesto] = useState('')
+  const [presupuesto] = useState('0')
+  const [estado, setEstado] = useState<MercadoEstado>('activo')
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     if (open) {
       setNombre(mercado?.nombre ?? '')
       setFecha(mercado?.fecha ?? new Date().toISOString().split('T')[0])
-      setPresupuesto(mercado?.presupuesto.toString() ?? '')
+
+      setEstado(mercado?.estado ?? 'activo')
     }
   }, [open, mercado])
 
@@ -36,6 +39,7 @@ export function MercadoFormDialog({ open, mercado, onSave, onClose }: MercadoFor
         nombre: nombre.trim(),
         fecha,
         presupuesto: Number(presupuesto),
+        estado,
       })
       onClose()
     } finally {
@@ -65,13 +69,17 @@ export function MercadoFormDialog({ open, mercado, onSave, onClose }: MercadoFor
           slotProps={{ inputLabel: { shrink: true } }}
         />
         <TextField
+          select
           fullWidth
-          type="number"
-          label="Presupuesto"
-          value={presupuesto}
-          onChange={e => setPresupuesto(e.target.value)}
-          slotProps={{ htmlInput: { min: 0 } }}
-        />
+          label="Estado"
+          value={estado}
+          onChange={e => setEstado(e.target.value as MercadoEstado)}
+          sx={{ mb: 2 }}
+        >
+          <MenuItem value="activo">Activo</MenuItem>
+          <MenuItem value="inactivo">Inactivo</MenuItem>
+        </TextField>
+
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancelar</Button>
