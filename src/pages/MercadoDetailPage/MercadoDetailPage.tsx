@@ -238,7 +238,12 @@ export default function MercadoDetailPage() {
                       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
                           <Typography>{mtc.categoria?.icono}</Typography>
-                          <Typography sx={{ flex: 1 }}>{mtc.categoria?.nombre}</Typography>
+                          <Typography sx={{ flex: 1 }}>
+                            {mtc.categoria?.nombre}
+                            <Typography component="span" variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+                              ({getProductos(mtc.id).length})
+                            </Typography>
+                          </Typography>
                           <IconButton size="small" onClick={e => { e.stopPropagation(); setDeleteTarget({ type: 'categoria', id: mtc.id }) }}>
                             <DeleteIcon fontSize="small" />
                           </IconButton>
