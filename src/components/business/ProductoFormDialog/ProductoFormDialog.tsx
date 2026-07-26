@@ -72,7 +72,7 @@ export function ProductoFormDialog({ open, producto, categorias, onSave, onClose
           value={unidad}
           onChange={e => setUnidad(e.target.value)}
         >
-          {['kg', 'g', 'lb', 'pieza', 'litro', 'ml', 'bolsa', 'paquete', 'caja', 'botella', 'lata', 'docena', 'atado', 'manojo', 'otros'].map(u => (
+          {['kg', 'g', 'lb', 'pieza', 'litro', 'ml', 'bolsa', 'paquete', 'caja', 'botella', 'lata', 'docena', 'atado', 'manojo'].map(u => (
             <MenuItem key={u} value={u}>{u}</MenuItem>
           ))}
         </TextField>
