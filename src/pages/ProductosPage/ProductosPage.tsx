@@ -7,7 +7,8 @@ import StarIcon from '@mui/icons-material/Star'
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
-import { productos, loadingProductos, loadProductos, categorias, loadCategorias, showSnackbar, showFab, hideFab } from '@/store'
+import { productos as productosSignal, loadingProductos, loadProductos, categorias, loadCategorias, showSnackbar, showFab, hideFab } from '@/store'
+import { useSignalValue } from '@/hooks/useSignalValue'
 import { productosService } from '@/services'
 import type { Producto, CreateProductoDto, UpdateProductoDto } from '@/models'
 import { ProductoItem } from '@/components/business/ProductoItem'
@@ -18,6 +19,8 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 
 export default function ProductosPage() {
+  const items = useSignalValue(productosSignal)
+  const isLoading = useSignalValue(loadingProductos)
   const [tab, setTab] = useState(0)
   const [showFavs, setShowFavs] = useState(false)
   const [formOpen, setFormOpen] = useState(false)
@@ -35,7 +38,7 @@ export default function ProductosPage() {
   const categoriaId = categorias.value[tab]?.id ?? ''
   const categoriaNombre = categorias.value[tab]?.nombre ?? ''
 
-  const filtered = productos.value.filter(p => {
+  const filtered = items.filter(p => {
     const matchCat = categoriaId ? p.categoria_id === categoriaId : true
     const matchFav = showFavs ? p.favorito : true
     return matchCat && matchFav
@@ -100,7 +103,7 @@ export default function ProductosPage() {
     setFormOpen(true)
   }
 
-  if (loadingProductos.value) return <LoadingSpinner />
+  if (isLoading) return <LoadingSpinner />
 
   return (
     <Box sx={{ pb: 10 }}>

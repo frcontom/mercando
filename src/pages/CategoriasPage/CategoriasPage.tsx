@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
-import { categorias, loadingCategorias, loadCategorias, showSnackbar, showFab, hideFab } from '@/store'
+import { categorias as categoriasSignal, loadingCategorias, loadCategorias, showSnackbar, showFab, hideFab } from '@/store'
+import { useSignalValue } from '@/hooks/useSignalValue'
 import { categoriasService } from '@/services'
 import type { Categoria, CreateCategoriaDto, UpdateCategoriaDto } from '@/models'
 import { CategoriaItem } from '@/components/business/CategoriaItem'
@@ -10,6 +11,8 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 
 export default function CategoriasPage() {
+  const items = useSignalValue(categoriasSignal)
+  const isLoading = useSignalValue(loadingCategorias)
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Categoria | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Categoria | null>(null)
@@ -58,15 +61,15 @@ export default function CategoriasPage() {
     setFormOpen(true)
   }
 
-  if (loadingCategorias.value) return <LoadingSpinner />
+  if (isLoading) return <LoadingSpinner />
 
   return (
     <Box sx={{ p: 2, pb: 10 }}>
-      {categorias.value.length === 0 ? (
+      {items.length === 0 ? (
         <EmptyState message="No hay categorías aún" />
       ) : (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-          {categorias.value.map(c => (
+          {items.map(c => (
             <CategoriaItem
               key={c.id}
               categoria={c}

@@ -10,7 +10,8 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import AddIcon from '@mui/icons-material/Add'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
-import { mercados, loadingMercados, loadMercados, showSnackbar, showFab, hideFab } from '@/store'
+import { mercados as mercadosSignal, loadingMercados, loadMercados, showSnackbar, showFab, hideFab } from '@/store'
+import { useSignalValue } from '@/hooks/useSignalValue'
 import { mercadosService } from '@/services'
 import type { Mercado, MercadoEstado, CreateMercadoDto, UpdateMercadoDto } from '@/models'
 import { MercadoFormDialog } from '@/components/business/MercadoFormDialog'
@@ -31,6 +32,8 @@ const nextEstado: Record<MercadoEstado, MercadoEstado> = {
 
 export default function MercadosPage() {
   const navigate = useNavigate()
+  const items = useSignalValue(mercadosSignal)
+  const isLoading = useSignalValue(loadingMercados)
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Mercado | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Mercado | null>(null)
@@ -80,7 +83,7 @@ export default function MercadosPage() {
     }
   }
 
-  if (loadingMercados.value) return <LoadingSpinner />
+  if (isLoading) return <LoadingSpinner />
 
   return (
     <Box sx={{ p: 2, pb: 10 }}>
@@ -89,11 +92,11 @@ export default function MercadosPage() {
           Nuevo mercado
         </Button>
       </Box>
-      {mercados.value.length === 0 ? (
+      {items.length === 0 ? (
         <EmptyState message="No hay mercados aún" />
       ) : (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-          {mercados.value.map(m => (
+          {items.map(m => (
             <Card
               key={m.id}
               onClick={() => navigate(`/mercados/${m.id}`)}
