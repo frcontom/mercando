@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
-import { categorias as categoriasSignal, loadingCategorias, loadCategorias, showSnackbar, showFab, hideFab } from '@/store'
+import AddIcon from '@mui/icons-material/Add'
+import Button from '@mui/material/Button'
+import { categorias as categoriasSignal, loadingCategorias, loadCategorias, showSnackbar } from '@/store'
 import { useSignalValue } from '@/hooks/useSignalValue'
 import { categoriasService } from '@/services'
 import type { Categoria, CreateCategoriaDto, UpdateCategoriaDto } from '@/models'
@@ -17,11 +19,7 @@ export default function CategoriasPage() {
   const [editing, setEditing] = useState<Categoria | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Categoria | null>(null)
 
-  useEffect(() => {
-    loadCategorias()
-    showFab(openCreate)
-    return () => hideFab()
-  }, [])
+  useEffect(() => { loadCategorias() }, [])
 
   async function handleSave(data: CreateCategoriaDto | UpdateCategoriaDto) {
     try {
@@ -65,6 +63,9 @@ export default function CategoriasPage() {
 
   return (
     <Box sx={{ p: 2, pb: 10 }}>
+      <Button fullWidth variant="contained" startIcon={<AddIcon />} onClick={openCreate} sx={{ mb: 2 }}>
+        Crear categoría
+      </Button>
       {items.length === 0 ? (
         <EmptyState message="No hay categorías aún" />
       ) : (
