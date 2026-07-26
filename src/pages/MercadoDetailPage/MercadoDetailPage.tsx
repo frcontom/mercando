@@ -24,10 +24,7 @@ import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import ListItemButton from '@mui/material/ListItemButton'
 import MenuItem from '@mui/material/MenuItem'
-import Accordion from '@mui/material/Accordion'
-import AccordionSummary from '@mui/material/AccordionSummary'
-import AccordionDetails from '@mui/material/AccordionDetails'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+
 import { mercados, loadMercados } from '@/store'
 import { mercadoTiendas, loadMercadoTiendas } from '@/store'
 import { mercadoTiendaCategorias, loadCategoriasByTienda, getCategoriasByTienda } from '@/store'
@@ -52,8 +49,6 @@ export default function MercadoDetailPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [shoppingMode, setShoppingMode] = useState(true)
   const [currentTiendaId, setCurrentTiendaId] = useState<string | null>(searchParams.get('tienda') ?? null)
-  const [tiendaExpanded, setTiendaExpanded] = useState<string | false>(false)
-  const [catExpanded, setCatExpanded] = useState<string | false>(false)
   const [deleteTarget, setDeleteTarget] = useState<{ type: string; id: string } | null>(null)
 
   const [addTiendaOpen, setAddTiendaOpen] = useState(false)
@@ -487,62 +482,50 @@ export default function MercadoDetailPage() {
             <EmptyState message="No hay tiendas aún" />
           ) : (
             mercadoTiendas.value.map(mt => (
-              <Accordion key={mt.id} expanded={tiendaExpanded === mt.id} onChange={(_, exp) => setTiendaExpanded(exp ? mt.id : false)} sx={{ mb: 1 }}>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
-                    <StoreIcon tienda={mt.tienda} size={24} />
-                    <Typography sx={{ flex: 1, fontWeight: 500 }}>{mt.tienda?.nombre}</Typography>
-                    <IconButton component="span" size="small" onClick={e => { e.stopPropagation(); setDeleteTarget({ type: 'tienda', id: mt.id }) }}><DeleteIcon fontSize="small" /></IconButton>
-                  </Box>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Typography variant="caption" color="text.secondary" gutterBottom sx={{ display: 'block' }}>Categorías</Typography>
-                  {getCategorias(mt.id).length === 0 ? (
-                    <Typography variant="body2" color="text.disabled" sx={{ py: 1 }}>Sin categorías aún</Typography>
-                  ) : (
-                    getCategorias(mt.id).map(mtc => (
-                      <Accordion key={mtc.id} expanded={catExpanded === mtc.id} onChange={(_, exp) => setCatExpanded(exp ? mtc.id : false)} sx={{ mb: 0.5 }}>
-<AccordionSummary expandIcon={<ExpandMoreIcon />} component="div">
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
-                            <Typography>{mtc.categoria?.icono}</Typography>
-                            <Typography sx={{ flex: 1 }}>{mtc.categoria?.nombre}<Typography component="span" variant="caption" color="text.secondary" sx={{ ml: 1 }}>({getProductos(mtc.id).length})</Typography></Typography>
-                            <IconButton component="span" size="small" onClick={e => { e.stopPropagation(); setDeleteTarget({ type: 'categoria', id: mtc.id }) }}><DeleteIcon fontSize="small" /></IconButton>
-                          </Box>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                          {getProductos(mtc.id).length === 0 ? (
-                            <Typography variant="body2" color="text.disabled" sx={{ py: 1 }}>Sin productos</Typography>
-                          ) : (
-                            getProductos(mtc.id).map(mp => (
-                              <Card key={mp.id} onClick={() => { setCantidadEdit(mp.cantidad.toString()); setQuantityDialog({ open: true, item: mp }) }} sx={{ cursor: 'pointer', mb: 1, '&:active': { transform: 'scale(0.98)' }, transition: 'transform 0.15s ease' }}>
-                                <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
-                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <Box sx={{ flex: 1 }}>
-                                      <Typography variant="body2" sx={{ fontWeight: 500 }}>{mp.producto?.nombre}</Typography>
-                                      <Typography variant="caption" color="text.secondary">{mp.cantidad} {mp.producto?.unidad}</Typography>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                      {mp.precio > 0 && (
-                                        <Typography variant="h5" sx={{ fontWeight: 800, color: '#69f0ae', lineHeight: 1, letterSpacing: '-0.5px' }}>{formatCurrency(mp.precio)}</Typography>
-                                      )}
-                                      <Chip label={LABEL_ESTADOS[mp.estado]} size="small" color={mp.estado === 'encontrado' ? 'success' : mp.estado === 'no_habia' ? 'warning' : 'default'} onClick={() => { setSelectedEstado(mp.estado); setPrecioEdit(mp.precio.toString()); setCantidadEdit(mp.cantidad_encontrada ? mp.cantidad_encontrada.toString() : mp.cantidad.toString()); setEstadoDialog({ open: true, item: mp }) }} />
-                                      <IconButton size="small" onClick={() => setDeleteTarget({ type: 'producto', id: mp.id })}><DeleteIcon fontSize="small" /></IconButton>
-                                    </Box>
-                                  </Box>
-                                </CardContent>
-                              </Card>
-                            ))
-                          )}
-                          {productos.value.filter(p => p.categoria_id === mtc.categoria_id).length > getProductos(mtc.id).length && (
-                            <Button size="small" startIcon={<AddIcon />} onClick={() => { setAddProductoFor(mtc.id); setProductoForm({ producto_id: '', cantidad: '1' }) }}>Agregar producto</Button>
-                          )}
-                        </AccordionDetails>
-                      </Accordion>
-                    ))
-                  )}
-                  <Button size="small" startIcon={<AddIcon />} onClick={() => setAddCategoriaFor(mt.id)} sx={{ mt: 1 }}>Agregar categoría</Button>
-                </AccordionDetails>
-              </Accordion>
+              <Card key={mt.id} sx={{ mb: 2, p: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                  <StoreIcon tienda={mt.tienda} size={28} />
+                  <Typography sx={{ flex: 1, fontWeight: 600 }}>{mt.tienda?.nombre}</Typography>
+                  <Button size="small" variant="outlined" startIcon={<AddIcon />} onClick={() => setAddCategoriaFor(mt.id)} sx={{ mr: 0.5 }}>Cat.</Button>
+                  <IconButton size="small" onClick={() => setDeleteTarget({ type: 'tienda', id: mt.id })}><DeleteIcon fontSize="small" /></IconButton>
+                </Box>
+                {getCategorias(mt.id).length === 0 ? (
+                  <Typography variant="body2" color="text.disabled" sx={{ py: 1 }}>Sin categorías aún</Typography>
+                ) : (
+                  getCategorias(mt.id).map(mtc => (
+                    <Box key={mtc.id} sx={{ mb: 1, p: 1.5, bgcolor: 'rgba(255,255,255,0.02)', borderRadius: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                        <Typography>{mtc.categoria?.icono}</Typography>
+                        <Typography sx={{ flex: 1, fontWeight: 600 }}>{mtc.categoria?.nombre}</Typography>
+                        <Typography variant="caption" color="text.secondary">({getProductos(mtc.id).length})</Typography>
+                        {productos.value.filter(p => p.categoria_id === mtc.categoria_id).length > getProductos(mtc.id).length && (
+                          <Button size="small" variant="outlined" startIcon={<AddIcon />} onClick={() => { setAddProductoFor(mtc.id); setProductoForm({ producto_id: '', cantidad: '1' }) }}>+</Button>
+                        )}
+                        <IconButton size="small" onClick={() => setDeleteTarget({ type: 'categoria', id: mtc.id })}><DeleteIcon fontSize="small" /></IconButton>
+                      </Box>
+                      {getProductos(mtc.id).length > 0 && (
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                          {getProductos(mtc.id).map(mp => (
+                            <Box key={mp.id} onClick={() => { setCantidadEdit(mp.cantidad.toString()); setQuantityDialog({ open: true, item: mp }) }} sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 0.5, px: 0.5, cursor: 'pointer', borderRadius: 1, '&:hover': { bgcolor: 'action.hover' } }}>
+                              <Box sx={{ flex: 1 }}>
+                                <Typography variant="body2" sx={{ fontWeight: 500 }}>{mp.producto?.nombre}</Typography>
+                                <Typography variant="caption" color="text.secondary">{mp.cantidad} {mp.producto?.unidad}</Typography>
+                              </Box>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                {mp.precio > 0 && (
+                                  <Typography variant="body2" sx={{ fontWeight: 700, color: '#69f0ae' }}>{formatCurrency(mp.precio)}</Typography>
+                                )}
+                                <Chip label={LABEL_ESTADOS[mp.estado]} size="small" color={mp.estado === 'encontrado' ? 'success' : mp.estado === 'no_habia' ? 'warning' : 'default'} onClick={(e) => { e.stopPropagation(); setSelectedEstado(mp.estado); setPrecioEdit(mp.precio.toString()); setCantidadEdit(mp.cantidad_encontrada ? mp.cantidad_encontrada.toString() : mp.cantidad.toString()); setEstadoDialog({ open: true, item: mp }) }} />
+                                <IconButton size="small" onClick={(e) => { e.stopPropagation(); setDeleteTarget({ type: 'producto', id: mp.id }) }}><DeleteIcon fontSize="small" /></IconButton>
+                              </Box>
+                            </Box>
+                          ))}
+                        </Box>
+                      )}
+                    </Box>
+                  ))
+                )}
+              </Card>
             ))
           )}
         </Box>
