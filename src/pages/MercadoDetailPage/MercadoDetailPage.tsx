@@ -382,7 +382,7 @@ export default function MercadoDetailPage() {
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
                     <Typography sx={{ fontSize: 20 }}>{mt.tienda?.icono}</Typography>
                     <Typography sx={{ flex: 1, fontWeight: 500 }}>{mt.tienda?.nombre}</Typography>
-                    <IconButton size="small" onClick={e => { e.stopPropagation(); setDeleteTarget({ type: 'tienda', id: mt.id }) }}><DeleteIcon fontSize="small" /></IconButton>
+                    <IconButton component="span" size="small" onClick={e => { e.stopPropagation(); setDeleteTarget({ type: 'tienda', id: mt.id }) }}><DeleteIcon fontSize="small" /></IconButton>
                   </Box>
                 </AccordionSummary>
                 <AccordionDetails>
@@ -392,11 +392,11 @@ export default function MercadoDetailPage() {
                   ) : (
                     getCategorias(mt.id).map(mtc => (
                       <Accordion key={mtc.id} expanded={catExpanded === mtc.id} onChange={(_, exp) => setCatExpanded(exp ? mtc.id : false)} sx={{ mb: 0.5 }}>
-                        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+<AccordionSummary expandIcon={<ExpandMoreIcon />} component="div">
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
                             <Typography>{mtc.categoria?.icono}</Typography>
                             <Typography sx={{ flex: 1 }}>{mtc.categoria?.nombre}<Typography component="span" variant="caption" color="text.secondary" sx={{ ml: 1 }}>({getProductos(mtc.id).length})</Typography></Typography>
-                            <IconButton size="small" onClick={e => { e.stopPropagation(); setDeleteTarget({ type: 'categoria', id: mtc.id }) }}><DeleteIcon fontSize="small" /></IconButton>
+                            <IconButton component="span" size="small" onClick={e => { e.stopPropagation(); setDeleteTarget({ type: 'categoria', id: mtc.id }) }}><DeleteIcon fontSize="small" /></IconButton>
                           </Box>
                         </AccordionSummary>
                         <AccordionDetails>
