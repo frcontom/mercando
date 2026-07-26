@@ -7,8 +7,6 @@ import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
-import AddIcon from '@mui/icons-material/Add'
-import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import { mercados as mercadosSignal, loadingMercados, loadMercados, showSnackbar, showFab, hideFab } from '@/store'
 import { useSignalValue } from '@/hooks/useSignalValue'
@@ -87,11 +85,6 @@ export default function MercadosPage() {
 
   return (
     <Box sx={{ p: 2, pb: 10 }}>
-      <Box sx={{ mb: 2 }}>
-        <Button fullWidth variant="contained" startIcon={<AddIcon />} onClick={() => { setEditing(null); setFormOpen(true) }}>
-          Nuevo mercado
-        </Button>
-      </Box>
       {items.length === 0 ? (
         <EmptyState message="No hay mercados aún" />
       ) : (
