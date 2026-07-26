@@ -8,6 +8,8 @@ ALTER TABLE mercados ENABLE ROW LEVEL SECURITY;
 ALTER TABLE tiendas ENABLE ROW LEVEL SECURITY;
 ALTER TABLE categorias ENABLE ROW LEVEL SECURITY;
 ALTER TABLE productos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE mercado_tiendas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE mercado_tienda_categorias ENABLE ROW LEVEL SECURITY;
 ALTER TABLE mercado_productos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE historial_precios ENABLE ROW LEVEL SECURITY;
 
@@ -42,6 +44,22 @@ CREATE POLICY "anon_productos_select" ON productos FOR SELECT TO anon USING (tru
 CREATE POLICY "anon_productos_insert" ON productos FOR INSERT TO anon WITH CHECK (true);
 CREATE POLICY "anon_productos_update" ON productos FOR UPDATE TO anon USING (true) WITH CHECK (true);
 CREATE POLICY "anon_productos_delete" ON productos FOR DELETE TO anon USING (true);
+
+-- -----------------------------------------------------------
+-- MERCADO_TIENDAS
+-- -----------------------------------------------------------
+CREATE POLICY "anon_mt_select" ON mercado_tiendas FOR SELECT TO anon USING (true);
+CREATE POLICY "anon_mt_insert" ON mercado_tiendas FOR INSERT TO anon WITH CHECK (true);
+CREATE POLICY "anon_mt_update" ON mercado_tiendas FOR UPDATE TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "anon_mt_delete" ON mercado_tiendas FOR DELETE TO anon USING (true);
+
+-- -----------------------------------------------------------
+-- MERCADO_TIENDA_CATEGORIAS
+-- -----------------------------------------------------------
+CREATE POLICY "anon_mtc_select" ON mercado_tienda_categorias FOR SELECT TO anon USING (true);
+CREATE POLICY "anon_mtc_insert" ON mercado_tienda_categorias FOR INSERT TO anon WITH CHECK (true);
+CREATE POLICY "anon_mtc_update" ON mercado_tienda_categorias FOR UPDATE TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "anon_mtc_delete" ON mercado_tienda_categorias FOR DELETE TO anon USING (true);
 
 -- -----------------------------------------------------------
 -- MERCADO_PRODUCTOS

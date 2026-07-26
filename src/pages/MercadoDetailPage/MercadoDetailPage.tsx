@@ -3,131 +3,178 @@ import { useParams } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
+import Accordion from '@mui/material/Accordion'
+import AccordionSummary from '@mui/material/AccordionSummary'
+import AccordionDetails from '@mui/material/AccordionDetails'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import IconButton from '@mui/material/IconButton'
-import FileDownloadIcon from '@mui/icons-material/FileDownload'
+import DeleteIcon from '@mui/icons-material/Delete'
+import AddIcon from '@mui/icons-material/Add'
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 import Button from '@mui/material/Button'
-import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemText from '@mui/material/ListItemText'
+import ListItemButton from '@mui/material/ListItemButton'
 import LinearProgress from '@mui/material/LinearProgress'
-import { mercados, loadMercados, mercadoProductos, loadingMercadoProductos, loadMercadoProductos, tiendas, loadTiendas, productos, loadProductos } from '@/store'
-import { mercadoProductosService, historialPreciosService } from '@/services'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import MenuItem from '@mui/material/MenuItem'
+import { mercados, loadMercados } from '@/store'
+import { mercadoTiendas, loadMercadoTiendas } from '@/store'
+import { mercadoTiendaCategorias, loadCategoriasByTienda } from '@/store'
+import { mercadoProductos, loadProductosByCategoria } from '@/store'
+import { tiendas, loadTiendas, categorias, loadCategorias, productos, loadProductos } from '@/store'
+import { mercadoTiendasService, mercadoTiendaCategoriasService, mercadoProductosService } from '@/services'
 import { showSnackbar, showFab, hideFab } from '@/store'
 import { formatCurrency } from '@/core/utils/formatters'
 import { ESTADOS_PRODUCTO, LABEL_ESTADOS } from '@/core/constants/estados'
 import type { EstadoProducto, MercadoProducto } from '@/models'
-import { MercadoProductoItem } from '@/components/business/MercadoProductoItem'
-import { AsignarProductosDialog } from '@/components/business/AsignarProductosDialog'
-import { HistorialPreciosDialog } from '@/components/business/HistorialPreciosDialog'
-
-import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
-import { EmptyState } from '@/components/ui/EmptyState'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 
 export default function MercadoDetailPage() {
   const { id } = useParams()
-  const [asignarOpen, setAsignarOpen] = useState(false)
-  const [deleteTarget, setDeleteTarget] = useState<MercadoProducto | null>(null)
+  const [tiendaExpanded, setTiendaExpanded] = useState<string | false>(false)
+  const [catExpanded, setCatExpanded] = useState<string | false>(false)
+  const [deleteTarget, setDeleteTarget] = useState<{ type: string; id: string } | null>(null)
+
+  // Dialogs
+  const [addTiendaOpen, setAddTiendaOpen] = useState(false)
+  const [addCategoriaFor, setAddCategoriaFor] = useState<string | null>(null)
+  const [addProductoFor, setAddProductoFor] = useState<string | null>(null)
+  const [productoForm, setProductoForm] = useState({ producto_id: '', cantidad: '1', precio: '' })
   const [estadoDialog, setEstadoDialog] = useState<{ open: boolean; item: MercadoProducto | null }>({ open: false, item: null })
   const [selectedEstado, setSelectedEstado] = useState<EstadoProducto>('pendiente')
   const [precioEdit, setPrecioEdit] = useState('')
-  const [historyDialog, setHistoryDialog] = useState<{ open: boolean; productoId: string; productoNombre: string }>({ open: false, productoId: '', productoNombre: '' })
 
   const mercado = mercados.value.find(m => m.id === id)
 
   useEffect(() => {
     if (id) {
       loadMercados()
-      loadMercadoProductos(id)
+      loadMercadoTiendas(id)
       loadTiendas()
+      loadCategorias()
       loadProductos()
     }
   }, [id])
 
   useEffect(() => {
-    if (mercado?.estado !== 'completado') {
-      showFab(() => setAsignarOpen(true))
-    }
+    if (mercado?.estado !== 'completado') showFab(() => setAddTiendaOpen(true))
     return () => hideFab()
   }, [mercado?.estado])
 
-  async function handleAsignar(selected: { producto_id: string; tienda_id: string; cantidad: number }[]) {
+  // Tienda expandida → cargar sus categorías
+  useEffect(() => {
+    if (tiendaExpanded) loadCategoriasByTienda(tiendaExpanded)
+  }, [tiendaExpanded])
+
+  // Categoría expandida → cargar sus productos
+  useEffect(() => {
+    if (catExpanded) loadProductosByCategoria(catExpanded)
+  }, [catExpanded])
+
+  function getProductos(catId: string) {
+    return mercadoProductos.value.filter(p => p.mercado_tienda_categoria_id === catId)
+  }
+
+  // CRUD Tiendas en mercado
+  async function handleAddTienda(tiendaId: string) {
     if (!id) return
-    for (const item of selected) {
-      await mercadoProductosService.add({ mercado_id: id, ...item })
-    }
-    showSnackbar(`${selected.length} producto(s) agregado(s)`)
-    await loadMercadoProductos(id)
+    try {
+      await mercadoTiendasService.add(id, tiendaId)
+      showSnackbar('Tienda agregada al mercado')
+      await loadMercadoTiendas(id)
+      setAddTiendaOpen(false)
+    } catch { showSnackbar('Error al agregar tienda') }
   }
 
-  async function handleDeleteItem() {
-    if (!deleteTarget) return
-    await mercadoProductosService.remove(deleteTarget.id)
-    showSnackbar('Producto eliminado del mercado')
-    setDeleteTarget(null)
-    if (id) await loadMercadoProductos(id)
+  async function handleRemoveTienda() {
+    if (!deleteTarget || deleteTarget.type !== 'tienda') return
+    try {
+      await mercadoTiendasService.remove(deleteTarget.id)
+      showSnackbar('Tienda eliminada del mercado')
+      await loadMercadoTiendas(id!)
+    } catch { showSnackbar('Error al eliminar') }
+    finally { setDeleteTarget(null) }
   }
 
-  function openEstadoDialog(item: MercadoProducto) {
-    setSelectedEstado(item.estado)
-    setPrecioEdit(item.precio > 0 ? item.precio.toString() : '')
-    setEstadoDialog({ open: true, item })
+  // CRUD Categorías en tienda
+  async function handleAddCategoria(categoriaId: string) {
+    if (!addCategoriaFor) return
+    try {
+      await mercadoTiendaCategoriasService.add(addCategoriaFor, categoriaId)
+      showSnackbar('Categoría agregada')
+      await loadCategoriasByTienda(addCategoriaFor)
+      setAddCategoriaFor(null)
+    } catch { showSnackbar('Error al agregar categoría') }
   }
 
-  function openHistoryDialog(item: MercadoProducto) {
-    setHistoryDialog({
-      open: true,
-      productoId: item.producto_id,
-      productoNombre: item.producto?.nombre ?? '',
-    })
+  async function handleRemoveCategoria() {
+    if (!deleteTarget || deleteTarget.type !== 'categoria') return
+    try {
+      await mercadoTiendaCategoriasService.remove(deleteTarget.id)
+      showSnackbar('Categoría eliminada')
+      if (tiendaExpanded) await loadCategoriasByTienda(tiendaExpanded)
+    } catch { showSnackbar('Error al eliminar') }
+    finally { setDeleteTarget(null) }
   }
 
-  function handleExport() {
-    if (!mercado) return
-    const lines = [
-      `📦 ${mercado.nombre}`,
-      `Fecha: ${new Date(mercado.fecha).toLocaleDateString()}`,
-      `Presupuesto: ${formatCurrency(mercado.presupuesto)}`,
-      '',
-    ]
-    for (const mp of mercadoProductos.value) {
-      lines.push(`  ${mp.producto?.nombre ?? '?'} - ${mp.cantidad} ${mp.producto?.unidad ?? ''} @ ${mp.tienda?.nombre ?? '?'} [${mp.estado}]${mp.precio > 0 ? ` $${mp.precio}` : ''}`)
-    }
-    navigator.clipboard.writeText(lines.join('\n'))
-    showSnackbar('Lista copiada al portapapeles')
+  // CRUD Productos en categoría
+  async function handleAddProducto() {
+    if (!addProductoFor || !productoForm.producto_id) return
+    try {
+      await mercadoProductosService.add({
+        mercado_tienda_categoria_id: addProductoFor,
+        producto_id: productoForm.producto_id,
+        cantidad: Number(productoForm.cantidad),
+      })
+      showSnackbar('Producto agregado')
+      await loadProductosByCategoria(addProductoFor)
+      setAddProductoFor(null)
+      setProductoForm({ producto_id: '', cantidad: '1', precio: '' })
+    } catch { showSnackbar('Error al agregar producto') }
+  }
+
+  async function handleRemoveProducto() {
+    if (!deleteTarget || deleteTarget.type !== 'producto') return
+    try {
+      await mercadoProductosService.remove(deleteTarget.id)
+      showSnackbar('Producto eliminado')
+      if (catExpanded) await loadProductosByCategoria(catExpanded)
+    } catch { showSnackbar('Error al eliminar') }
+    finally { setDeleteTarget(null) }
   }
 
   async function handleSaveEstado() {
     const item = estadoDialog.item
     if (!item) return
     const precio = Number(precioEdit) || 0
-    await mercadoProductosService.update(item.id, {
-      estado: selectedEstado,
-      precio,
-    })
-    if (precio > 0 && item.producto_id && item.tienda_id) {
-      await historialPreciosService.registrar(item.producto_id, item.tienda_id, precio)
-    }
-    showSnackbar('Producto actualizado')
-    setEstadoDialog({ open: false, item: null })
-    if (id) await loadMercadoProductos(id)
+    try {
+      await mercadoProductosService.update(item.id, { estado: selectedEstado, precio })
+      showSnackbar('Producto actualizado')
+      setEstadoDialog({ open: false, item: null })
+      if (catExpanded) await loadProductosByCategoria(catExpanded)
+    } catch { showSnackbar('Error al actualizar') }
   }
 
   if (!mercado) return <LoadingSpinner />
-  if (loadingMercadoProductos.value) return <LoadingSpinner />
 
-  const total = mercadoProductos.value.reduce((sum, p) => sum + (p.subtotal || p.precio * p.cantidad), 0)
-  const grupos = new Map<string, MercadoProducto[]>()
-  for (const mp of mercadoProductos.value) {
-    const key = mp.tienda?.nombre ?? 'Sin tienda'
-    if (!grupos.has(key)) grupos.set(key, [])
-    grupos.get(key)!.push(mp)
-  }
-  const pendientes = mercadoProductos.value.filter(p => p.estado === 'pendiente').length
-  const encontrados = mercadoProductos.value.filter(p => p.estado === 'encontrado').length
+  const total = mercadoTiendas.value.reduce((sum, mt) => {
+    const cats = mercadoTiendaCategorias.value.filter(c => c.mercado_tienda_id === mt.id)
+    return sum + cats.reduce((s, c) => {
+      const prods = getProductos(c.id)
+      return s + prods.reduce((sp, p) => sp + (p.subtotal || p.precio * p.cantidad), 0)
+    }, 0)
+  }, 0)
+
+  const tiendasDisponibles = tiendas.value.filter(t => !mercadoTiendas.value.some(mt => mt.tienda_id === t.id))
 
   return (
     <Box sx={{ pb: 10 }}>
@@ -135,80 +182,210 @@ export default function MercadoDetailPage() {
         <Typography variant="h6">{mercado.nombre}</Typography>
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 0.5 }}>
           <Chip label={mercado.estado} size="small" color={mercado.estado === 'completado' ? 'success' : 'warning'} />
-          <Typography variant="caption" color="text.secondary">
-            {new Date(mercado.fecha).toLocaleDateString()}
-          </Typography>
-          <IconButton size="small" onClick={handleExport} sx={{ ml: 'auto' }}>
-            <FileDownloadIcon fontSize="small" />
-          </IconButton>
+          <Typography variant="caption" color="text.secondary">{new Date(mercado.fecha).toLocaleDateString()}</Typography>
         </Box>
         <Box sx={{ mt: 1 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Typography variant="caption" color="text.secondary">
-              {encontrados}/{mercadoProductos.value.length} encontrados · {pendientes} pendientes
-            </Typography>
-            <Typography variant="caption">{formatCurrency(total)} / {formatCurrency(mercado.presupuesto)}</Typography>
-          </Box>
-          <LinearProgress
-            variant="determinate"
-            value={Math.min(total / mercado.presupuesto, 1) * 100}
-            sx={{ mt: 0.5, height: 6, borderRadius: 3 }}
-          />
+          <LinearProgress variant="determinate" value={Math.min(total / mercado.presupuesto, 1) * 100} sx={{ height: 6, borderRadius: 3 }} />
+          <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+            Total: {formatCurrency(total)} / {formatCurrency(mercado.presupuesto)}
+          </Typography>
         </Box>
       </Box>
 
       <Box sx={{ p: 2 }}>
-        {mercadoProductos.value.length === 0 ? (
-          <EmptyState message="Agrega productos a este mercado" />
+        <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+          Tiendas en este mercado
+        </Typography>
+
+        {mercadoTiendas.value.length === 0 ? (
+          <EmptyState message="Agrega tiendas a este mercado" />
         ) : (
-          Array.from(grupos.entries()).map(([tienda, items]) => (
-            <Box key={tienda} sx={{ mb: 2 }}>
-              <Typography variant="subtitle2" color="primary" sx={{ mb: 1 }}>
-                {tienda}
-              </Typography>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                {items.map(mp => (
-                  <MercadoProductoItem
-                    key={mp.id}
-                    item={mp}
-                    onDelete={setDeleteTarget}
-                    onChangeEstado={openEstadoDialog}
-                    onHistory={openHistoryDialog}
-                  />
-                ))}
-              </Box>
-            </Box>
+          mercadoTiendas.value.map(mt => (
+            <Accordion
+              key={mt.id}
+              expanded={tiendaExpanded === mt.id}
+              onChange={(_, exp) => setTiendaExpanded(exp ? mt.id : false)}
+              sx={{ mb: 1 }}
+            >
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
+                  <Typography sx={{ fontSize: 20 }}>{mt.tienda?.icono}</Typography>
+                  <Typography sx={{ flex: 1, fontWeight: 500 }}>{mt.tienda?.nombre}</Typography>
+                  <IconButton size="small" onClick={e => { e.stopPropagation(); setDeleteTarget({ type: 'tienda', id: mt.id }) }}>
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Typography variant="caption" color="text.secondary" gutterBottom sx={{ display: 'block' }}>
+                  Categorías
+                </Typography>
+
+                {mercadoTiendaCategorias.value.filter(c => c.mercado_tienda_id === mt.id).length === 0 ? (
+                  <Typography variant="body2" color="text.disabled" sx={{ py: 1 }}>Sin categorías aún</Typography>
+                ) : (
+                  mercadoTiendaCategorias.value
+                    .filter(c => c.mercado_tienda_id === mt.id)
+                    .map(mtc => (
+                      <Accordion
+                        key={mtc.id}
+                        expanded={catExpanded === mtc.id}
+                        onChange={(_, exp) => setCatExpanded(exp ? mtc.id : false)}
+                        sx={{ mb: 0.5 }}
+                      >
+                        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
+                            <Typography>{mtc.categoria?.icono}</Typography>
+                            <Typography sx={{ flex: 1 }}>{mtc.categoria?.nombre}</Typography>
+                            <IconButton size="small" onClick={e => { e.stopPropagation(); setDeleteTarget({ type: 'categoria', id: mtc.id }) }}>
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Box>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                          {getProductos(mtc.id).length === 0 ? (
+                            <Typography variant="body2" color="text.disabled" sx={{ py: 1 }}>Sin productos</Typography>
+                          ) : (
+                            getProductos(mtc.id).map(mp => (
+                              <Card key={mp.id} sx={{ mb: 1, '&:active': { transform: 'scale(0.98)' }, transition: 'transform 0.15s ease' }}>
+                                <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
+                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <Box sx={{ flex: 1 }}>
+                                      <Typography variant="body2" sx={{ fontWeight: 500 }}>{mp.producto?.nombre}</Typography>
+                                      <Typography variant="caption" color="text.secondary">
+                                        {mp.cantidad} {mp.producto?.unidad} {mp.precio > 0 ? `· ${formatCurrency(mp.precio)}` : ''}
+                                      </Typography>
+                                    </Box>
+                                    <Chip
+                                      label={LABEL_ESTADOS[mp.estado]}
+                                      size="small"
+                                      color={mp.estado === 'encontrado' ? 'success' : mp.estado === 'no_habia' ? 'warning' : mp.estado === 'cancelado' ? 'error' : 'default'}
+                                      onClick={() => { setSelectedEstado(mp.estado); setPrecioEdit(mp.precio.toString()); setEstadoDialog({ open: true, item: mp }) }}
+                                    />
+                                    <IconButton size="small" onClick={() => setDeleteTarget({ type: 'producto', id: mp.id })}>
+                                      <DeleteIcon fontSize="small" />
+                                    </IconButton>
+                                  </Box>
+                                </CardContent>
+                              </Card>
+                            ))
+                          )}
+                          <Button
+                            size="small"
+                            startIcon={<AddIcon />}
+                            onClick={() => { setAddProductoFor(mtc.id); setProductoForm({ producto_id: '', cantidad: '1', precio: '' }) }}
+                          >
+                            Agregar producto
+                          </Button>
+                        </AccordionDetails>
+                      </Accordion>
+                    ))
+                )}
+
+                <Button
+                  size="small"
+                  startIcon={<AddIcon />}
+                  onClick={() => setAddCategoriaFor(mt.id)}
+                  sx={{ mt: 1 }}
+                >
+                  Agregar categoría
+                </Button>
+              </AccordionDetails>
+            </Accordion>
           ))
         )}
       </Box>
 
-      <AsignarProductosDialog
-        open={asignarOpen}
-        productos={productos.value}
-        tiendas={tiendas.value}
-        onSave={handleAsignar}
-        onClose={() => setAsignarOpen(false)}
-      />
+      {/* Dialog: Agregar Tienda */}
+      <Dialog open={addTiendaOpen} onClose={() => setAddTiendaOpen(false)} fullWidth maxWidth="xs">
+        <DialogTitle>Agregar tienda</DialogTitle>
+        <DialogContent>
+          {tiendasDisponibles.length === 0 ? (
+            <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: 'center' }}>
+              No hay más tiendas disponibles. Crea nuevas desde Tiendas.
+            </Typography>
+          ) : (
+            <List>
+              {tiendasDisponibles.map(t => (
+                <ListItem key={t.id} disablePadding>
+                  <ListItemButton onClick={() => handleAddTienda(t.id)}>
+                    <Typography sx={{ mr: 1 }}>{t.icono}</Typography>
+                    <ListItemText primary={t.nombre} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          )}
+        </DialogContent>
+        <DialogActions><Button onClick={() => setAddTiendaOpen(false)}>Cancelar</Button></DialogActions>
+      </Dialog>
 
+      {/* Dialog: Agregar Categoría */}
+      <Dialog open={addCategoriaFor !== null} onClose={() => setAddCategoriaFor(null)} fullWidth maxWidth="xs">
+        <DialogTitle>Agregar categoría</DialogTitle>
+        <DialogContent>
+          <List>
+            {categorias.value.filter(c => !mercadoTiendaCategorias.value.some(mtc => mtc.categoria_id === c.id && mtc.mercado_tienda_id === addCategoriaFor)).map(cat => (
+              <ListItem key={cat.id} disablePadding>
+                <ListItemButton onClick={() => handleAddCategoria(cat.id)}>
+                  <Typography sx={{ mr: 1 }}>{cat.icono}</Typography>
+                  <ListItemText primary={cat.nombre} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </DialogContent>
+        <DialogActions><Button onClick={() => setAddCategoriaFor(null)}>Cancelar</Button></DialogActions>
+      </Dialog>
+
+      {/* Dialog: Agregar Producto */}
+      <Dialog open={addProductoFor !== null} onClose={() => setAddProductoFor(null)} fullWidth maxWidth="xs">
+        <DialogTitle>Agregar producto</DialogTitle>
+        <DialogContent>
+          <TextField
+            select fullWidth label="Producto"
+            value={productoForm.producto_id}
+            onChange={e => setProductoForm(p => ({ ...p, producto_id: e.target.value }))}
+            sx={{ mb: 2, mt: 1 }}
+          >
+            {productos.value.map(p => (
+              <MenuItem key={p.id} value={p.id}>{p.nombre} ({p.unidad})</MenuItem>
+            ))}
+          </TextField>
+          <TextField
+            fullWidth type="number" label="Cantidad"
+            value={productoForm.cantidad}
+            onChange={e => setProductoForm(p => ({ ...p, cantidad: e.target.value }))}
+            slotProps={{ htmlInput: { min: 1 } }}
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            fullWidth type="number" label="Precio"
+            value={productoForm.precio}
+            onChange={e => setProductoForm(p => ({ ...p, precio: e.target.value }))}
+            slotProps={{ htmlInput: { min: 0 } }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAddProductoFor(null)}>Cancelar</Button>
+          <Button onClick={handleAddProducto} variant="contained" disabled={!productoForm.producto_id}>Agregar</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Dialog: Editar estado/precio */}
       <Dialog open={estadoDialog.open} onClose={() => setEstadoDialog({ open: false, item: null })} fullWidth maxWidth="xs">
         <DialogTitle>Actualizar producto</DialogTitle>
         <DialogContent>
           <TextField
-            select
-            fullWidth
-            label="Estado"
+            select fullWidth label="Estado"
             value={selectedEstado}
             onChange={e => setSelectedEstado(e.target.value as EstadoProducto)}
             sx={{ mb: 2, mt: 1 }}
           >
-            {ESTADOS_PRODUCTO.map(e => (
-              <MenuItem key={e} value={e}>{LABEL_ESTADOS[e]}</MenuItem>
-            ))}
+            {ESTADOS_PRODUCTO.map(e => (<MenuItem key={e} value={e}>{LABEL_ESTADOS[e]}</MenuItem>))}
           </TextField>
           <TextField
-            fullWidth
-            type="number"
-            label="Precio"
+            fullWidth type="number" label="Precio"
             value={precioEdit}
             onChange={e => setPrecioEdit(e.target.value)}
             slotProps={{ htmlInput: { min: 0 } }}
@@ -220,18 +397,16 @@ export default function MercadoDetailPage() {
         </DialogActions>
       </Dialog>
 
-      <HistorialPreciosDialog
-        open={historyDialog.open}
-        productoId={historyDialog.productoId}
-        productoNombre={historyDialog.productoNombre}
-        onClose={() => setHistoryDialog({ open: false, productoId: '', productoNombre: '' })}
-      />
-
+      {/* ConfirmDialog genérico */}
       <ConfirmDialog
         open={deleteTarget !== null}
-        title="Eliminar producto"
-        message="¿Eliminar este producto del mercado?"
-        onConfirm={handleDeleteItem}
+        title="Eliminar"
+        message={`¿Eliminar este elemento?`}
+        onConfirm={() => {
+          if (deleteTarget?.type === 'tienda') handleRemoveTienda()
+          else if (deleteTarget?.type === 'categoria') handleRemoveCategoria()
+          else if (deleteTarget?.type === 'producto') handleRemoveProducto()
+        }}
         onCancel={() => setDeleteTarget(null)}
       />
     </Box>

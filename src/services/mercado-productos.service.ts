@@ -4,12 +4,12 @@ import type { MercadoProducto, AddProductoDto, UpdateMercadoProductoDto } from '
 class MercadoProductosService {
   private table = 'mercado_productos'
 
-  async getByMercado(mercadoId: string): Promise<MercadoProducto[]> {
+  async getByCategoria(mercadoTiendaCategoriaId: string): Promise<MercadoProducto[]> {
     const { data } = await supabase
       .from(this.table)
-      .select('*, producto:productos(*), tienda:tiendas(*)')
-      .eq('mercado_id', mercadoId)
-      .order('orden', { ascending: true })
+      .select('*, producto:productos(*)')
+      .eq('mercado_tienda_categoria_id', mercadoTiendaCategoriaId)
+      .order('created_at', { ascending: true })
     return data ?? []
   }
 
@@ -20,14 +20,6 @@ class MercadoProductosService {
       .select()
       .single()
     return data
-  }
-
-  async updateEstado(id: string, estado: MercadoProducto['estado']): Promise<void> {
-    await supabase.from(this.table).update({ estado }).eq('id', id)
-  }
-
-  async updatePrecio(id: string, precio: number): Promise<void> {
-    await supabase.from(this.table).update({ precio }).eq('id', id)
   }
 
   async update(id: string, dto: UpdateMercadoProductoDto): Promise<void> {

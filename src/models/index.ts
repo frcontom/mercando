@@ -2,5 +2,7 @@ export type { Mercado, MercadoEstado, CreateMercadoDto, UpdateMercadoDto } from 
 export type { Tienda, CreateTiendaDto, UpdateTiendaDto } from './tienda.model'
 export type { Categoria, CreateCategoriaDto, UpdateCategoriaDto } from './categoria.model'
 export type { Producto, CreateProductoDto, UpdateProductoDto } from './producto.model'
+export type { MercadoTienda } from './mercado-tienda.model'
+export type { MercadoTiendaCategoria } from './mercado-tienda-categoria.model'
 export type { MercadoProducto, EstadoProducto, AddProductoDto, UpdateMercadoProductoDto } from './mercado-producto.model'
 export type { HistorialPrecio } from './historial-precio.model'
