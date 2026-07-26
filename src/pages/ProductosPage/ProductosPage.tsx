@@ -4,10 +4,11 @@ import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
 import ToggleButton from '@mui/material/ToggleButton'
 import StarIcon from '@mui/icons-material/Star'
+import AddIcon from '@mui/icons-material/Add'
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
-import { productos as productosSignal, loadingProductos, loadProductos, categorias, loadCategorias, showSnackbar, showFab, hideFab } from '@/store'
+import { productos as productosSignal, loadingProductos, loadProductos, categorias, loadCategorias, showSnackbar } from '@/store'
 import { useSignalValue } from '@/hooks/useSignalValue'
 import { productosService } from '@/services'
 import type { Producto, CreateProductoDto, UpdateProductoDto } from '@/models'
@@ -28,12 +29,7 @@ export default function ProductosPage() {
   const [editing, setEditing] = useState<Producto | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Producto | null>(null)
 
-  useEffect(() => {
-    loadCategorias()
-    loadProductos()
-    showFab(openCreate)
-    return () => hideFab()
-  }, [])
+  useEffect(() => { loadCategorias(); loadProductos() }, [])
 
   const categoriaId = categorias.value[tab]?.id ?? ''
   const categoriaNombre = categorias.value[tab]?.nombre ?? ''
@@ -108,7 +104,7 @@ export default function ProductosPage() {
   return (
     <Box sx={{ pb: 10 }}>
       {categorias.value.length > 0 && (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, pt: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, px: 2, pt: 1 }}>
           <Tabs
             value={tab}
             onChange={(_, v) => setTab(v)}
@@ -120,6 +116,11 @@ export default function ProductosPage() {
               <Tab key={c.id} label={`${c.icono} ${c.nombre}`} sx={{ minHeight: 48, py: 1 }} />
             ))}
           </Tabs>
+          <Tooltip title="Crear producto">
+            <IconButton size="small" onClick={openCreate}>
+              <AddIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
           <Tooltip title="Crear varios">
             <IconButton size="small" onClick={() => setBulkOpen(true)}>
               <PlaylistAddIcon fontSize="small" />
