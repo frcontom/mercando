@@ -12,9 +12,9 @@ import { mercadoTiendaCategorias, loadCategoriasByTienda, getCategoriasByTienda 
 import { loadProductosByCategoria, getProductosByCategoria } from '@/store'
 import { refreshHandler } from '@/store'
 import { formatCurrency } from '@/core/utils/formatters'
+
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { StoreIcon } from '@/components/business/StoreIcon'
-import { LABEL_ESTADOS } from '@/core/constants/estados'
 import type { MercadoProducto } from '@/models'
 
 function getCategorias(mtId: string) { return getCategoriasByTienda(mtId) }
@@ -63,9 +63,10 @@ export default function DashboardPage() {
 
   const todosProductos = mercadoTiendas.value.flatMap(mt => getProductosFromTienda(mt.id))
   const encontradosGlobal = todosProductos.filter(p => p.estado === 'encontrado').length
-
   const totalGlobal = todosProductos.reduce((s, p) => s + (p.subtotal ?? p.precio * qtyParaTotal(p)), 0)
   const totalEncontrados = todosProductos.filter(p => p.estado === 'encontrado').reduce((s, p) => s + (p.subtotal ?? p.precio * qtyParaTotal(p)), 0)
+  const restante = totalGlobal - totalEncontrados
+  const pct = todosProductos.length > 0 ? (encontradosGlobal / todosProductos.length) * 100 : 0
 
   return (
     <Box sx={{ p: 2 }}>
@@ -79,66 +80,83 @@ export default function DashboardPage() {
         </Card>
       ) : (
         <>
-          {/* Wallet card */}
+          {/* Main card — banking style */}
           <Card
             onClick={() => navigate(`/mercados/${activo.id}`)}
             sx={{
               cursor: 'pointer',
               mb: 3,
-              background: 'linear-gradient(135deg, #1a1a3e 0%, #1a1a2e 100%)',
-              border: '1px solid rgba(144, 202, 249, 0.15)',
+              background: 'linear-gradient(135deg, #0d1b2a 0%, #1b2838 50%, #1a1a3e 100%)',
+              border: '1px solid rgba(144, 202, 249, 0.12)',
+              borderRadius: 4,
+              position: 'relative',
+              overflow: 'hidden',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: '-50%',
+                right: '-30%',
+                width: 200,
+                height: 200,
+                borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(144,202,249,0.06) 0%, transparent 70%)',
+              },
               '&:active': { transform: 'scale(0.98)' },
               transition: 'transform 0.15s ease',
             }}
           >
-            <CardContent>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                <Typography variant="h6" sx={{ fontWeight: 700 }}>{activo.nombre}</Typography>
-                <Chip label="Activo" size="small" color="success" />
+            <CardContent sx={{ position: 'relative', zIndex: 1 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)', fontWeight: 500, letterSpacing: 1, textTransform: 'uppercase' }}>
+                  {activo.nombre}
+                </Typography>
+                <Chip label="Activo" size="small" color="success" sx={{ height: 22, '& .MuiChip-label': { px: 1, fontSize: '0.65rem' } }} />
               </Box>
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
-                {new Date(activo.fecha).toLocaleDateString()}
-              </Typography>
-              <Box sx={{ mb: 1.5 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                  <Typography variant="caption" color="text.secondary">Progreso</Typography>
-                  <Typography variant="caption" sx={{ fontWeight: 600, color: '#69f0ae' }}>
-                    {encontradosGlobal}/{todosProductos.length} · {formatCurrency(totalEncontrados)}
+              <Box sx={{ textAlign: 'center', mb: 2 }}>
+                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.6rem', letterSpacing: 1, textTransform: 'uppercase' }}>
+                  Total gastado
+                </Typography>
+                <Typography variant="h3" sx={{ fontWeight: 800, color: '#fff', lineHeight: 1.1, mt: 0.3, letterSpacing: -1 }}>
+                  {formatCurrency(totalEncontrados)}
+                </Typography>
+                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.65rem' }}>
+                  de {formatCurrency(totalGlobal)} presupuestados
+                </Typography>
+              </Box>
+              <Box sx={{ mb: 1 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.3 }}>
+                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.6rem' }}>
+                    Progreso
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#69f0ae', fontWeight: 600, fontSize: '0.6rem' }}>
+                    {encontradosGlobal}/{todosProductos.length} productos
                   </Typography>
                 </Box>
-                <LinearProgress
-                  variant="determinate"
-                  value={todosProductos.length > 0 ? (encontradosGlobal / todosProductos.length) * 100 : 0}
-                  sx={{ height: 10, borderRadius: 5, bgcolor: 'rgba(255,255,255,0.06)' }}
-                />
+                <LinearProgress variant="determinate" value={pct} sx={{ height: 6, borderRadius: 3, bgcolor: 'rgba(255,255,255,0.06)' }} />
               </Box>
-              <Box sx={{ display: 'flex', gap: 2, justifyContent: 'space-between' }}>
-                <Box>
-                  <Typography variant="h5" sx={{ fontWeight: 800, color: '#69f0ae', lineHeight: 1.2 }}>
-                    {formatCurrency(totalEncontrados)}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">Gastado</Typography>
+              <Box sx={{ display: 'flex', gap: 2, mt: 1.5 }}>
+                <Box sx={{ flex: 1, bgcolor: 'rgba(105,240,174,0.06)', borderRadius: 2, p: 1, textAlign: 'center' }}>
+                  <Typography variant="caption" sx={{ color: '#69f0ae', fontWeight: 700, fontSize: '0.8rem' }}>{formatCurrency(totalEncontrados)}</Typography>
+                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.3)', display: 'block', fontSize: '0.55rem' }}>Gastado</Typography>
                 </Box>
-                <Box sx={{ textAlign: 'right' }}>
-                  <Typography variant="h5" sx={{ fontWeight: 800, color: '#90caf9', lineHeight: 1.2 }}>
-                    {formatCurrency(totalGlobal)}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">Presupuesto</Typography>
+                <Box sx={{ flex: 1, bgcolor: restante > 0 ? 'rgba(255,183,77,0.06)' : 'rgba(105,240,174,0.06)', borderRadius: 2, p: 1, textAlign: 'center' }}>
+                  <Typography variant="caption" sx={{ color: restante > 0 ? '#ffb74d' : '#69f0ae', fontWeight: 700, fontSize: '0.8rem' }}>{formatCurrency(restante)}</Typography>
+                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.3)', display: 'block', fontSize: '0.55rem' }}>Restante</Typography>
                 </Box>
               </Box>
             </CardContent>
           </Card>
 
-          {/* Store tiles */}
-          <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1.5, color: 'text.secondary' }}>
-            Tiendas
+          {/* Stores as merchants */}
+          <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.4)', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', display: 'block', mb: 1.5, fontSize: '0.6rem' }}>
+            Comercios
           </Typography>
           {mercadoTiendas.value.length === 0 ? (
             <Typography variant="body2" color="text.disabled" sx={{ py: 2, textAlign: 'center' }}>
               Sin tiendas asignadas
             </Typography>
           ) : (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 3 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mb: 3 }}>
               <Card
                 onClick={() => navigate(`/mercados/${activo.id}?tienda=__todas__`)}
                 sx={{
@@ -146,14 +164,14 @@ export default function DashboardPage() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: 2,
-                  py: 1.5,
+                  py: 1.2,
                   px: 2,
-                  border: '1px dashed rgba(255,255,255,0.15)',
+                  border: '1px dashed rgba(255,255,255,0.1)',
                   '&:active': { transform: 'scale(0.98)' },
                   transition: 'transform 0.15s ease',
                 }}
               >
-                <Typography sx={{ fontSize: 24, opacity: 0.5 }}>📋</Typography>
+                <Typography sx={{ fontSize: 22, opacity: 0.4 }}>📋</Typography>
                 <Box sx={{ flex: 1 }}>
                   <Typography variant="body2" sx={{ fontWeight: 600 }}>Todas las tiendas</Typography>
                   <Typography variant="caption" color="text.secondary">{encontradosGlobal}/{todosProductos.length} productos</Typography>
@@ -173,26 +191,32 @@ export default function DashboardPage() {
                       display: 'flex',
                       alignItems: 'center',
                       gap: 2,
-                      py: 1.5,
+                      py: 1.2,
                       px: 2,
                       '&:active': { transform: 'scale(0.98)' },
                       transition: 'transform 0.15s ease',
                     }}
                   >
-                    <StoreIcon tienda={mt.tienda} size={40} />
+                    <StoreIcon tienda={mt.tienda} size={36} />
                     <Box sx={{ flex: 1, minWidth: 0 }}>
                       <Typography variant="body2" sx={{ fontWeight: 600 }}>{mt.tienda?.nombre}</Typography>
-                      <Typography variant="caption" color="text.secondary">{enc}/{prods.length} productos</Typography>
+                      {prods.length > 0 && (
+                        <Box sx={{ width: '100%', height: 2, bgcolor: 'rgba(255,255,255,0.06)', borderRadius: 1, mt: 0.5, overflow: 'hidden' }}>
+                          <Box sx={{ width: `${(enc / prods.length) * 100}%`, height: '100%', bgcolor: '#69f0ae', borderRadius: 1 }} />
+                        </Box>
+                      )}
                     </Box>
-                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#69f0ae' }}>{formatCurrency(total)}</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 700, color: total > 0 ? '#69f0ae' : 'text.disabled', flexShrink: 0 }}>
+                      {total > 0 ? formatCurrency(total) : '$0'}
+                    </Typography>
                   </Card>
                 )
               })}
             </Box>
           )}
 
-          {/* Timeline */}
-          <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1.5, color: 'text.secondary' }}>
+          {/* Timeline as transactions */}
+          <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.4)', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', display: 'block', mb: 1.5, fontSize: '0.6rem' }}>
             Últimos movimientos
           </Typography>
           {todosProductos.filter(p => p.estado !== 'pendiente').length === 0 ? (
@@ -200,7 +224,7 @@ export default function DashboardPage() {
               Aún no has marcado productos
             </Typography>
           ) : (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
               {todosProductos
                 .filter(p => p.estado !== 'pendiente' && p.created_at)
                 .sort((a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime())
@@ -209,19 +233,31 @@ export default function DashboardPage() {
                   const diff = Date.now() - new Date(mp.created_at ?? Date.now()).getTime()
                   const mins = Math.floor(diff / 60000)
                   const time = mins < 1 ? 'Ahora' : mins < 60 ? `Hace ${mins}min` : `Hace ${Math.floor(mins / 60)}h`
+                  const esEncontrado = mp.estado === 'encontrado'
                   return (
-                    <Box key={mp.id} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 0.5 }}>
-                      <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: mp.estado === 'encontrado' ? '#69f0ae' : '#ff9800', flexShrink: 0 }} />
+                    <Box key={mp.id} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 0.6 }}>
+                      <Box sx={{
+                        width: 28, height: 28, borderRadius: '50%',
+                        bgcolor: esEncontrado ? 'rgba(105,240,174,0.12)' : 'rgba(255,152,0,0.12)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 12, flexShrink: 0,
+                      }}>
+                        {esEncontrado ? '✅' : '🚫'}
+                      </Box>
                       <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography variant="body2" sx={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <Typography variant="body2" sx={{ fontWeight: 500, lineHeight: 1.2 }}>
                           {mp.producto?.nombre}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
-                          {mp.cantidad_encontrada || mp.cantidad} {mp.producto?.unidad} · {LABEL_ESTADOS[mp.estado]}
+                          {mp.cantidad_encontrada || mp.cantidad} {mp.producto?.unidad} · {time}
                         </Typography>
                       </Box>
-                      <Typography variant="caption" color="text.disabled" sx={{ flexShrink: 0 }}>
-                        {time}
+                      <Typography variant="body2" sx={{
+                        fontWeight: 700,
+                        color: esEncontrado && mp.precio > 0 ? '#69f0ae' : 'text.disabled',
+                        flexShrink: 0,
+                      }}>
+                        {esEncontrado && mp.precio > 0 ? `+${formatCurrency(mp.precio * qtyParaTotal(mp))}` : '-'}
                       </Typography>
                     </Box>
                   )
