@@ -348,9 +348,11 @@ export default function MercadoDetailPage() {
             onChange={e => setProductoForm(p => ({ ...p, producto_id: e.target.value }))}
             sx={{ mb: 2, mt: 1 }}
           >
-            {productos.value.map(p => (
-              <MenuItem key={p.id} value={p.id}>{p.nombre} ({p.unidad})</MenuItem>
-            ))}
+            {productos.value
+              .filter(p => p.categoria_id === (mercadoTiendaCategorias.value.find(mtc => mtc.id === addProductoFor)?.categoria_id ?? ''))
+              .map(p => (
+                <MenuItem key={p.id} value={p.id}>{p.nombre} ({p.unidad})</MenuItem>
+              ))}
           </TextField>
           <TextField
             fullWidth type="number" label="Cantidad"
