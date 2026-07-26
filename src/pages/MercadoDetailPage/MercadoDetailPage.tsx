@@ -265,7 +265,16 @@ export default function MercadoDetailPage() {
                                   </Box>
                                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                     {mp.precio > 0 && (
-                                      <Typography variant="h6" sx={{ fontWeight: 700, color: '#ffd740', textAlign: 'center', mr: 1 }}>
+                                      <Typography
+                                        variant="h5"
+                                        sx={{
+                                          fontWeight: 800,
+                                          color: '#69f0ae',
+                                          textAlign: 'center',
+                                          lineHeight: 1,
+                                          letterSpacing: '-0.5px',
+                                        }}
+                                      >
                                         {formatCurrency(mp.precio)}
                                       </Typography>
                                     )}
