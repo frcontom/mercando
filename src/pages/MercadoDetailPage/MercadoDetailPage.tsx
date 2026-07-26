@@ -7,8 +7,6 @@ import IconButton from '@mui/material/IconButton'
 import DeleteIcon from '@mui/icons-material/Delete'
 import AddIcon from '@mui/icons-material/Add'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
-import EditIcon from '@mui/icons-material/Edit'
 import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout'
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
 import DoDisturbAltIcon from '@mui/icons-material/DoDisturbAlt'
@@ -48,7 +46,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 export default function MercadoDetailPage() {
   const { id } = useParams()
   const [searchParams, setSearchParams] = useSearchParams()
-  const [shoppingMode, setShoppingMode] = useState(true)
+  const [shoppingMode] = useState(true)
   const [currentTiendaId, setCurrentTiendaId] = useState<string | null>(searchParams.get('tienda') ?? null)
   const [tiendaExpanded, setTiendaExpanded] = useState<string | false>(false)
   const [catExpanded, setCatExpanded] = useState<string | false>(false)
@@ -205,20 +203,7 @@ export default function MercadoDetailPage() {
     <Box sx={{ pb: 10 }}>
       {/* HEADER */}
       <Box sx={{ p: 2, bgcolor: 'background.paper' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h6">{mercado.nombre}</Typography>
-          {mercado.estado === 'activo' && !currentTiendaId && (
-            <Button
-              size="small"
-              variant={shoppingMode ? 'contained' : 'outlined'}
-              color={shoppingMode ? 'success' : 'inherit'}
-              startIcon={shoppingMode ? <ShoppingCartIcon /> : <EditIcon />}
-              onClick={() => setShoppingMode(!shoppingMode)}
-            >
-              {shoppingMode ? 'Comprando' : 'Editar'}
-            </Button>
-          )}
-        </Box>
+        <Typography variant="h6">{mercado.nombre}</Typography>
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 0.5 }}>
           <Chip label={mercado.estado} size="small" color={mercado.estado === 'activo' ? 'success' : 'default'} />
           <Typography variant="caption" color="text.secondary">{new Date(mercado.fecha).toLocaleDateString()}</Typography>
