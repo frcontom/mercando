@@ -435,9 +435,11 @@ export default function MercadoDetailPage() {
             {ESTADOS_PRODUCTO.map(e => (<MenuItem key={e} value={e}>{LABEL_ESTADOS[e]}</MenuItem>))}
           </TextField>
           {estadoDialog.item && (
-            <TextField fullWidth type="number" label="¿Cuántos ocupas?" value={estadoDialog.item.cantidad} slotProps={{ htmlInput: { readOnly: true } }} sx={{ mb: 2 }} />
+            <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+              <TextField type="number" label="Ocupas" value={estadoDialog.item.cantidad} slotProps={{ htmlInput: { readOnly: true } }} sx={{ flex: 1 }} />
+              <TextField type="number" label="Llevas" value={cantidadEdit} onChange={e => setCantidadEdit(e.target.value)} slotProps={{ htmlInput: { min: 0 } }} sx={{ flex: 1 }} />
+            </Box>
           )}
-          <TextField fullWidth type="number" label="¿Cuántos llevas?" value={cantidadEdit} onChange={e => setCantidadEdit(e.target.value)} slotProps={{ htmlInput: { min: 0 } }} sx={{ mb: 2 }} />
           <TextField fullWidth type="text" label="Precio" value={precioEdit} onChange={e => { const val = e.target.value.replace(/[^0-9]/g, ''); setPrecioEdit(val) }} slotProps={{ htmlInput: { inputMode: 'numeric' } }} />
           {(precioEdit || Number(cantidadEdit) > 0) && (
             <Box sx={{ mt: 2, px: 1, py: 0.5, borderRadius: 2 }}>
