@@ -94,13 +94,24 @@ export default function MercadoDetailPage() {
   }
 
   async function toggleProductoEstado(mp: MercadoProducto) {
-    const nuevoEstado = mp.estado === 'encontrado' ? 'pendiente' : 'encontrado'
-    try {
-      await mercadoProductosService.update(mp.id, { estado: nuevoEstado })
+    if (mp.estado === 'encontrado') {
+      await mercadoProductosService.update(mp.id, { estado: 'pendiente' })
       await loadProductosByCategoria(mp.mercado_tienda_categoria_id)
       setRefreshKey(k => k + 1)
-      if (nuevoEstado === 'encontrado') showSnackbar(`${mp.producto?.nombre} ✓`)
-    } catch { showSnackbar('Error al actualizar') }
+      return
+    }
+    if (mp.precio === 0) {
+      setSelectedEstado('encontrado')
+      setPrecioEdit('')
+      setEstadoDialog({ open: true, item: mp })
+      return
+    }
+    try {
+      await mercadoProductosService.update(mp.id, { estado: 'encontrado' })
+      await loadProductosByCategoria(mp.mercado_tienda_categoria_id)
+      setRefreshKey(k => k + 1)
+      showSnackbar(`${mp.producto?.nombre} ✓`)
+    } catch { showSnackbar('Error') }
   }
 
   async function handleAddTienda(tiendaId: string) {
@@ -145,8 +156,13 @@ export default function MercadoDetailPage() {
   async function handleSaveEstado() {
     const item = estadoDialog.item; if (!item) return
     const precio = Number(precioEdit) || 0
-    try { await mercadoProductosService.update(item.id, { estado: selectedEstado, precio }); showSnackbar('Producto actualizado'); setEstadoDialog({ open: false, item: null }); await loadProductosByCategoria(item.mercado_tienda_categoria_id) }
-    catch { showSnackbar('Error') }
+    try {
+      await mercadoProductosService.update(item.id, { estado: selectedEstado, precio })
+      showSnackbar(`${item.producto?.nombre ?? 'Producto'} → ${LABEL_ESTADOS[selectedEstado]} · ${formatCurrency(precio)}`)
+      setEstadoDialog({ open: false, item: null })
+      setRefreshKey(k => k + 1)
+      await loadProductosByCategoria(item.mercado_tienda_categoria_id)
+    } catch { showSnackbar('Error') }
   }
 
   if (!mercado) return <LoadingSpinner />
