@@ -57,6 +57,7 @@ export default function MercadoDetailPage() {
   const [productoForm, setProductoForm] = useState({ producto_id: '', cantidad: '1', precio: '' })
   const [estadoDialog, setEstadoDialog] = useState<{ open: boolean; item: MercadoProducto | null }>({ open: false, item: null })
   const [selectedEstado, setSelectedEstado] = useState<EstadoProducto>('pendiente')
+  const [refreshKey, setRefreshKey] = useState(0)
   const [precioEdit, setPrecioEdit] = useState('')
 
   const mercado = mercados.value.find(m => m.id === id)
@@ -94,6 +95,7 @@ export default function MercadoDetailPage() {
     try {
       await mercadoProductosService.update(mp.id, { estado: nuevoEstado })
       await loadProductosByCategoria(mp.mercado_tienda_categoria_id)
+      setRefreshKey(k => k + 1)
       if (nuevoEstado === 'encontrado') showSnackbar(`${mp.producto?.nombre} ✓`)
     } catch { showSnackbar('Error al actualizar') }
   }
@@ -210,7 +212,7 @@ export default function MercadoDetailPage() {
               {currentProductos.length === 0 ? (
                 <EmptyState message="Sin productos en esta tienda" />
               ) : (
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <Box key={refreshKey} sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                   {currentProductos.map(mp => (
                     <Card
                       key={mp.id}
