@@ -54,10 +54,10 @@ export function AsignarProductosDialog({ open, productos, tiendas, onSave, onClo
   }
 
   async function handleSave() {
-    if (selected.size === 0) return
     setSaving(true)
     try {
-      const items = Array.from(selected).map(producto_id => ({
+      const ids = selected.size > 0 ? selected : new Set(productos.map(p => p.id))
+      const items = Array.from(ids).map(producto_id => ({
         producto_id,
         tienda_id: tiendaId,
         cantidad: 1,
@@ -110,8 +110,12 @@ export function AsignarProductosDialog({ open, productos, tiendas, onSave, onClo
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancelar</Button>
-        <Button onClick={handleSave} variant="contained" disabled={selected.size === 0 || saving}>
-          {saving ? 'Guardando...' : `Agregar a ${tiendas.find(t => t.id === tiendaId)?.nombre ?? ''} (${selected.size})`}
+        <Button onClick={handleSave} variant="contained" disabled={saving || productos.length === 0}>
+          {saving
+            ? 'Guardando...'
+            : selected.size === 0
+              ? `Agregar todos a ${tiendas.find(t => t.id === tiendaId)?.nombre ?? ''}`
+              : `Agregar a ${tiendas.find(t => t.id === tiendaId)?.nombre ?? ''} (${selected.size})`}
         </Button>
       </DialogActions>
     </Dialog>
