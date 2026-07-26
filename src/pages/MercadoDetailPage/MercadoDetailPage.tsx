@@ -405,6 +405,24 @@ export default function MercadoDetailPage() {
             }}
             helperText={productoForm.precio ? formatCurrency(Number(productoForm.precio)) : ''}
           />
+          {productoForm.precio && Number(productoForm.precio) > 0 && (
+            <Box sx={{ mt: 2, p: 1.5, bgcolor: 'action.hover', borderRadius: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                <Typography variant="body2" color="text.secondary">Precio unitario</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 600, color: '#69f0ae' }}>
+                  {formatCurrency(Number(productoForm.precio))}
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography variant="body2" color="text.secondary">
+                  {productoForm.cantidad} × {formatCurrency(Number(productoForm.precio))}
+                </Typography>
+                <Typography variant="body1" sx={{ fontWeight: 700, color: '#69f0ae' }}>
+                  {formatCurrency(Number(productoForm.precio) * Number(productoForm.cantidad))}
+                </Typography>
+              </Box>
+            </Box>
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setAddProductoFor(null)}>Cancelar</Button>
