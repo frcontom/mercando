@@ -402,18 +402,18 @@ export default function MercadoDetailPage() {
             }}
           />
           {productoForm.precio && Number(productoForm.precio) > 0 && (
-            <Box sx={{ mt: 2, p: 1.5, borderRadius: 2 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+            <Box sx={{ mt: 2, px: 1, py: 0.5, borderRadius: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
                 <Typography variant="body2" color="text.secondary">Precio unitario</Typography>
-                <Typography variant="body2" sx={{ fontWeight: 600, color: '#69f0ae' }}>
+                <Typography variant="h6" sx={{ fontWeight: 700, color: '#69f0ae', minWidth: 120, textAlign: 'right' }}>
                   {formatCurrency(Number(productoForm.precio))}
                 </Typography>
               </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Typography variant="body2" color="text.secondary">
                   {productoForm.cantidad} × {formatCurrency(Number(productoForm.precio))}
                 </Typography>
-                <Typography variant="body1" sx={{ fontWeight: 700, color: '#69f0ae' }}>
+                <Typography variant="h6" sx={{ fontWeight: 800, color: '#69f0ae', minWidth: 120, textAlign: 'right' }}>
                   {formatCurrency(Number(productoForm.precio) * Number(productoForm.cantidad))}
                 </Typography>
               </Box>
