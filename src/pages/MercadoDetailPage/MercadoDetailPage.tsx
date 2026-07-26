@@ -449,10 +449,20 @@ export default function MercadoDetailPage() {
           {estadoDialog.item && (
             <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
               <TextField type="number" label="Ocupas" value={estadoDialog.item.cantidad} slotProps={{ htmlInput: { readOnly: true, style: { textAlign: 'center' } } }} sx={{ flex: 1, '& .MuiInputBase-root': { bgcolor: 'action.hover' } }} />
-              <TextField type="number" label="Llevas" value={cantidadEdit} onChange={e => setCantidadEdit(e.target.value)} disabled={selectedEstado === 'no_habia'} slotProps={{ htmlInput: { min: 0, style: { textAlign: 'center' } } }} sx={{ flex: 1 }} />
+              {selectedEstado === 'no_habia' ? (
+                <TextField select label="Llevas" value="0" disabled sx={{ flex: 1 }}>
+                  <MenuItem value="0">0</MenuItem>
+                </TextField>
+              ) : (
+                <TextField select label="Llevas" value={cantidadEdit} onChange={e => setCantidadEdit(e.target.value)} sx={{ flex: 1 }}>
+                  {Array.from({ length: 20 }, (_, i) => i + 1).map(n => (
+                    <MenuItem key={n} value={n.toString()}>{n}</MenuItem>
+                  ))}
+                </TextField>
+              )}
             </Box>
           )}
-          <TextField fullWidth type="text" label="Precio" value={precioEdit} onChange={e => { const val = e.target.value.replace(/[^0-9]/g, ''); setPrecioEdit(val) }} disabled={selectedEstado === 'no_habia'} slotProps={{ htmlInput: { inputMode: 'numeric' } }} />
+          <TextField fullWidth type="text" label="Precio" value={precioEdit} onChange={e => { const val = e.target.value.replace(/[^0-9]/g, ''); setPrecioEdit(val) }} disabled={selectedEstado === 'no_habia'} required={selectedEstado === 'encontrado'} slotProps={{ htmlInput: { inputMode: 'numeric' } }} />
           {selectedEstado !== 'no_habia' && (precioEdit || Number(cantidadEdit) > 0) && (
             <Box sx={{ mt: 2, px: 1, py: 0.5, borderRadius: 2 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
@@ -468,7 +478,7 @@ export default function MercadoDetailPage() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setEstadoDialog({ open: false, item: null })}>Cancelar</Button>
-          <Button onClick={handleSaveEstado} variant="contained">Guardar</Button>
+          <Button onClick={handleSaveEstado} variant="contained" disabled={selectedEstado === 'encontrado' && !precioEdit}>Guardar</Button>
         </DialogActions>
       </Dialog>
 
