@@ -261,8 +261,8 @@ export default function MercadoDetailPage() {
                           <Typography variant="body2" sx={{ fontWeight: 500, textDecoration: mp.estado !== 'pendiente' ? 'line-through' : 'none' }}>
                             {mp.producto?.nombre}
                           </Typography>
-                          <Typography variant="caption" color={mp.estado === 'no_habia' ? 'warning.main' : 'text.secondary'}>
-                            {mp.estado === 'no_habia' ? 'No había' : `${mp.cantidad} ${mp.producto?.unidad}`}
+                          <Typography variant="caption" color="text.secondary">
+                            {mp.cantidad} {mp.producto?.unidad}
                           </Typography>
                         </Box>
                         {mp.precio > 0 && mp.estado === 'encontrado' && (
