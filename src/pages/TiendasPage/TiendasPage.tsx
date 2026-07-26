@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
-import { tiendas, loadingTiendas, loadTiendas, showSnackbar, showFab, hideFab } from '@/store'
+import { tiendas as tiendasSignal, loadingTiendas, loadTiendas, showSnackbar, showFab, hideFab } from '@/store'
+import { useSignalValue } from '@/hooks/useSignalValue'
 import { tiendasService } from '@/services'
 import type { Tienda, CreateTiendaDto, UpdateTiendaDto } from '@/models'
 import { TiendaCard } from '@/components/business/TiendaCard'
@@ -11,6 +12,8 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 
 export default function TiendasPage() {
+  const items = useSignalValue(tiendasSignal)
+  const isLoading = useSignalValue(loadingTiendas)
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Tienda | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Tienda | null>(null)
@@ -59,15 +62,15 @@ export default function TiendasPage() {
     setFormOpen(true)
   }
 
-  if (loadingTiendas.value) return <LoadingSpinner />
+  if (isLoading) return <LoadingSpinner />
 
   return (
     <Box sx={{ p: 2, pb: 10 }}>
-      {tiendas.value.length === 0 ? (
+      {items.length === 0 ? (
         <EmptyState message="No hay tiendas aún" />
       ) : (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-          {tiendas.value.map(t => (
+          {items.map(t => (
             <TiendaCard
               key={t.id}
               tienda={t}
