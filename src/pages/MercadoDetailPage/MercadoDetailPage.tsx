@@ -85,14 +85,17 @@ export default function MercadoDetailPage() {
   function getProductosFromTienda(mtId: string) {
     return getCategorias(mtId).flatMap(c => getProductos(c.id))
   }
+  function qtyParaTotal(mp: MercadoProducto) {
+    return mp.estado !== 'pendiente' && mp.cantidad_encontrada > 0 ? mp.cantidad_encontrada : mp.cantidad
+  }
   function countEncontrados(mtId: string) {
     return getProductosFromTienda(mtId).filter(p => p.estado === 'encontrado').length
   }
   function totalTienda(mtId: string) {
-    return getProductosFromTienda(mtId).reduce((s, p) => s + (p.subtotal ?? p.precio * p.cantidad), 0)
+    return getProductosFromTienda(mtId).reduce((s, p) => s + (p.subtotal ?? p.precio * qtyParaTotal(p)), 0)
   }
   function totalEncontradosTienda(mtId: string) {
-    return getProductosFromTienda(mtId).filter(p => p.estado === 'encontrado').reduce((s, p) => s + (p.subtotal ?? p.precio * p.cantidad), 0)
+    return getProductosFromTienda(mtId).filter(p => p.estado === 'encontrado').reduce((s, p) => s + (p.subtotal ?? p.precio * qtyParaTotal(p)), 0)
   }
 
   async function toggleProductoEstado(mp: MercadoProducto) {
@@ -105,7 +108,7 @@ export default function MercadoDetailPage() {
     if (mp.precio === 0) {
       setSelectedEstado('encontrado')
       setPrecioEdit('')
-      setCantidadEdit(mp.cantidad.toString())
+      setCantidadEdit(mp.cantidad_encontrada ? mp.cantidad_encontrada.toString() : mp.cantidad.toString())
       setEstadoDialog({ open: true, item: mp })
       return
     }
@@ -161,7 +164,7 @@ export default function MercadoDetailPage() {
     const precio = Number(precioEdit) || 0
     const cantidad = Number(cantidadEdit) || 1
     try {
-      await mercadoProductosService.update(item.id, { estado: selectedEstado, precio, cantidad })
+      await mercadoProductosService.update(item.id, { estado: selectedEstado, precio, cantidad_encontrada: cantidad })
       await loadProductosByCategoria(item.mercado_tienda_categoria_id)
       showSnackbar(`${item.producto?.nombre ?? 'Producto'} → ${LABEL_ESTADOS[selectedEstado]} · ${cantidad} × ${formatCurrency(precio)}`)
       setEstadoDialog({ open: false, item: null })
@@ -172,9 +175,9 @@ export default function MercadoDetailPage() {
   if (!mercado) return <LoadingSpinner />
 
   const todosProductos = mercadoTiendas.value.flatMap(mt => getProductosFromTienda(mt.id))
-  const totalGlobal = todosProductos.reduce((s, p) => s + (p.subtotal ?? p.precio * p.cantidad), 0)
+  const totalGlobal = todosProductos.reduce((s, p) => s + (p.subtotal ?? p.precio * qtyParaTotal(p)), 0)
   const encontradosGlobal = todosProductos.filter(p => p.estado === 'encontrado').length
-  const totalEncontrados = todosProductos.filter(p => p.estado === 'encontrado').reduce((s, p) => s + (p.subtotal ?? p.precio * p.cantidad), 0)
+  const totalEncontrados = todosProductos.filter(p => p.estado === 'encontrado').reduce((s, p) => s + (p.subtotal ?? p.precio * qtyParaTotal(p)), 0)
   const tiendasDisponibles = tiendas.value.filter(t => !mercadoTiendas.value.some(mt => mt.tienda_id === t.id))
 
   const currentMT = mercadoTiendas.value.find(mt => mt.id === currentTiendaId)
@@ -262,15 +265,15 @@ export default function MercadoDetailPage() {
                             {mp.producto?.nombre}
                           </Typography>
                           <Typography variant="caption" color="text.secondary">
-                            {mp.cantidad_original ?? mp.cantidad} {mp.producto?.unidad}
-                            {mp.estado !== 'pendiente' ? ` | ${mp.estado === 'no_habia' ? '0' : mp.cantidad}` : ''}
+                            {mp.cantidad} {mp.producto?.unidad}
+                            {mp.estado !== 'pendiente' ? ` | ${mp.estado === 'no_habia' ? '0' : mp.cantidad_encontrada || mp.cantidad}` : ''}
                           </Typography>
                         </Box>
                         {mp.estado === 'no_habia' ? (
                           <Chip label="No encontrado" size="small" color="error" variant="outlined" />
                         ) : mp.precio > 0 ? (
                           <Typography variant="body1" sx={{ fontWeight: 700, color: mp.estado === 'encontrado' ? '#69f0ae' : 'text.disabled' }}>
-                            {formatCurrency(mp.precio * mp.cantidad)}
+                            {formatCurrency(mp.precio * qtyParaTotal(mp))}
                           </Typography>
                         ) : null}
                       </CardContent>
@@ -357,7 +360,7 @@ export default function MercadoDetailPage() {
                                       {mp.precio > 0 && (
                                         <Typography variant="h5" sx={{ fontWeight: 800, color: '#69f0ae', lineHeight: 1, letterSpacing: '-0.5px' }}>{formatCurrency(mp.precio)}</Typography>
                                       )}
-                                      <Chip label={LABEL_ESTADOS[mp.estado]} size="small" color={mp.estado === 'encontrado' ? 'success' : mp.estado === 'no_habia' ? 'warning' : 'default'} onClick={() => { setSelectedEstado(mp.estado); setPrecioEdit(mp.precio.toString()); setCantidadEdit(mp.cantidad.toString()); setEstadoDialog({ open: true, item: mp }) }} />
+                                      <Chip label={LABEL_ESTADOS[mp.estado]} size="small" color={mp.estado === 'encontrado' ? 'success' : mp.estado === 'no_habia' ? 'warning' : 'default'} onClick={() => { setSelectedEstado(mp.estado); setPrecioEdit(mp.precio.toString()); setCantidadEdit(mp.cantidad_encontrada ? mp.cantidad_encontrada.toString() : mp.cantidad.toString()); setEstadoDialog({ open: true, item: mp }) }} />
                                       <IconButton size="small" onClick={() => setDeleteTarget({ type: 'producto', id: mp.id })}><DeleteIcon fontSize="small" /></IconButton>
                                     </Box>
                                   </Box>

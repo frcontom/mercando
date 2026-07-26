@@ -95,7 +95,7 @@ CREATE TABLE mercado_productos (
   producto_id UUID NOT NULL REFERENCES productos(id) ON DELETE RESTRICT,
   precio NUMERIC(10, 2) NOT NULL DEFAULT 0,
   cantidad NUMERIC(10, 2) NOT NULL DEFAULT 1,
-  cantidad_original NUMERIC(10, 2) NOT NULL DEFAULT 1,
+  cantidad_encontrada NUMERIC(10, 2) NOT NULL DEFAULT 0,
   subtotal NUMERIC(10, 2) GENERATED ALWAYS AS (precio * cantidad) STORED,
   estado TEXT NOT NULL DEFAULT 'pendiente'
     CHECK (estado IN ('pendiente', 'encontrado', 'no_habia')),
