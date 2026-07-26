@@ -11,6 +11,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import EditIcon from '@mui/icons-material/Edit'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
+import RemoveCircleOutlinedIcon from '@mui/icons-material/RemoveCircleOutlined'
 import LinearProgress from '@mui/material/LinearProgress'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
@@ -95,7 +96,7 @@ export default function MercadoDetailPage() {
   }
 
   async function toggleProductoEstado(mp: MercadoProducto) {
-    if (mp.estado === 'encontrado') {
+    if (mp.estado === 'encontrado' || mp.estado === 'no_habia') {
       await mercadoProductosService.update(mp.id, { estado: 'pendiente' })
       await loadProductosByCategoria(mp.mercado_tienda_categoria_id)
       setRefreshKey(k => k + 1)
@@ -242,8 +243,8 @@ export default function MercadoDetailPage() {
                       onClick={() => toggleProductoEstado(mp)}
                       sx={{
                         cursor: 'pointer',
-                        opacity: mp.estado === 'encontrado' ? 0.7 : 1,
-                        bgcolor: mp.estado === 'encontrado' ? 'rgba(105, 240, 174, 0.08)' : undefined,
+                        opacity: mp.estado === 'encontrado' ? 0.7 : mp.estado === 'no_habia' ? 0.6 : 1,
+                        bgcolor: mp.estado === 'encontrado' ? 'rgba(105, 240, 174, 0.08)' : mp.estado === 'no_habia' ? 'rgba(255, 152, 0, 0.08)' : undefined,
                         '&:active': { transform: 'scale(0.98)' },
                         transition: 'all 0.15s ease',
                       }}
@@ -251,18 +252,20 @@ export default function MercadoDetailPage() {
                       <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 }, display: 'flex', alignItems: 'center', gap: 1.5 }}>
                         {mp.estado === 'encontrado' ? (
                           <CheckCircleIcon sx={{ color: '#69f0ae', fontSize: 28 }} />
+                        ) : mp.estado === 'no_habia' ? (
+                          <RemoveCircleOutlinedIcon sx={{ color: '#ff9800', fontSize: 28 }} />
                         ) : (
                           <RadioButtonUncheckedIcon sx={{ color: 'text.disabled', fontSize: 28 }} />
                         )}
                         <Box sx={{ flex: 1 }}>
-                          <Typography variant="body2" sx={{ fontWeight: 500, textDecoration: mp.estado === 'encontrado' ? 'line-through' : 'none' }}>
+                          <Typography variant="body2" sx={{ fontWeight: 500, textDecoration: mp.estado !== 'pendiente' ? 'line-through' : 'none' }}>
                             {mp.producto?.nombre}
                           </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {mp.cantidad} {mp.producto?.unidad}
+                          <Typography variant="caption" color={mp.estado === 'no_habia' ? 'warning.main' : 'text.secondary'}>
+                            {mp.estado === 'no_habia' ? 'No había' : `${mp.cantidad} ${mp.producto?.unidad}`}
                           </Typography>
                         </Box>
-                        {mp.precio > 0 && (
+                        {mp.precio > 0 && mp.estado !== 'no_habia' && (
                           <Typography variant="body1" sx={{ fontWeight: 700, color: '#69f0ae' }}>
                             {formatCurrency(mp.precio * mp.cantidad)}
                           </Typography>
