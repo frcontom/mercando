@@ -402,7 +402,7 @@ export default function MercadoDetailPage() {
             }}
           />
           {productoForm.precio && Number(productoForm.precio) > 0 && (
-            <Box sx={{ mt: 2, p: 1.5, bgcolor: 'action.hover', borderRadius: 2 }}>
+            <Box sx={{ mt: 2, p: 1.5, borderRadius: 2 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                 <Typography variant="body2" color="text.secondary">Precio unitario</Typography>
                 <Typography variant="body2" sx={{ fontWeight: 600, color: '#69f0ae' }}>
