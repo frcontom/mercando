@@ -62,12 +62,13 @@ export default function MercadoDetailPage() {
   const mercado = mercados.value.find(m => m.id === id)
 
   useEffect(() => {
-    if (!id) return
-    loadMercados()
-    loadTiendas()
-    loadCategorias()
-    loadProductos()
-    loadMercadoTiendas(id)
+    if (!id) return; (async () => {
+      await Promise.all([loadMercados(), loadTiendas(), loadCategorias(), loadProductos()])
+      await loadMercadoTiendas(id)
+      for (const mt of mercadoTiendas.value) await loadCategoriasByTienda(mt.id)
+      const todas = Object.values(mercadoTiendaCategorias.value).flat()
+      for (const mtc of todas) await loadProductosByCategoria(mtc.id)
+    })()
   }, [id])
 
   useEffect(() => {
@@ -75,17 +76,6 @@ export default function MercadoDetailPage() {
     else hideFab()
     return () => hideFab()
   }, [mercado?.estado, shoppingMode])
-
-  useEffect(() => {
-    mercadoTiendas.value.forEach(mt => loadCategoriasByTienda(mt.id))
-  }, [mercadoTiendas.value.length])
-
-  useEffect(() => {
-    const todas = Object.values(mercadoTiendaCategorias.value).flat()
-    todas.forEach(mtc => {
-      if (!getProductosByCategoria(mtc.id).length) loadProductosByCategoria(mtc.id)
-    })
-  }, [Object.keys(mercadoTiendaCategorias.value).length])
 
   function getCategorias(mtId: string) { return getCategoriasByTienda(mtId) }
   function getProductos(mtcId: string) { return getProductosByCategoria(mtcId) }
