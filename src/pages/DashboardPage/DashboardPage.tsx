@@ -23,7 +23,7 @@ export default function DashboardPage() {
 
       {activo ? (
         <Card
-          onClick={() => navigate(`/mercados/${activo.id}`)}
+          onClick={() => navigate(`/mercados/${activo.id}`, { state: { mode: 'shop' } })}
           sx={{ cursor: 'pointer', mb: 2, '&:active': { transform: 'scale(0.98)' }, transition: 'transform 0.15s ease' }}
         >
           <CardContent>
