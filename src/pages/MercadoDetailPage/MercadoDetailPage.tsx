@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
+import IconButton from '@mui/material/IconButton'
+import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
@@ -12,13 +14,14 @@ import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
 import LinearProgress from '@mui/material/LinearProgress'
 import { mercados, loadMercados, mercadoProductos, loadingMercadoProductos, loadMercadoProductos, tiendas, loadTiendas, productos, loadProductos } from '@/store'
-import { mercadoProductosService } from '@/services'
+import { mercadoProductosService, historialPreciosService } from '@/services'
 import { showSnackbar } from '@/store'
 import { formatCurrency } from '@/core/utils/formatters'
 import { ESTADOS_PRODUCTO, LABEL_ESTADOS } from '@/core/constants/estados'
 import type { EstadoProducto, MercadoProducto } from '@/models'
 import { MercadoProductoItem } from '@/components/business/MercadoProductoItem'
 import { AsignarProductosDialog } from '@/components/business/AsignarProductosDialog'
+import { HistorialPreciosDialog } from '@/components/business/HistorialPreciosDialog'
 import { AppFab } from '@/components/ui/AppFab'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -31,6 +34,7 @@ export default function MercadoDetailPage() {
   const [estadoDialog, setEstadoDialog] = useState<{ open: boolean; item: MercadoProducto | null }>({ open: false, item: null })
   const [selectedEstado, setSelectedEstado] = useState<EstadoProducto>('pendiente')
   const [precioEdit, setPrecioEdit] = useState('')
+  const [historyDialog, setHistoryDialog] = useState<{ open: boolean; productoId: string; productoNombre: string }>({ open: false, productoId: '', productoNombre: '' })
 
   const mercado = mercados.value.find(m => m.id === id)
 
@@ -66,13 +70,40 @@ export default function MercadoDetailPage() {
     setEstadoDialog({ open: true, item })
   }
 
+  function openHistoryDialog(item: MercadoProducto) {
+    setHistoryDialog({
+      open: true,
+      productoId: item.producto_id,
+      productoNombre: item.producto?.nombre ?? '',
+    })
+  }
+
+  function handleExport() {
+    if (!mercado) return
+    const lines = [
+      `📦 ${mercado.nombre}`,
+      `Fecha: ${new Date(mercado.fecha).toLocaleDateString()}`,
+      `Presupuesto: ${formatCurrency(mercado.presupuesto)}`,
+      '',
+    ]
+    for (const mp of mercadoProductos.value) {
+      lines.push(`  ${mp.producto?.nombre ?? '?'} - ${mp.cantidad} ${mp.producto?.unidad ?? ''} @ ${mp.tienda?.nombre ?? '?'} [${mp.estado}]${mp.precio > 0 ? ` $${mp.precio}` : ''}`)
+    }
+    navigator.clipboard.writeText(lines.join('\n'))
+    showSnackbar('Lista copiada al portapapeles')
+  }
+
   async function handleSaveEstado() {
     const item = estadoDialog.item
     if (!item) return
+    const precio = Number(precioEdit) || 0
     await mercadoProductosService.update(item.id, {
       estado: selectedEstado,
-      precio: Number(precioEdit) || 0,
+      precio,
     })
+    if (precio > 0 && item.producto_id && item.tienda_id) {
+      await historialPreciosService.registrar(item.producto_id, item.tienda_id, precio)
+    }
     showSnackbar('Producto actualizado')
     setEstadoDialog({ open: false, item: null })
     if (id) await loadMercadoProductos(id)
@@ -100,6 +131,9 @@ export default function MercadoDetailPage() {
           <Typography variant="caption" color="text.secondary">
             {new Date(mercado.fecha).toLocaleDateString()}
           </Typography>
+          <IconButton size="small" onClick={handleExport} sx={{ ml: 'auto' }}>
+            <FileDownloadIcon fontSize="small" />
+          </IconButton>
         </Box>
         <Box sx={{ mt: 1 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -132,6 +166,7 @@ export default function MercadoDetailPage() {
                     item={mp}
                     onDelete={setDeleteTarget}
                     onChangeEstado={openEstadoDialog}
+                    onHistory={openHistoryDialog}
                   />
                 ))}
               </Box>
@@ -179,6 +214,13 @@ export default function MercadoDetailPage() {
           <Button onClick={handleSaveEstado} variant="contained">Guardar</Button>
         </DialogActions>
       </Dialog>
+
+      <HistorialPreciosDialog
+        open={historyDialog.open}
+        productoId={historyDialog.productoId}
+        productoNombre={historyDialog.productoNombre}
+        onClose={() => setHistoryDialog({ open: false, productoId: '', productoNombre: '' })}
+      />
 
       <ConfirmDialog
         open={deleteTarget !== null}

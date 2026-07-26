@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
 import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
+import ToggleButton from '@mui/material/ToggleButton'
+import StarIcon from '@mui/icons-material/Star'
 import { productos, loadingProductos, loadProductos, categorias, loadCategorias } from '@/store'
 import { productosService } from '@/services'
 import { showSnackbar } from '@/store'
@@ -15,6 +17,7 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 
 export default function ProductosPage() {
   const [tab, setTab] = useState(0)
+  const [showFavs, setShowFavs] = useState(false)
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Producto | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Producto | null>(null)
@@ -26,9 +29,11 @@ export default function ProductosPage() {
 
   const categoriaId = categorias.value[tab]?.id ?? ''
 
-  const filtered = categoriaId
-    ? productos.value.filter(p => p.categoria_id === categoriaId)
-    : productos.value
+  const filtered = productos.value.filter(p => {
+    const matchCat = categoriaId ? p.categoria_id === categoriaId : true
+    const matchFav = showFavs ? p.favorito : true
+    return matchCat && matchFav
+  })
 
   async function handleSave(data: CreateProductoDto | UpdateProductoDto) {
     if (editing) {
@@ -69,22 +74,33 @@ export default function ProductosPage() {
   return (
     <Box sx={{ pb: 10 }}>
       {categorias.value.length > 0 && (
-        <Tabs
-          value={tab}
-          onChange={(_, v) => setTab(v)}
-          variant="scrollable"
-          scrollButtons={false}
-          sx={{ px: 2, minHeight: 48 }}
-        >
-          {categorias.value.map(c => (
-            <Tab key={c.id} label={`${c.icono} ${c.nombre}`} sx={{ minHeight: 48, py: 1 }} />
-          ))}
-        </Tabs>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, pt: 1 }}>
+          <Tabs
+            value={tab}
+            onChange={(_, v) => setTab(v)}
+            variant="scrollable"
+            scrollButtons={false}
+            sx={{ flex: 1, minHeight: 48 }}
+          >
+            {categorias.value.map(c => (
+              <Tab key={c.id} label={`${c.icono} ${c.nombre}`} sx={{ minHeight: 48, py: 1 }} />
+            ))}
+          </Tabs>
+          <ToggleButton
+            value="favs"
+            selected={showFavs}
+            onChange={() => setShowFavs(!showFavs)}
+            size="small"
+            sx={{ flexShrink: 0 }}
+          >
+            <StarIcon fontSize="small" color={showFavs ? 'warning' : 'inherit'} />
+          </ToggleButton>
+        </Box>
       )}
 
       <Box sx={{ p: 2 }}>
         {filtered.length === 0 ? (
-          <EmptyState message="No hay productos en esta categoría" />
+          <EmptyState message={showFavs ? 'No hay favoritos en esta categoría' : 'No hay productos en esta categoría'} />
         ) : (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
             {filtered.map(p => (
