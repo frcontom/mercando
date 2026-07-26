@@ -167,19 +167,30 @@ export default function DashboardPage() {
                   py: 1.5,
                   px: 2,
                   borderRadius: 1,
-                  border: '1px dashed rgba(255,255,255,0.08)',
-                  bgcolor: 'rgba(255,255,255,0.02)',
-                  backdropFilter: 'blur(4px)',
+                  border: '1px dashed rgba(144,202,249,0.12)',
+                  bgcolor: 'rgba(144,202,249,0.03)',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: '-60%',
+                    right: '-20%',
+                    width: 120,
+                    height: 120,
+                    borderRadius: '50%',
+                    background: 'radial-gradient(circle, rgba(144,202,249,0.06) 0%, transparent 70%)',
+                  },
                   '&:active': { transform: 'scale(0.98)' },
                   transition: 'all 0.2s ease',
                 }}
               >
-                <Typography sx={{ fontSize: 24, opacity: 0.3 }}>📋</Typography>
-                <Box sx={{ flex: 1 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>Todas las tiendas</Typography>
-                  <Typography variant="caption" color="text.secondary">{encontradosGlobal}/{todosProductos.length} productos</Typography>
+                <Typography sx={{ fontSize: 28, opacity: 0.25, position: 'relative', zIndex: 1 }}>📋</Typography>
+                <Box sx={{ flex: 1, position: 'relative', zIndex: 1 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 700, color: 'rgba(255,255,255,0.8)' }}>Todas las tiendas</Typography>
+                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.35)' }}>{encontradosGlobal}/{todosProductos.length} productos</Typography>
                 </Box>
-                <Typography variant="body1" sx={{ fontWeight: 700, color: '#69f0ae' }}>{formatCurrency(totalEncontrados)}</Typography>
+                <Typography variant="body1" sx={{ fontWeight: 800, color: '#90caf9', position: 'relative', zIndex: 1 }}>{formatCurrency(totalEncontrados)}</Typography>
               </Card>
               {mercadoTiendas.value.map(mt => {
                 const prods = getProductosFromTienda(mt.id)
@@ -197,28 +208,41 @@ export default function DashboardPage() {
                       py: 1.5,
                       px: 2,
                       borderRadius: 1,
-                      border: '1px solid rgba(255,255,255,0.04)',
-                      bgcolor: 'rgba(255,255,255,0.015)',
+                      border: '1px solid rgba(105,240,174,0.06)',
+                      bgcolor: 'rgba(105,240,174,0.02)',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        top: '-60%',
+                        right: '-15%',
+                        width: 100,
+                        height: 100,
+                        borderRadius: '50%',
+                        background: 'radial-gradient(circle, rgba(105,240,174,0.05) 0%, transparent 70%)',
+                      },
                       '&:active': { transform: 'scale(0.98)' },
                       transition: 'all 0.2s ease',
                     }}
                   >
                     <StoreIcon tienda={mt.tienda} size={40} />
-                    <Box sx={{ flex: 1, minWidth: 0 }}>
-                      <Typography variant="body2" sx={{ fontWeight: 600 }}>{mt.tienda?.nombre}</Typography>
-                      <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        {enc}/{prods.length}
-                        {total > 0 ? ` · ${formatCurrency(total)}` : ''}
-                      </Typography>
+                    <Box sx={{ flex: 1, minWidth: 0, position: 'relative', zIndex: 1 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 700, color: 'rgba(255,255,255,0.85)' }}>{mt.tienda?.nombre}</Typography>
                       {prods.length > 0 && (
                         <Box sx={{ width: '100%', height: 3, bgcolor: 'rgba(255,255,255,0.04)', borderRadius: 1, mt: 0.5, overflow: 'hidden' }}>
-                          <Box sx={{ width: `${(enc / prods.length) * 100}%`, height: '100%', bgcolor: '#69f0ae', borderRadius: 1, transition: 'width 0.3s ease' }} />
+                          <Box sx={{ width: `${(enc / prods.length) * 100}%`, height: '100%', bgcolor: '#69f0ae', borderRadius: 1, transition: 'width 0.4s ease' }} />
                         </Box>
                       )}
                     </Box>
-                    <Typography variant="h6" sx={{ fontWeight: 700, color: total > 0 ? '#69f0ae' : 'text.disabled', flexShrink: 0 }}>
-                      {total > 0 ? formatCurrency(total) : '$0'}
-                    </Typography>
+                    <Box sx={{ textAlign: 'right', position: 'relative', zIndex: 1 }}>
+                      <Typography variant="h6" sx={{ fontWeight: 800, color: total > 0 ? '#69f0ae' : 'rgba(255,255,255,0.15)', lineHeight: 1 }}>
+                        {total > 0 ? formatCurrency(total) : '$0'}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.55rem' }}>
+                        {enc}/{prods.length}
+                      </Typography>
+                    </Box>
                   </Card>
                 )
               })}
