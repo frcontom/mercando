@@ -4,12 +4,15 @@ import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
 import ToggleButton from '@mui/material/ToggleButton'
 import StarIcon from '@mui/icons-material/Star'
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
 import { productos, loadingProductos, loadProductos, categorias, loadCategorias, showSnackbar, showFab, hideFab } from '@/store'
 import { productosService } from '@/services'
 import type { Producto, CreateProductoDto, UpdateProductoDto } from '@/models'
 import { ProductoItem } from '@/components/business/ProductoItem'
 import { ProductoFormDialog } from '@/components/business/ProductoFormDialog'
-
+import { ProductoBulkDialog } from '@/components/business/ProductoBulkDialog'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
@@ -18,6 +21,7 @@ export default function ProductosPage() {
   const [tab, setTab] = useState(0)
   const [showFavs, setShowFavs] = useState(false)
   const [formOpen, setFormOpen] = useState(false)
+  const [bulkOpen, setBulkOpen] = useState(false)
   const [editing, setEditing] = useState<Producto | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Producto | null>(null)
 
@@ -29,6 +33,7 @@ export default function ProductosPage() {
   }, [])
 
   const categoriaId = categorias.value[tab]?.id ?? ''
+  const categoriaNombre = categorias.value[tab]?.nombre ?? ''
 
   const filtered = productos.value.filter(p => {
     const matchCat = categoriaId ? p.categoria_id === categoriaId : true
@@ -48,6 +53,18 @@ export default function ProductosPage() {
       await loadProductos()
     } catch {
       showSnackbar('Error al guardar el producto')
+    }
+  }
+
+  async function handleBulkSave(nombres: string[]) {
+    try {
+      for (const nombre of nombres) {
+        await productosService.create({ nombre, unidad: 'pieza', categoria_id: categoriaId })
+      }
+      showSnackbar(`${nombres.length} producto(s) creados`)
+      await loadProductos()
+    } catch {
+      showSnackbar('Error al crear productos masivos')
     }
   }
 
@@ -100,6 +117,11 @@ export default function ProductosPage() {
               <Tab key={c.id} label={`${c.icono} ${c.nombre}`} sx={{ minHeight: 48, py: 1 }} />
             ))}
           </Tabs>
+          <Tooltip title="Crear varios">
+            <IconButton size="small" onClick={() => setBulkOpen(true)}>
+              <PlaylistAddIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
           <ToggleButton
             value="favs"
             selected={showFavs}
@@ -137,6 +159,13 @@ export default function ProductosPage() {
         defaultCategoriaId={categoriaId}
         onSave={handleSave}
         onClose={() => { setFormOpen(false); setEditing(null) }}
+      />
+
+      <ProductoBulkDialog
+        open={bulkOpen}
+        categoriaNombre={categoriaNombre}
+        onSave={handleBulkSave}
+        onClose={() => { setBulkOpen(false) }}
       />
 
       <ConfirmDialog

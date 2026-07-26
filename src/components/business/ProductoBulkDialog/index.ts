@@ -1,0 +1,1 @@
+export { ProductoBulkDialog } from './ProductoBulkDialog'
