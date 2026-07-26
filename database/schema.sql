@@ -14,8 +14,8 @@ CREATE TABLE mercados (
   nombre TEXT NOT NULL,
   fecha DATE NOT NULL,
   presupuesto NUMERIC(10, 2) NOT NULL DEFAULT 0,
-  estado TEXT NOT NULL DEFAULT 'planeando'
-    CHECK (estado IN ('planeando', 'en_curso', 'completado')),
+  estado TEXT NOT NULL DEFAULT 'activo'
+    CHECK (estado IN ('activo', 'inactivo')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

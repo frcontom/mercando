@@ -13,7 +13,7 @@ export default function DashboardPage() {
 
   useEffect(() => { loadMercados() }, [])
 
-  const activo = mercados.value.find(m => m.estado !== 'completado')
+  const activo = mercados.value.find(m => m.estado === 'activo')
 
   return (
     <Box sx={{ p: 2 }}>
@@ -31,7 +31,7 @@ export default function DashboardPage() {
               <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
                 {activo.nombre}
               </Typography>
-              <Chip label={activo.estado} size="small" color="warning" />
+              <Chip label={activo.estado} size="small" color="success" />
             </Box>
             <Typography variant="body2" color="text.secondary" gutterBottom>
               {new Date(activo.fecha).toLocaleDateString()} · {formatCurrency(activo.presupuesto)}

@@ -7,7 +7,7 @@ export interface Mercado {
   created_at: string
 }
 
-export type MercadoEstado = 'planeando' | 'en_curso' | 'completado'
+export type MercadoEstado = 'activo' | 'inactivo'
 
 export type CreateMercadoDto = Pick<Mercado, 'nombre' | 'fecha' | 'presupuesto'>
 export type UpdateMercadoDto = Partial<Pick<Mercado, 'nombre' | 'fecha' | 'presupuesto' | 'estado'>>

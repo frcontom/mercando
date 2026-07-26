@@ -65,7 +65,7 @@ export default function MercadoDetailPage() {
   }, [id])
 
   useEffect(() => {
-    if (mercado?.estado !== 'completado') showFab(() => setAddTiendaOpen(true))
+    if (mercado?.estado === 'activo') showFab(() => setAddTiendaOpen(true))
     return () => hideFab()
   }, [mercado?.estado])
 
@@ -185,7 +185,7 @@ export default function MercadoDetailPage() {
       <Box sx={{ p: 2, bgcolor: 'background.paper' }}>
         <Typography variant="h6">{mercado.nombre}</Typography>
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 0.5 }}>
-          <Chip label={mercado.estado} size="small" color={mercado.estado === 'completado' ? 'success' : 'warning'} />
+          <Chip label={mercado.estado} size="small" color={mercado.estado === 'activo' ? 'success' : 'default'} />
           <Typography variant="caption" color="text.secondary">{new Date(mercado.fecha).toLocaleDateString()}</Typography>
         </Box>
         <Box sx={{ mt: 1 }}>

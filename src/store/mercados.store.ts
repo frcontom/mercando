@@ -7,7 +7,7 @@ export const selected = signal<Mercado | null>(null)
 export const loading = signal(false)
 
 export const activeMercados = computed(() =>
-  list.value.filter(m => m.estado !== 'completado')
+  list.value.filter(m => m.estado === 'activo')
 )
 
 export async function loadMercados(): Promise<void> {

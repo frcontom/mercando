@@ -17,16 +17,14 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { formatCurrency } from '@/core/utils/formatters'
 
-const estadoColors: Record<MercadoEstado, 'info' | 'warning' | 'success'> = {
-  planeando: 'info',
-  en_curso: 'warning',
-  completado: 'success',
+const estadoColors: Record<MercadoEstado, 'success' | 'default'> = {
+  activo: 'success',
+  inactivo: 'default',
 }
 
 const nextEstado: Record<MercadoEstado, MercadoEstado> = {
-  planeando: 'en_curso',
-  en_curso: 'completado',
-  completado: 'planeando',
+  activo: 'inactivo',
+  inactivo: 'activo',
 }
 
 export default function MercadosPage() {
