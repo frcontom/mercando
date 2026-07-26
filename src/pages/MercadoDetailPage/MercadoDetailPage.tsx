@@ -161,10 +161,10 @@ export default function MercadoDetailPage() {
     const cantidad = Number(cantidadEdit) || 1
     try {
       await mercadoProductosService.update(item.id, { estado: selectedEstado, precio, cantidad })
+      await loadProductosByCategoria(item.mercado_tienda_categoria_id)
       showSnackbar(`${item.producto?.nombre ?? 'Producto'} → ${LABEL_ESTADOS[selectedEstado]} · ${cantidad} × ${formatCurrency(precio)}`)
       setEstadoDialog({ open: false, item: null })
       setRefreshKey(k => k + 1)
-      await loadProductosByCategoria(item.mercado_tienda_categoria_id)
     } catch { showSnackbar('Error') }
   }
 
