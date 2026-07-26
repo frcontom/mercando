@@ -57,7 +57,7 @@ export default function MercadoDetailPage() {
   const [addTiendaOpen, setAddTiendaOpen] = useState(false)
   const [addCategoriaFor, setAddCategoriaFor] = useState<string | null>(null)
   const [addProductoFor, setAddProductoFor] = useState<string | null>(null)
-  const [productoForm, setProductoForm] = useState({ producto_id: '', cantidad: '1', precio: '' })
+  const [productoForm, setProductoForm] = useState({ producto_id: '', cantidad: '1' })
   const [estadoDialog, setEstadoDialog] = useState<{ open: boolean; item: MercadoProducto | null }>({ open: false, item: null })
   const [selectedEstado, setSelectedEstado] = useState<EstadoProducto>('pendiente')
   const [refreshKey, setRefreshKey] = useState(0)
@@ -160,7 +160,7 @@ export default function MercadoDetailPage() {
 
   async function handleAddProducto() {
     if (!addProductoFor || !productoForm.producto_id) return
-    try { await mercadoProductosService.add({ mercado_tienda_categoria_id: addProductoFor, producto_id: productoForm.producto_id, cantidad: Number(productoForm.cantidad) }); showSnackbar('Producto agregado'); await loadProductosByCategoria(addProductoFor); setAddProductoFor(null); setProductoForm({ producto_id: '', cantidad: '1', precio: '' }) }
+    try { await mercadoProductosService.add({ mercado_tienda_categoria_id: addProductoFor, producto_id: productoForm.producto_id, cantidad: Number(productoForm.cantidad) }); showSnackbar('Producto agregado'); await loadProductosByCategoria(addProductoFor); setAddProductoFor(null); setProductoForm({ producto_id: '', cantidad: '1' }) }
     catch { showSnackbar('Error') }
   }
 
@@ -380,7 +380,7 @@ export default function MercadoDetailPage() {
                               </Card>
                             ))
                           )}
-                          <Button size="small" startIcon={<AddIcon />} onClick={() => { setAddProductoFor(mtc.id); setProductoForm({ producto_id: '', cantidad: '1', precio: '' }) }}>Agregar producto</Button>
+                          <Button size="small" startIcon={<AddIcon />} onClick={() => { setAddProductoFor(mtc.id); setProductoForm({ producto_id: '', cantidad: '1' }) }}>Agregar producto</Button>
                         </AccordionDetails>
                       </Accordion>
                     ))
@@ -417,20 +417,7 @@ export default function MercadoDetailPage() {
           <TextField select fullWidth label="Producto" value={productoForm.producto_id} onChange={e => setProductoForm(p => ({ ...p, producto_id: e.target.value }))} sx={{ mb: 2, mt: 1 }}>
             {productos.value.filter(p => p.categoria_id === (Object.values(mercadoTiendaCategorias.value).flat().find(mtc => mtc.id === addProductoFor)?.categoria_id ?? '')).map(p => (<MenuItem key={p.id} value={p.id}>{p.nombre} ({p.unidad})</MenuItem>))}
           </TextField>
-          <TextField fullWidth type="number" label="Cantidad" value={productoForm.cantidad} onChange={e => setProductoForm(p => ({ ...p, cantidad: e.target.value }))} slotProps={{ htmlInput: { min: 1 } }} sx={{ mb: 2 }} />
-          <TextField fullWidth type="text" label="Precio" value={productoForm.precio} onChange={e => { const val = e.target.value.replace(/[^0-9]/g, ''); setProductoForm(p => ({ ...p, precio: val })) }} slotProps={{ htmlInput: { inputMode: 'numeric' } }} />
-          {productoForm.precio && Number(productoForm.precio) > 0 && (
-            <Box sx={{ mt: 2, px: 1, py: 0.5, borderRadius: 2 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
-                <Typography variant="body2" color="text.secondary">Precio unitario</Typography>
-                <Typography variant="h6" sx={{ fontWeight: 700, color: '#69f0ae', minWidth: 120, textAlign: 'right' }}>{formatCurrency(Number(productoForm.precio))}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant="body2" color="text.secondary">Total a pagar</Typography>
-                <Typography variant="h6" sx={{ fontWeight: 800, color: '#69f0ae', minWidth: 120, textAlign: 'right' }}>{formatCurrency(Number(productoForm.precio) * Number(productoForm.cantidad))}</Typography>
-              </Box>
-            </Box>
-          )}
+          <TextField fullWidth type="number" label="Cantidad" value={productoForm.cantidad} onChange={e => setProductoForm(p => ({ ...p, cantidad: e.target.value }))} slotProps={{ htmlInput: { min: 1 } }} />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setAddProductoFor(null)}>Cancelar</Button>
