@@ -9,6 +9,9 @@ import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
+import TextField from '@mui/material/TextField'
+import InputAdornment from '@mui/material/InputAdornment'
+import SearchIcon from '@mui/icons-material/Search'
 import { productos as productosSignal, loadingProductos, loadProductos, categorias, loadCategorias, showSnackbar } from '@/store'
 import { useSignalValue } from '@/hooks/useSignalValue'
 import { productosService } from '@/services'
@@ -25,6 +28,7 @@ export default function ProductosPage() {
   const isLoading = useSignalValue(loadingProductos)
   const [tab, setTab] = useState(0)
   const [showFavs, setShowFavs] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   const [formOpen, setFormOpen] = useState(false)
   const [bulkOpen, setBulkOpen] = useState(false)
   const [editing, setEditing] = useState<Producto | null>(null)
@@ -39,7 +43,8 @@ export default function ProductosPage() {
   const filtered = items.filter(p => {
     const matchCat = categoriaId ? p.categoria_id === categoriaId : true
     const matchFav = showFavs ? p.favorito : true
-    return matchCat && matchFav
+    const matchSearch = searchQuery ? p.nombre.toLowerCase().includes(searchQuery.toLowerCase()) : true
+    return matchCat && matchFav && matchSearch
   })
 
   async function handleSave(data: CreateProductoDto | UpdateProductoDto) {
@@ -140,7 +145,21 @@ export default function ProductosPage() {
         </Box>
       )}
 
-      <Box sx={{ p: 2 }}>
+      <Box sx={{ px: 2, pb: 1 }}>
+        <TextField
+          fullWidth
+          size="small"
+          placeholder="Buscar producto…"
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          slotProps={{
+            input: {
+              startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment>,
+            },
+          }}
+        />
+      </Box>
+      <Box sx={{ p: 2, pt: 0 }}>
         {filtered.length === 0 ? (
           <EmptyState message={showFavs ? 'No hay favoritos en esta categoría' : 'No hay productos en esta categoría'} />
         ) : (
