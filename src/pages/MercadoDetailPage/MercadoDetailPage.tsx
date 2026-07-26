@@ -8,9 +8,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import AddIcon from '@mui/icons-material/Add'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import EditIcon from '@mui/icons-material/Edit'
-import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout'
-import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
-import DoDisturbAltIcon from '@mui/icons-material/DoDisturbAlt'
+
 import LinearProgress from '@mui/material/LinearProgress'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
@@ -317,10 +315,31 @@ export default function MercadoDetailPage() {
                           <Typography variant="caption" sx={{ fontWeight: 600, color: 'primary.main', display: 'block', py: 0.8, px: 0.5, borderBottom: '1px solid', borderColor: 'divider' }}>
                             {group.icono} {group.nombre}
                           </Typography>
-                          {group.items.map(mp => (
+                          {group.items.map(mp => {
+                            const letra = mp.producto?.nombre?.charAt(0).toUpperCase() ?? '?'
+                            const colorEstado = mp.estado === 'encontrado' ? '#69f0ae' : mp.estado === 'no_habia' ? '#ff9800' : 'rgba(255,255,255,0.15)'
+                            const encontrada = mp.cantidad_encontrada || mp.cantidad
+                            const avance = mp.cantidad > 0 ? encontrada / mp.cantidad : 0
+                            let touchStartX = 0
+                            let touchMoved = false
+                            return (
                             <Box
                               key={mp.id}
-                              onClick={() => toggleProductoEstado(mp)}
+                              onClick={() => { if (!touchMoved) toggleProductoEstado(mp); touchMoved = false }}
+                              onTouchStart={e => { touchStartX = e.touches[0].clientX; touchMoved = false }}
+                              onTouchMove={e => { if (Math.abs(e.touches[0].clientX - touchStartX) > 20) touchMoved = true }}
+                              onTouchEnd={e => {
+                                if (!touchMoved) return
+                                const dx = e.changedTouches[0].clientX - touchStartX
+                                if (Math.abs(dx) > 50) {
+                                  const nuevoEstado = dx > 0 ? 'encontrado' : 'no_habia'
+                                  if (mp.estado !== nuevoEstado) {
+                                    mercadoProductosService.update(mp.id, { estado: nuevoEstado as any }).then(() => {
+                                      loadProductosByCategoria(mp.mercado_tienda_categoria_id).then(() => setRefreshKey(k => k + 1))
+                                    })
+                                  }
+                                }
+                              }}
                               sx={{
                                 display: 'flex',
                                 alignItems: 'center',
@@ -328,39 +347,62 @@ export default function MercadoDetailPage() {
                                 py: 1,
                                 px: 0.5,
                                 cursor: 'pointer',
-                                opacity: mp.estado !== 'pendiente' ? 0.65 : 1,
-                                bgcolor: mp.estado === 'encontrado' ? 'rgba(105, 240, 174, 0.06)' : mp.estado === 'no_habia' ? 'rgba(255, 152, 0, 0.06)' : undefined,
-                                borderBottom: '1px solid',
-                                borderColor: 'divider',
+                                borderRadius: 1.5,
+                                mb: 0.3,
+                                opacity: mp.estado !== 'pendiente' ? 0.7 : 1,
+                                bgcolor: mp.estado === 'encontrado' ? 'rgba(105, 240, 174, 0.06)' : mp.estado === 'no_habia' ? 'rgba(255, 152, 0, 0.06)' : 'rgba(255,255,255,0.02)',
+                                backdropFilter: 'blur(4px)',
+                                border: '1px solid',
+                                borderColor: mp.estado === 'encontrado' ? 'rgba(105,240,174,0.12)' : mp.estado === 'no_habia' ? 'rgba(255,152,0,0.12)' : 'rgba(255,255,255,0.04)',
                                 '&:active': { bgcolor: 'action.hover' },
-                                transition: 'background 0.15s ease',
+                                transition: 'all 0.2s ease',
                               }}
                             >
-                              {mp.estado === 'encontrado' ? (
-                                <ShoppingCartCheckoutIcon sx={{ color: '#69f0ae', fontSize: 20, flexShrink: 0 }} />
-                              ) : mp.estado === 'no_habia' ? (
-                                <DoDisturbAltIcon sx={{ color: '#ff9800', fontSize: 20, flexShrink: 0 }} />
-                              ) : (
-                                <RadioButtonUncheckedIcon sx={{ color: 'text.disabled', fontSize: 20, flexShrink: 0 }} />
-                              )}
+                              <Box sx={{
+                                width: 28,
+                                height: 28,
+                                borderRadius: '50%',
+                                backgroundColor: colorEstado,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexShrink: 0,
+                                fontSize: 12,
+                                fontWeight: 700,
+                                color: mp.estado === 'pendiente' ? 'text.secondary' : '#000',
+                              }}>
+                                {letra}
+                              </Box>
                               <Box sx={{ flex: 1, minWidth: 0 }}>
-                                <Typography variant="body2" sx={{ fontWeight: 500, textDecoration: mp.estado !== 'pendiente' ? 'line-through' : 'none', lineHeight: 1.3 }}>
+                                <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.3, textDecoration: mp.estado !== 'pendiente' ? 'line-through' : 'none' }}>
                                   {mp.producto?.nombre}
                                 </Typography>
-                                <Typography variant="caption" color="text.secondary">
-                                  {mp.cantidad} {mp.producto?.unidad}
-                                  {mp.estado !== 'pendiente' ? ` | ${mp.estado === 'no_habia' ? '0' : mp.cantidad_encontrada || mp.cantidad}` : ''}
+                                <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                  <span>{mp.cantidad} {mp.producto?.unidad}</span>
+                                  {mp.estado !== 'pendiente' ? <span>| {mp.estado === 'no_habia' ? '0' : encontrada}</span> : null}
                                 </Typography>
+                                {mp.estado !== 'pendiente' && mp.cantidad > 0 && (
+                                  <Box sx={{ width: '100%', height: 2, bgcolor: 'rgba(255,255,255,0.08)', borderRadius: 1, mt: 0.3, overflow: 'hidden' }}>
+                                    <Box sx={{ width: `${Math.min(avance, 1) * 100}%`, height: '100%', bgcolor: colorEstado, borderRadius: 1, transition: 'width 0.3s ease' }} />
+                                  </Box>
+                                )}
                               </Box>
                               {mp.estado === 'no_habia' ? (
-                                <Chip label="No encontrado" size="small" color="error" variant="outlined" sx={{ height: 20, '& .MuiChip-label': { px: 0.8, fontSize: '0.6rem' } }} />
+                                <Box sx={{ bgcolor: 'rgba(255,152,0,0.15)', color: '#ff9800', fontSize: '0.6rem', fontWeight: 700, px: 1, py: 0.3, borderRadius: 1, flexShrink: 0, whiteSpace: 'nowrap' }}>
+                                  No había
+                                </Box>
                               ) : mp.precio > 0 ? (
-                                <Typography variant="body2" sx={{ fontWeight: 700, color: mp.estado === 'encontrado' ? '#69f0ae' : 'text.disabled', flexShrink: 0 }}>
+                                <Box sx={{
+                                  bgcolor: mp.estado === 'encontrado' ? 'rgba(105,240,174,0.15)' : 'rgba(255,255,255,0.06)',
+                                  color: mp.estado === 'encontrado' ? '#69f0ae' : 'text.disabled',
+                                  fontSize: '0.7rem', fontWeight: 700, px: 1, py: 0.3, borderRadius: 1, flexShrink: 0, whiteSpace: 'nowrap',
+                                }}>
                                   {formatCurrency(mp.precio * qtyParaTotal(mp))}
-                                </Typography>
+                                </Box>
                               ) : null}
                             </Box>
-                          ))}
+                          )
+                          })}
                         </Box>
                       ))}</>
                     })()}
