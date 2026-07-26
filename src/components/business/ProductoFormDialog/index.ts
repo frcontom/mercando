@@ -1,0 +1,1 @@
+export { ProductoFormDialog } from './ProductoFormDialog'

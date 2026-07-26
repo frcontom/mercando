@@ -33,7 +33,7 @@ export function TiendaCard({ tienda, onEdit, onDelete }: TiendaCardProps) {
           {tienda.icono}
         </Box>
         <Box sx={{ flex: 1 }}>
-          <Typography variant="subtitle1" fontWeight={500}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
             {tienda.nombre}
           </Typography>
         </Box>

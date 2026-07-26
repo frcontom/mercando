@@ -19,7 +19,7 @@ export function CategoriaItem({ categoria, onEdit, onDelete }: CategoriaItemProp
       <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, pb: '16px !important' }}>
         <Box sx={{ fontSize: 28, flexShrink: 0 }}>{categoria.icono}</Box>
         <Box sx={{ flex: 1 }}>
-          <Typography variant="subtitle1" fontWeight={500}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
             {categoria.nombre}
           </Typography>
         </Box>
