@@ -13,6 +13,7 @@ import { loadProductosByCategoria, getProductosByCategoria } from '@/store'
 import { refreshHandler } from '@/store'
 import { formatCurrency } from '@/core/utils/formatters'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
+import { StoreIcon } from '@/components/business/StoreIcon'
 import { LABEL_ESTADOS } from '@/core/constants/estados'
 import type { MercadoProducto } from '@/models'
 
@@ -158,15 +159,8 @@ export default function DashboardPage() {
                       transition: 'transform 0.15s ease',
                     }}
                   >
-                    {mt.tienda?.icono.startsWith('/') || mt.tienda?.icono.startsWith('http') ? (
-                      <Box
-                        component="img"
-                        src={mt.tienda?.icono}
-                        sx={{ width: 36, height: 36, borderRadius: '50%', mb: 0.5, objectFit: 'cover' }}
-                      />
-                    ) : (
-                      <Typography sx={{ fontSize: 28, mb: 0.5 }}>{mt.tienda?.icono}</Typography>
-                    )}
+                    <StoreIcon tienda={mt.tienda} size={36} />
+                    <Box sx={{ height: 4 }} />
                     <Typography variant="caption" sx={{ fontWeight: 600, textAlign: 'center', lineHeight: 1.2, fontSize: '0.65rem' }}>
                       {mt.tienda?.nombre}
                     </Typography>

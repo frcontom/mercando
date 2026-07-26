@@ -36,6 +36,7 @@ import { mercadoProductos, loadProductosByCategoria, getProductosByCategoria } f
 import { tiendas, loadTiendas, categorias, loadCategorias, productos, loadProductos } from '@/store'
 import { mercadoTiendasService, mercadoTiendaCategoriasService, mercadoProductosService } from '@/services'
 import { showSnackbar, showFab, hideFab, pendingCount, refreshHandler, userRole } from '@/store'
+import { StoreIcon } from '@/components/business/StoreIcon'
 import { playClick } from '@/core/utils/sound'
 import { CompraCompletadaDialog } from '@/components/business/CompraCompletadaDialog'
 import confetti from 'canvas-confetti'
@@ -273,7 +274,7 @@ export default function MercadoDetailPage() {
                 {currentTiendaId === '__todas__' ? 'Inicio' : 'Todas las tiendas'}
               </Button>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                <Typography sx={{ fontSize: 24 }}>{currentTiendaId === '__todas__' ? '📋' : currentMT?.tienda?.icono}</Typography>
+                {currentTiendaId === '__todas__' ? <Typography sx={{ fontSize: 24 }}>📋</Typography> : <StoreIcon tienda={currentMT?.tienda} size={28} />}
                 <Box sx={{ flex: 1 }}>
                   <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{currentTiendaId === '__todas__' ? 'Todas las tiendas' : currentMT?.tienda?.nombre}</Typography>
                   <LinearProgress variant="determinate" value={currentProductos.length > 0 ? (countEncontrados(currentTiendaId) / currentProductos.length) * 100 : 0} sx={{ height: 6, borderRadius: 3, mt: 0.5 }} />
@@ -362,7 +363,7 @@ export default function MercadoDetailPage() {
                     <Card key={mt.id} onClick={() => { setCurrentTiendaId(mt.id); const e = searchParams.get('edit'); setSearchParams(e ? { edit: e, tienda: mt.id } : { tienda: mt.id }) }} sx={{ cursor: 'pointer', mb: 1.5, '&:active': { transform: 'scale(0.98)' }, transition: 'transform 0.15s ease' }}>
                       <CardContent sx={{ pb: '12px !important' }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                          <Typography sx={{ fontSize: 32 }}>{mt.tienda?.icono}</Typography>
+                          <StoreIcon tienda={mt.tienda} size={32} />
                           <Box sx={{ flex: 1 }}>
                             <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{mt.tienda?.nombre}</Typography>
                             <Typography variant="caption" color="text.secondary">
@@ -397,7 +398,7 @@ export default function MercadoDetailPage() {
               <Accordion key={mt.id} expanded={tiendaExpanded === mt.id} onChange={(_, exp) => setTiendaExpanded(exp ? mt.id : false)} sx={{ mb: 1 }}>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
-                    <Typography sx={{ fontSize: 20 }}>{mt.tienda?.icono}</Typography>
+                    <StoreIcon tienda={mt.tienda} size={24} />
                     <Typography sx={{ flex: 1, fontWeight: 500 }}>{mt.tienda?.nombre}</Typography>
                     <IconButton component="span" size="small" onClick={e => { e.stopPropagation(); setDeleteTarget({ type: 'tienda', id: mt.id }) }}><DeleteIcon fontSize="small" /></IconButton>
                   </Box>
