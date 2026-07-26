@@ -497,7 +497,7 @@ export default function MercadoDetailPage() {
                         <Typography sx={{ flex: 1, fontWeight: 600 }}>{mtc.categoria?.nombre}</Typography>
                         <Typography variant="caption" color="text.secondary">({getProductos(mtc.id).length})</Typography>
                         {productos.value.filter(p => p.categoria_id === mtc.categoria_id).length > getProductos(mtc.id).length && (
-                          <Button size="small" variant="outlined" startIcon={<AddIcon />} onClick={() => { setAddProductoFor(mtc.id); setProductoForm({ producto_id: '', cantidad: '1' }) }}>+</Button>
+                          <IconButton size="small" onClick={() => { setAddProductoFor(mtc.id); setProductoForm({ producto_id: '', cantidad: '1' }) }}><AddIcon fontSize="small" /></IconButton>
                         )}
                         <IconButton size="small" onClick={() => setDeleteTarget({ type: 'categoria', id: mtc.id })}><DeleteIcon fontSize="small" /></IconButton>
                       </Box>
