@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
@@ -24,8 +24,16 @@ interface AsignarProductosDialogProps {
 
 export function AsignarProductosDialog({ open, productos, tiendas, onSave, onClose }: AsignarProductosDialogProps) {
   const [selected, setSelected] = useState<Set<string>>(new Set())
-  const [tiendaId, setTiendaId] = useState(tiendas[0]?.id ?? '')
+  const [tiendaId, setTiendaId] = useState('')
   const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    if (open) {
+      setSelected(new Set())
+      setTiendaId(tiendas[0]?.id ?? '')
+      setSaving(false)
+    }
+  }, [open, tiendas])
 
   function toggleProducto(id: string) {
     setSelected(prev => {
