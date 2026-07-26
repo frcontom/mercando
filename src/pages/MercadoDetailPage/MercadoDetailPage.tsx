@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
@@ -46,8 +46,9 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 
 export default function MercadoDetailPage() {
   const { id } = useParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [shoppingMode, setShoppingMode] = useState(true)
-  const [currentTiendaId, setCurrentTiendaId] = useState<string | null>(null)
+  const [currentTiendaId, setCurrentTiendaId] = useState<string | null>(searchParams.get('tienda') ?? null)
   const [tiendaExpanded, setTiendaExpanded] = useState<string | false>(false)
   const [catExpanded, setCatExpanded] = useState<string | false>(false)
   const [deleteTarget, setDeleteTarget] = useState<{ type: string; id: string } | null>(null)
@@ -229,7 +230,7 @@ export default function MercadoDetailPage() {
         <Box sx={{ p: 2 }}>
           {currentTiendaId && currentMT ? (
             <>
-              <Button size="small" startIcon={<ArrowBackIcon />} onClick={() => setCurrentTiendaId(null)} sx={{ mb: 1 }}>
+              <Button size="small" startIcon={<ArrowBackIcon />} onClick={() => { setCurrentTiendaId(null); setSearchParams({}) }} sx={{ mb: 1 }}>
                 Todas las tiendas
               </Button>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
@@ -296,7 +297,7 @@ export default function MercadoDetailPage() {
                   const prods = getProductosFromTienda(mt.id)
                   const enc = countEncontrados(mt.id)
                   return (
-                    <Card key={mt.id} onClick={() => setCurrentTiendaId(mt.id)} sx={{ cursor: 'pointer', mb: 1.5, '&:active': { transform: 'scale(0.98)' }, transition: 'transform 0.15s ease' }}>
+                    <Card key={mt.id} onClick={() => { setCurrentTiendaId(mt.id); setSearchParams({ tienda: mt.id }) }} sx={{ cursor: 'pointer', mb: 1.5, '&:active': { transform: 'scale(0.98)' }, transition: 'transform 0.15s ease' }}>
                       <CardContent sx={{ pb: '12px !important' }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                           <Typography sx={{ fontSize: 32 }}>{mt.tienda?.icono}</Typography>
