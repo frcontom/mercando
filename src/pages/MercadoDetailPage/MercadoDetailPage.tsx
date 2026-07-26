@@ -18,6 +18,7 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
+import Autocomplete from '@mui/material/Autocomplete'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
@@ -568,9 +569,23 @@ export default function MercadoDetailPage() {
       <Dialog open={addProductoFor !== null} onClose={() => setAddProductoFor(null)} fullWidth maxWidth="xs">
         <DialogTitle>Agregar producto</DialogTitle>
         <DialogContent>
-          <TextField select fullWidth label="Producto" value={productoForm.producto_id} onChange={e => setProductoForm(p => ({ ...p, producto_id: e.target.value }))} sx={{ mb: 2, mt: 1 }}>
-            {productos.value.filter(p => p.categoria_id === (Object.values(mercadoTiendaCategorias.value).flat().find(mtc => mtc.id === addProductoFor)?.categoria_id ?? '') && !getProductos(addProductoFor!).some(mp => mp.producto_id === p.id)).map(p => (<MenuItem key={p.id} value={p.id}>{p.nombre} ({p.unidad})</MenuItem>))}
-          </TextField>
+          {(() => {
+            const disponibles = productos.value.filter(p => p.categoria_id === (Object.values(mercadoTiendaCategorias.value).flat().find(mtc => mtc.id === addProductoFor)?.categoria_id ?? '') && !getProductos(addProductoFor!).some(mp => mp.producto_id === p.id))
+            const selected = disponibles.find(p => p.id === productoForm.producto_id) ?? null
+            return (
+              <Autocomplete
+                options={disponibles}
+                value={selected}
+                onChange={(_, v) => setProductoForm(p => ({ ...p, producto_id: v?.id ?? '' }))}
+                getOptionLabel={o => `${o.nombre} (${o.unidad})`}
+                isOptionEqualToValue={(o, v) => o.id === v.id}
+                renderInput={params => <TextField {...params} label="Producto" autoFocus sx={{ mb: 2, mt: 1 }} />}
+                noOptionsText="Sin resultados"
+                size="small"
+                fullWidth
+              />
+            )
+          })()}
           <TextField fullWidth type="number" label="Cantidad" value={productoForm.cantidad} onChange={e => setProductoForm(p => ({ ...p, cantidad: e.target.value }))} slotProps={{ htmlInput: { min: 1 } }} />
         </DialogContent>
         <DialogActions>
