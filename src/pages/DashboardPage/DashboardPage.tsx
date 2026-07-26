@@ -138,29 +138,27 @@ export default function DashboardPage() {
               Sin tiendas asignadas
             </Typography>
           ) : (
-            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: 1.5, mb: 3 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 3 }}>
               <Card
                 onClick={() => navigate(`/mercados/${activo.id}?tienda=__todas__`)}
                 sx={{
                   cursor: 'pointer',
-                  aspectRatio: '1',
                   display: 'flex',
-                  flexDirection: 'column',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  p: 1,
-                  border: '1px dashed rgba(255,255,255,0.2)',
-                  '&:active': { transform: 'scale(0.95)' },
+                  gap: 2,
+                  py: 1.5,
+                  px: 2,
+                  border: '1px dashed rgba(255,255,255,0.15)',
+                  '&:active': { transform: 'scale(0.98)' },
                   transition: 'transform 0.15s ease',
                 }}
               >
-                <Typography sx={{ fontSize: 28, mb: 0.5, opacity: 0.5 }}>📋</Typography>
-                <Typography variant="caption" sx={{ fontWeight: 600, textAlign: 'center', lineHeight: 1.2, fontSize: '0.65rem' }}>
-                  Todas
-                </Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.6rem' }}>
-                  {encontradosGlobal}/{todosProductos.length}
-                </Typography>
+                <Typography sx={{ fontSize: 24, opacity: 0.5 }}>📋</Typography>
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>Todas las tiendas</Typography>
+                  <Typography variant="caption" color="text.secondary">{encontradosGlobal}/{todosProductos.length} productos</Typography>
+                </Box>
+                <Typography variant="body2" sx={{ fontWeight: 700, color: '#69f0ae' }}>{formatCurrency(totalEncontrados)}</Typography>
               </Card>
               {mercadoTiendas.value.map(mt => {
                 const prods = getProductosFromTienda(mt.id)
@@ -172,24 +170,21 @@ export default function DashboardPage() {
                     onClick={() => navigate(`/mercados/${activo.id}?tienda=${mt.id}`)}
                     sx={{
                       cursor: 'pointer',
-                      aspectRatio: '1',
                       display: 'flex',
-                      flexDirection: 'column',
                       alignItems: 'center',
-                      justifyContent: 'center',
-                      p: 1,
-                      '&:active': { transform: 'scale(0.95)' },
+                      gap: 2,
+                      py: 1.5,
+                      px: 2,
+                      '&:active': { transform: 'scale(0.98)' },
                       transition: 'transform 0.15s ease',
                     }}
                   >
-                    <StoreIcon tienda={mt.tienda} size={36} />
-                    <Box sx={{ height: 4 }} />
-                    <Typography variant="caption" sx={{ fontWeight: 600, textAlign: 'center', lineHeight: 1.2, fontSize: '0.65rem' }}>
-                      {mt.tienda?.nombre}
-                    </Typography>
-                    <Typography variant="caption" color={enc === prods.length && prods.length > 0 ? 'success.main' : 'text.secondary'} sx={{ fontSize: '0.6rem' }}>
-                      {enc}/{prods.length} · {formatCurrency(total)}
-                    </Typography>
+                    <StoreIcon tienda={mt.tienda} size={40} />
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>{mt.tienda?.nombre}</Typography>
+                      <Typography variant="caption" color="text.secondary">{enc}/{prods.length} productos</Typography>
+                    </Box>
+                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#69f0ae' }}>{formatCurrency(total)}</Typography>
                   </Card>
                 )
               })}
