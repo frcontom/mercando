@@ -18,6 +18,7 @@ export default function TiendasPage() {
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Tienda | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Tienda | null>(null)
+  const [deleteAllOpen, setDeleteAllOpen] = useState(false)
 
   useEffect(() => { loadTiendas() }, [])
 
@@ -89,12 +90,30 @@ export default function TiendasPage() {
         onClose={() => { setFormOpen(false); setEditing(null) }}
       />
 
+      <Box sx={{ mt: 3 }}>
+        <Button fullWidth color="error" variant="outlined" onClick={() => setDeleteAllOpen(true)}>
+          Borrar todas las tiendas
+        </Button>
+      </Box>
+
       <ConfirmDialog
         open={deleteTarget !== null}
         title="Eliminar tienda"
         message={`¿Eliminar "${deleteTarget?.nombre}"?`}
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
+      />
+
+      <ConfirmDialog
+        open={deleteAllOpen}
+        title="Borrar todas las tiendas"
+        message="¿Eliminar todas las tiendas y sus relaciones en los mercados? Esta acción no se puede deshacer."
+        onConfirm={async () => {
+          try { await tiendasService.deleteAll(); showSnackbar('Tiendas eliminadas'); await loadTiendas() }
+          catch { showSnackbar('Error al eliminar') }
+          finally { setDeleteAllOpen(false) }
+        }}
+        onCancel={() => setDeleteAllOpen(false)}
       />
     </Box>
   )

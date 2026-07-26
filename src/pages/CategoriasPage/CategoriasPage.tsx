@@ -18,6 +18,7 @@ export default function CategoriasPage() {
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Categoria | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Categoria | null>(null)
+  const [deleteAllOpen, setDeleteAllOpen] = useState(false)
 
   useEffect(() => { loadCategorias() }, [])
 
@@ -88,12 +89,30 @@ export default function CategoriasPage() {
         onClose={() => { setFormOpen(false); setEditing(null) }}
       />
 
+      <Box sx={{ mt: 3 }}>
+        <Button fullWidth color="error" variant="outlined" onClick={() => setDeleteAllOpen(true)}>
+          Borrar todas las categorías
+        </Button>
+      </Box>
+
       <ConfirmDialog
         open={deleteTarget !== null}
         title="Eliminar categoría"
         message={`¿Eliminar "${deleteTarget?.nombre}"?`}
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
+      />
+
+      <ConfirmDialog
+        open={deleteAllOpen}
+        title="Borrar todas las categorías"
+        message="¿Eliminar todas las categorías y sus relaciones en los mercados? Esta acción no se puede deshacer."
+        onConfirm={async () => {
+          try { await categoriasService.deleteAll(); showSnackbar('Categorías eliminadas'); await loadCategorias() }
+          catch { showSnackbar('Error al eliminar') }
+          finally { setDeleteAllOpen(false) }
+        }}
+        onCancel={() => setDeleteAllOpen(false)}
       />
     </Box>
   )

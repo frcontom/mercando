@@ -6,6 +6,7 @@ import ToggleButton from '@mui/material/ToggleButton'
 import StarIcon from '@mui/icons-material/Star'
 import AddIcon from '@mui/icons-material/Add'
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd'
+import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 import { productos as productosSignal, loadingProductos, loadProductos, categorias, loadCategorias, showSnackbar } from '@/store'
@@ -28,6 +29,7 @@ export default function ProductosPage() {
   const [bulkOpen, setBulkOpen] = useState(false)
   const [editing, setEditing] = useState<Producto | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Producto | null>(null)
+  const [deleteAllOpen, setDeleteAllOpen] = useState(false)
 
   useEffect(() => { loadCategorias(); loadProductos() }, [])
 
@@ -172,12 +174,30 @@ export default function ProductosPage() {
         onClose={() => { setBulkOpen(false) }}
       />
 
+      <Box sx={{ mt: 3, px: 2 }}>
+        <Button fullWidth color="error" variant="outlined" onClick={() => setDeleteAllOpen(true)}>
+          Borrar todos los productos
+        </Button>
+      </Box>
+
       <ConfirmDialog
         open={deleteTarget !== null}
         title="Eliminar producto"
         message={`¿Eliminar "${deleteTarget?.nombre}"?`}
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
+      />
+
+      <ConfirmDialog
+        open={deleteAllOpen}
+        title="Borrar todos los productos"
+        message="¿Eliminar todos los productos del catálogo y sus referencias en los mercados? Esta acción no se puede deshacer."
+        onConfirm={async () => {
+          try { await productosService.deleteAll(); showSnackbar('Productos eliminados'); await loadProductos() }
+          catch { showSnackbar('Error al eliminar') }
+          finally { setDeleteAllOpen(false) }
+        }}
+        onCancel={() => setDeleteAllOpen(false)}
       />
     </Box>
   )
