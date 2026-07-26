@@ -302,29 +302,34 @@ export default function MercadoDetailPage() {
                 return filtered.length === 0 ? (
                   <EmptyState message="Sin productos en esta tienda" />
                 ) : (
-                  <Box key={refreshKey} sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  <Box key={refreshKey} sx={{ display: 'flex', flexDirection: 'column' }}>
                     {filtered.map(mp => (
-                    <Card
-                      key={mp.id}
-                      onClick={() => toggleProductoEstado(mp)}
-                      sx={{
-                        cursor: 'pointer',
-                        opacity: mp.estado === 'encontrado' ? 0.7 : mp.estado === 'no_habia' ? 0.6 : 1,
-                        bgcolor: mp.estado === 'encontrado' ? 'rgba(105, 240, 174, 0.08)' : mp.estado === 'no_habia' ? 'rgba(255, 152, 0, 0.08)' : undefined,
-                        '&:active': { transform: 'scale(0.98)' },
-                        transition: 'all 0.15s ease',
-                      }}
-                    >
-                      <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 }, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                      <Box
+                        key={mp.id}
+                        onClick={() => toggleProductoEstado(mp)}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1.5,
+                          py: 1.2,
+                          cursor: 'pointer',
+                          opacity: mp.estado !== 'pendiente' ? 0.65 : 1,
+                          bgcolor: mp.estado === 'encontrado' ? 'rgba(105, 240, 174, 0.06)' : mp.estado === 'no_habia' ? 'rgba(255, 152, 0, 0.06)' : undefined,
+                          borderBottom: '1px solid',
+                          borderColor: 'divider',
+                          '&:active': { bgcolor: 'action.hover' },
+                          transition: 'background 0.15s ease',
+                        }}
+                      >
                         {mp.estado === 'encontrado' ? (
-                          <ShoppingCartCheckoutIcon sx={{ color: '#69f0ae', fontSize: 28 }} />
+                          <ShoppingCartCheckoutIcon sx={{ color: '#69f0ae', fontSize: 22, flexShrink: 0 }} />
                         ) : mp.estado === 'no_habia' ? (
-                          <DoDisturbAltIcon sx={{ color: '#ff9800', fontSize: 28 }} />
+                          <DoDisturbAltIcon sx={{ color: '#ff9800', fontSize: 22, flexShrink: 0 }} />
                         ) : (
-                          <RadioButtonUncheckedIcon sx={{ color: 'text.disabled', fontSize: 28 }} />
+                          <RadioButtonUncheckedIcon sx={{ color: 'text.disabled', fontSize: 22, flexShrink: 0 }} />
                         )}
-                        <Box sx={{ flex: 1 }}>
-                          <Typography variant="body2" sx={{ fontWeight: 500, textDecoration: mp.estado !== 'pendiente' ? 'line-through' : 'none' }}>
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Typography variant="body2" sx={{ fontWeight: 500, textDecoration: mp.estado !== 'pendiente' ? 'line-through' : 'none', lineHeight: 1.3 }}>
                             {mp.producto?.nombre}
                           </Typography>
                           <Typography variant="caption" color="text.secondary">
@@ -333,16 +338,15 @@ export default function MercadoDetailPage() {
                           </Typography>
                         </Box>
                         {mp.estado === 'no_habia' ? (
-                          <Chip label="No encontrado" size="small" color="error" variant="outlined" />
+                          <Chip label="No encontrado" size="small" color="error" variant="outlined" sx={{ height: 22, '& .MuiChip-label': { px: 1, fontSize: '0.65rem' } }} />
                         ) : mp.precio > 0 ? (
-                          <Typography variant="body1" sx={{ fontWeight: 700, color: mp.estado === 'encontrado' ? '#69f0ae' : 'text.disabled' }}>
+                          <Typography variant="body2" sx={{ fontWeight: 700, color: mp.estado === 'encontrado' ? '#69f0ae' : 'text.disabled', flexShrink: 0 }}>
                             {formatCurrency(mp.precio * qtyParaTotal(mp))}
                           </Typography>
                         ) : null}
-                      </CardContent>
-                    </Card>
-                  ))}
-                </Box>
+                      </Box>
+                    ))}
+                  </Box>
               )})()}
             </>
           ) : (
