@@ -372,9 +372,14 @@ export default function MercadoDetailPage() {
       {/* EDIT MODE */}
       {!shoppingMode && (
         <Box sx={{ p: 2 }}>
+          <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+            <Button fullWidth variant="outlined" startIcon={<AddIcon />} onClick={() => setAddTiendaOpen(true)}>
+              Agregar tienda
+            </Button>
+          </Box>
           <Typography variant="subtitle2" color="text.secondary" gutterBottom>Tiendas en este mercado</Typography>
           {mercadoTiendas.value.length === 0 ? (
-            <EmptyState message="Agrega tiendas a este mercado" />
+            <EmptyState message="No hay tiendas aún" />
           ) : (
             mercadoTiendas.value.map(mt => (
               <Accordion key={mt.id} expanded={tiendaExpanded === mt.id} onChange={(_, exp) => setTiendaExpanded(exp ? mt.id : false)} sx={{ mb: 1 }}>
