@@ -392,9 +392,16 @@ export default function MercadoDetailPage() {
                                 <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.3, textDecoration: mp.estado !== 'pendiente' ? 'line-through' : 'none' }}>
                                   {mp.producto?.nombre}
                                 </Typography>
-                                <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                  <span>{mp.cantidad} {mp.producto?.unidad}</span>
-                                  {mp.estado !== 'pendiente' ? <span>| {mp.estado === 'no_habia' ? '0' : encontrada}</span> : null}
+                                <Typography variant="caption" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem' }}>
+                                  <Box component="span" sx={{ fontWeight: 500 }}>{mp.cantidad} {mp.producto?.unidad}</Box>
+                                  {mp.estado !== 'pendiente' ? (
+                                    <>
+                                      <Box component="span" sx={{ width: 3, height: 3, borderRadius: '50%', bgcolor: 'rgba(255,255,255,0.15)', flexShrink: 0 }} />
+                                      <Box component="span" sx={{ fontWeight: 600, color: mp.estado === 'encontrado' ? 'rgba(105,240,174,0.7)' : 'rgba(255,152,0,0.7)' }}>
+                                        {mp.estado === 'no_habia' ? '0' : encontrada}
+                                      </Box>
+                                    </>
+                                  ) : null}
                                 </Typography>
                                 {mp.estado !== 'pendiente' && mp.cantidad > 0 && (
                                   <Box sx={{ width: '100%', height: 2, bgcolor: 'rgba(255,255,255,0.08)', borderRadius: 1, mt: 0.3, overflow: 'hidden' }}>
