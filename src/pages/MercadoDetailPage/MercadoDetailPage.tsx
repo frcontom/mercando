@@ -436,8 +436,8 @@ export default function MercadoDetailPage() {
           </TextField>
           {estadoDialog.item && (
             <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-              <TextField type="number" label="Ocupas" value={estadoDialog.item.cantidad} slotProps={{ htmlInput: { readOnly: true } }} sx={{ flex: 1 }} />
-              <TextField type="number" label="Llevas" value={cantidadEdit} onChange={e => setCantidadEdit(e.target.value)} slotProps={{ htmlInput: { min: 0 } }} sx={{ flex: 1 }} />
+              <TextField type="number" label="Ocupas" value={estadoDialog.item.cantidad} slotProps={{ htmlInput: { readOnly: true, style: { textAlign: 'center' } } }} sx={{ flex: 1 }} />
+              <TextField type="number" label="Llevas" value={cantidadEdit} onChange={e => setCantidadEdit(e.target.value)} slotProps={{ htmlInput: { min: 0, style: { textAlign: 'center' } } }} sx={{ flex: 1 }} />
             </Box>
           )}
           <TextField fullWidth type="text" label="Precio" value={precioEdit} onChange={e => { const val = e.target.value.replace(/[^0-9]/g, ''); setPrecioEdit(val) }} slotProps={{ htmlInput: { inputMode: 'numeric' } }} />
