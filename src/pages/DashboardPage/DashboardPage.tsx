@@ -156,7 +156,7 @@ export default function DashboardPage() {
               Sin tiendas asignadas
             </Typography>
           ) : (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mb: 3 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 3 }}>
               <Card
                 onClick={() => navigate(`/mercados/${activo.id}?tienda=__todas__`)}
                 sx={{
@@ -164,19 +164,22 @@ export default function DashboardPage() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: 2,
-                  py: 1.2,
+                  py: 1.5,
                   px: 2,
-                  border: '1px dashed rgba(255,255,255,0.1)',
+                  borderRadius: 3,
+                  border: '1px dashed rgba(255,255,255,0.08)',
+                  bgcolor: 'rgba(255,255,255,0.02)',
+                  backdropFilter: 'blur(4px)',
                   '&:active': { transform: 'scale(0.98)' },
-                  transition: 'transform 0.15s ease',
+                  transition: 'all 0.2s ease',
                 }}
               >
-                <Typography sx={{ fontSize: 22, opacity: 0.4 }}>📋</Typography>
+                <Typography sx={{ fontSize: 24, opacity: 0.3 }}>📋</Typography>
                 <Box sx={{ flex: 1 }}>
                   <Typography variant="body2" sx={{ fontWeight: 600 }}>Todas las tiendas</Typography>
                   <Typography variant="caption" color="text.secondary">{encontradosGlobal}/{todosProductos.length} productos</Typography>
                 </Box>
-                <Typography variant="body2" sx={{ fontWeight: 700, color: '#69f0ae' }}>{formatCurrency(totalEncontrados)}</Typography>
+                <Typography variant="body1" sx={{ fontWeight: 700, color: '#69f0ae' }}>{formatCurrency(totalEncontrados)}</Typography>
               </Card>
               {mercadoTiendas.value.map(mt => {
                 const prods = getProductosFromTienda(mt.id)
@@ -191,22 +194,29 @@ export default function DashboardPage() {
                       display: 'flex',
                       alignItems: 'center',
                       gap: 2,
-                      py: 1.2,
+                      py: 1.5,
                       px: 2,
+                      borderRadius: 3,
+                      border: '1px solid rgba(255,255,255,0.04)',
+                      bgcolor: 'rgba(255,255,255,0.015)',
                       '&:active': { transform: 'scale(0.98)' },
-                      transition: 'transform 0.15s ease',
+                      transition: 'all 0.2s ease',
                     }}
                   >
-                    <StoreIcon tienda={mt.tienda} size={36} />
+                    <StoreIcon tienda={mt.tienda} size={40} />
                     <Box sx={{ flex: 1, minWidth: 0 }}>
                       <Typography variant="body2" sx={{ fontWeight: 600 }}>{mt.tienda?.nombre}</Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        {enc}/{prods.length}
+                        {total > 0 ? ` · ${formatCurrency(total)}` : ''}
+                      </Typography>
                       {prods.length > 0 && (
-                        <Box sx={{ width: '100%', height: 2, bgcolor: 'rgba(255,255,255,0.06)', borderRadius: 1, mt: 0.5, overflow: 'hidden' }}>
-                          <Box sx={{ width: `${(enc / prods.length) * 100}%`, height: '100%', bgcolor: '#69f0ae', borderRadius: 1 }} />
+                        <Box sx={{ width: '100%', height: 3, bgcolor: 'rgba(255,255,255,0.04)', borderRadius: 2, mt: 0.5, overflow: 'hidden' }}>
+                          <Box sx={{ width: `${(enc / prods.length) * 100}%`, height: '100%', bgcolor: '#69f0ae', borderRadius: 2, transition: 'width 0.3s ease' }} />
                         </Box>
                       )}
                     </Box>
-                    <Typography variant="body2" sx={{ fontWeight: 700, color: total > 0 ? '#69f0ae' : 'text.disabled', flexShrink: 0 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 700, color: total > 0 ? '#69f0ae' : 'text.disabled', flexShrink: 0 }}>
                       {total > 0 ? formatCurrency(total) : '$0'}
                     </Typography>
                   </Card>
