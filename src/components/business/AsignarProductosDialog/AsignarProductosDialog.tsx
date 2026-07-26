@@ -25,7 +25,6 @@ interface AsignarProductosDialogProps {
 export function AsignarProductosDialog({ open, productos, tiendas, onSave, onClose }: AsignarProductosDialogProps) {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [tiendaId, setTiendaId] = useState(tiendas[0]?.id ?? '')
-  const [cantidad, setCantidad] = useState('1')
   const [saving, setSaving] = useState(false)
 
   function toggleProducto(id: string) {
@@ -44,7 +43,7 @@ export function AsignarProductosDialog({ open, productos, tiendas, onSave, onClo
       const items = Array.from(selected).map(producto_id => ({
         producto_id,
         tienda_id: tiendaId,
-        cantidad: Number(cantidad),
+        cantidad: 1,
       }))
       await onSave(items)
       onClose()
@@ -69,15 +68,6 @@ export function AsignarProductosDialog({ open, productos, tiendas, onSave, onClo
             <MenuItem key={t.id} value={t.id}>{t.icono} {t.nombre}</MenuItem>
           ))}
         </TextField>
-        <TextField
-          fullWidth
-          type="number"
-          label="Cantidad"
-          value={cantidad}
-          onChange={e => setCantidad(e.target.value)}
-          slotProps={{ htmlInput: { min: 1 } }}
-          sx={{ mb: 2 }}
-        />
         <Box sx={{ maxHeight: 300, overflow: 'auto' }}>
           <List dense>
             {productos.map(p => (
