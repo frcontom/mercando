@@ -17,7 +17,9 @@ import type { MercadoProducto } from '@/models'
 function getCategorias(mtId: string) { return getCategoriasByTienda(mtId) }
 function getProductos(mtcId: string) { return getProductosByCategoria(mtcId) }
 function getProductosFromTienda(mtId: string) {
+  const order = { pendiente: 0, encontrado: 1, no_habia: 2 }
   return getCategorias(mtId).flatMap(c => getProductos(c.id))
+    .sort((a, b) => (order[a.estado] ?? 0) - (order[b.estado] ?? 0))
 }
 function qtyParaTotal(mp: MercadoProducto) {
   return mp.estado !== 'pendiente' && mp.cantidad_encontrada > 0 ? mp.cantidad_encontrada : mp.cantidad
@@ -49,6 +51,11 @@ export default function DashboardPage() {
 
   if (loading) return <LoadingSpinner />
 
+  const todosProductos = mercadoTiendas.value.flatMap(mt => getProductosFromTienda(mt.id))
+  const encontradosGlobal = todosProductos.filter(p => p.estado === 'encontrado').length
+  const totalGlobal = todosProductos.reduce((s, p) => s + (p.subtotal ?? p.precio * qtyParaTotal(p)), 0)
+  const totalEncontrados = todosProductos.filter(p => p.estado === 'encontrado').reduce((s, p) => s + (p.subtotal ?? p.precio * qtyParaTotal(p)), 0)
+
   return (
     <Box sx={{ p: 2 }}>
       {!activo ? (
@@ -74,30 +81,44 @@ export default function DashboardPage() {
               Sin tiendas asignadas
             </Typography>
           ) : (
-            mercadoTiendas.value.map(mt => {
-              const prods = getProductosFromTienda(mt.id)
-              const encontrados = prods.filter(p => p.estado === 'encontrado').length
-              return (
-                <Card
-                  key={mt.id}
-                  onClick={() => navigate(`/mercados/${activo.id}`)}
-                  sx={{ cursor: 'pointer', mb: 1.5, '&:active': { transform: 'scale(0.98)' }, transition: 'transform 0.15s ease' }}
-                >
-                  <CardContent sx={{ pb: '12px !important' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                      <Typography sx={{ fontSize: 28 }}>{mt.tienda?.icono}</Typography>
-                      <Box sx={{ flex: 1 }}>
-                        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{mt.tienda?.nombre}</Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {encontrados}/{prods.length} · {formatCurrency(totalTienda(mt.id))}
-                        </Typography>
-                        <LinearProgress variant="determinate" value={prods.length > 0 ? (encontrados / prods.length) * 100 : 0} sx={{ height: 6, borderRadius: 3, mt: 0.5 }} />
-                      </Box>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+              <Card onClick={() => navigate(`/mercados/${activo.id}?tienda=__todas__`)} sx={{ cursor: 'pointer', mb: 1.5, '&:active': { transform: 'scale(0.98)' }, transition: 'transform 0.15s ease' }}>
+                <CardContent sx={{ pb: '12px !important' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <Typography sx={{ fontSize: 28, opacity: 0.5 }}>📋</Typography>
+                    <Box sx={{ flex: 1 }}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>Todas las tiendas</Typography>
+                      <Typography variant="caption" color="text.secondary">{encontradosGlobal}/{todosProductos.length} · {formatCurrency(totalEncontrados)} / {formatCurrency(totalGlobal)}</Typography>
+                      <LinearProgress variant="determinate" value={todosProductos.length > 0 ? (encontradosGlobal / todosProductos.length) * 100 : 0} sx={{ height: 6, borderRadius: 3, mt: 0.5 }} />
                     </Box>
-                  </CardContent>
-                </Card>
-              )
-            })
+                  </Box>
+                </CardContent>
+              </Card>
+              {mercadoTiendas.value.map(mt => {
+                const prods = getProductosFromTienda(mt.id)
+                const encontrados = prods.filter(p => p.estado === 'encontrado').length
+                return (
+                  <Card
+                    key={mt.id}
+                    onClick={() => navigate(`/mercados/${activo.id}?tienda=${mt.id}`)}
+                    sx={{ cursor: 'pointer', mb: 1.5, '&:active': { transform: 'scale(0.98)' }, transition: 'transform 0.15s ease' }}
+                  >
+                    <CardContent sx={{ pb: '12px !important' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        <Typography sx={{ fontSize: 28 }}>{mt.tienda?.icono}</Typography>
+                        <Box sx={{ flex: 1 }}>
+                          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{mt.tienda?.nombre}</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {encontrados}/{prods.length} · {formatCurrency(totalTienda(mt.id))}
+                          </Typography>
+                          <LinearProgress variant="determinate" value={prods.length > 0 ? (encontrados / prods.length) * 100 : 0} sx={{ height: 6, borderRadius: 3, mt: 0.5 }} />
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                )
+              })}
+            </Box>
           )}
         </>
       )}
