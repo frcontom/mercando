@@ -344,16 +344,31 @@ export default function MercadoDetailPage() {
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: 1.5,
-                                py: 1,
-                                px: 0.5,
+                                py: 1.2,
+                                px: 1,
                                 cursor: 'pointer',
-                                borderRadius: 1.5,
+                                borderRadius: 1,
                                 mb: 1,
-                                opacity: mp.estado !== 'pendiente' ? 0.7 : 1,
-                                bgcolor: mp.estado === 'encontrado' ? 'rgba(105, 240, 174, 0.06)' : mp.estado === 'no_habia' ? 'rgba(255, 152, 0, 0.06)' : 'rgba(255,255,255,0.02)',
-                                backdropFilter: 'blur(4px)',
+                                opacity: mp.estado !== 'pendiente' ? 0.65 : 1,
+                                bgcolor: mp.estado === 'encontrado' ? 'rgba(105,240,174,0.04)' : mp.estado === 'no_habia' ? 'rgba(255,152,0,0.04)' : 'rgba(255,255,255,0.015)',
                                 border: '1px solid',
-                                borderColor: mp.estado === 'encontrado' ? 'rgba(105,240,174,0.12)' : mp.estado === 'no_habia' ? 'rgba(255,152,0,0.12)' : 'rgba(255,255,255,0.04)',
+                                borderColor: mp.estado === 'encontrado' ? 'rgba(105,240,174,0.08)' : mp.estado === 'no_habia' ? 'rgba(255,152,0,0.08)' : 'rgba(255,255,255,0.03)',
+                                position: 'relative',
+                                overflow: 'hidden',
+                                '&::before': {
+                                  content: '""',
+                                  position: 'absolute',
+                                  top: '-80%',
+                                  right: '-10%',
+                                  width: 80,
+                                  height: 80,
+                                  borderRadius: '50%',
+                                  background: mp.estado === 'encontrado'
+                                    ? 'radial-gradient(circle, rgba(105,240,174,0.06) 0%, transparent 70%)'
+                                    : mp.estado === 'no_habia'
+                                    ? 'radial-gradient(circle, rgba(255,152,0,0.06) 0%, transparent 70%)'
+                                    : 'none',
+                                },
                                 '&:active': { bgcolor: 'action.hover' },
                                 transition: 'all 0.2s ease',
                               }}
