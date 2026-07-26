@@ -348,7 +348,7 @@ export default function MercadoDetailPage() {
                                 px: 0.5,
                                 cursor: 'pointer',
                                 borderRadius: 1.5,
-                                mb: 0.3,
+                                mb: 1,
                                 opacity: mp.estado !== 'pendiente' ? 0.7 : 1,
                                 bgcolor: mp.estado === 'encontrado' ? 'rgba(105, 240, 174, 0.06)' : mp.estado === 'no_habia' ? 'rgba(255, 152, 0, 0.06)' : 'rgba(255,255,255,0.02)',
                                 backdropFilter: 'blur(4px)',
