@@ -197,13 +197,14 @@ export default function MercadoDetailPage() {
 
   async function handleSaveEstado() {
     const item = estadoDialog.item; if (!item) return
-    const precio = Number(precioEdit) || 0
-    const cantidad = Number(cantidadEdit) || 1
+    const precio = selectedEstado === 'pendiente' ? 0 : (Number(precioEdit) || 0)
+    const cantidad = selectedEstado === 'pendiente' ? item.cantidad : (Number(cantidadEdit) || 1)
+    const encontrada = selectedEstado === 'pendiente' ? 0 : (selectedEstado === 'encontrado' ? cantidad : 0)
     try {
-      await mercadoProductosService.update(item.id, { estado: selectedEstado, precio, cantidad_encontrada: cantidad })
+      await mercadoProductosService.update(item.id, { estado: selectedEstado, precio, cantidad: item.cantidad, cantidad_encontrada: encontrada })
       await loadProductosByCategoria(item.mercado_tienda_categoria_id)
       if (navigator.vibrate) navigator.vibrate(selectedEstado === 'encontrado' ? 10 : 20)
-      showSnackbar(`${item.producto?.nombre ?? 'Producto'} → ${LABEL_ESTADOS[selectedEstado]} · ${cantidad} × ${formatCurrency(precio)}`)
+      showSnackbar(`${item.producto?.nombre ?? 'Producto'} → ${LABEL_ESTADOS[selectedEstado]}`)
       setEstadoDialog({ open: false, item: null })
       setRefreshKey(k => k + 1)
     } catch { showSnackbar('Error') }
@@ -532,7 +533,7 @@ export default function MercadoDetailPage() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setEstadoDialog({ open: false, item: null })}>Cancelar</Button>
-          <Button onClick={handleSaveEstado} variant="contained" disabled={selectedEstado === 'encontrado' && !precioEdit}>Guardar</Button>
+          <Button onClick={handleSaveEstado} variant="contained" disabled={selectedEstado === 'encontrado' && !precioEdit}>{selectedEstado === 'pendiente' ? 'Resetear' : 'Guardar'}</Button>
         </DialogActions>
       </Dialog>
 
