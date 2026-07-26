@@ -303,49 +303,67 @@ export default function MercadoDetailPage() {
                   <EmptyState message="Sin productos en esta tienda" />
                 ) : (
                   <Box key={refreshKey} sx={{ display: 'flex', flexDirection: 'column' }}>
-                    {filtered.map(mp => (
-                      <Box
-                        key={mp.id}
-                        onClick={() => toggleProductoEstado(mp)}
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 1.5,
-                          py: 1.2,
-                          cursor: 'pointer',
-                          opacity: mp.estado !== 'pendiente' ? 0.65 : 1,
-                          bgcolor: mp.estado === 'encontrado' ? 'rgba(105, 240, 174, 0.06)' : mp.estado === 'no_habia' ? 'rgba(255, 152, 0, 0.06)' : undefined,
-                          borderBottom: '1px solid',
-                          borderColor: 'divider',
-                          '&:active': { bgcolor: 'action.hover' },
-                          transition: 'background 0.15s ease',
-                        }}
-                      >
-                        {mp.estado === 'encontrado' ? (
-                          <ShoppingCartCheckoutIcon sx={{ color: '#69f0ae', fontSize: 22, flexShrink: 0 }} />
-                        ) : mp.estado === 'no_habia' ? (
-                          <DoDisturbAltIcon sx={{ color: '#ff9800', fontSize: 22, flexShrink: 0 }} />
-                        ) : (
-                          <RadioButtonUncheckedIcon sx={{ color: 'text.disabled', fontSize: 22, flexShrink: 0 }} />
-                        )}
-                        <Box sx={{ flex: 1, minWidth: 0 }}>
-                          <Typography variant="body2" sx={{ fontWeight: 500, textDecoration: mp.estado !== 'pendiente' ? 'line-through' : 'none', lineHeight: 1.3 }}>
-                            {mp.producto?.nombre}
+                    {(() => {
+                      const groups = new Map<string, { icono: string; nombre: string; items: typeof filtered }>()
+                      for (const mp of filtered) {
+                        const mtc = Object.values(mercadoTiendaCategorias.value).flat().find(c => c.id === mp.mercado_tienda_categoria_id)
+                        const key = mtc?.categoria?.nombre ?? 'Sin categoría'
+                        if (!groups.has(key)) groups.set(key, { icono: mtc?.categoria?.icono ?? '📦', nombre: key, items: [] })
+                        groups.get(key)!.items.push(mp)
+                      }
+                      const entries = Array.from(groups.entries())
+                      return <>{entries.map(([catName, group]) => (
+                        <Box key={catName}>
+                          <Typography variant="caption" sx={{ fontWeight: 600, color: 'primary.main', display: 'block', py: 0.8, px: 0.5, borderBottom: '1px solid', borderColor: 'divider' }}>
+                            {group.icono} {group.nombre}
                           </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {mp.cantidad} {mp.producto?.unidad}
-                            {mp.estado !== 'pendiente' ? ` | ${mp.estado === 'no_habia' ? '0' : mp.cantidad_encontrada || mp.cantidad}` : ''}
-                          </Typography>
+                          {group.items.map(mp => (
+                            <Box
+                              key={mp.id}
+                              onClick={() => toggleProductoEstado(mp)}
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1.5,
+                                py: 1,
+                                px: 0.5,
+                                cursor: 'pointer',
+                                opacity: mp.estado !== 'pendiente' ? 0.65 : 1,
+                                bgcolor: mp.estado === 'encontrado' ? 'rgba(105, 240, 174, 0.06)' : mp.estado === 'no_habia' ? 'rgba(255, 152, 0, 0.06)' : undefined,
+                                borderBottom: '1px solid',
+                                borderColor: 'divider',
+                                '&:active': { bgcolor: 'action.hover' },
+                                transition: 'background 0.15s ease',
+                              }}
+                            >
+                              {mp.estado === 'encontrado' ? (
+                                <ShoppingCartCheckoutIcon sx={{ color: '#69f0ae', fontSize: 20, flexShrink: 0 }} />
+                              ) : mp.estado === 'no_habia' ? (
+                                <DoDisturbAltIcon sx={{ color: '#ff9800', fontSize: 20, flexShrink: 0 }} />
+                              ) : (
+                                <RadioButtonUncheckedIcon sx={{ color: 'text.disabled', fontSize: 20, flexShrink: 0 }} />
+                              )}
+                              <Box sx={{ flex: 1, minWidth: 0 }}>
+                                <Typography variant="body2" sx={{ fontWeight: 500, textDecoration: mp.estado !== 'pendiente' ? 'line-through' : 'none', lineHeight: 1.3 }}>
+                                  {mp.producto?.nombre}
+                                </Typography>
+                                <Typography variant="caption" color="text.secondary">
+                                  {mp.cantidad} {mp.producto?.unidad}
+                                  {mp.estado !== 'pendiente' ? ` | ${mp.estado === 'no_habia' ? '0' : mp.cantidad_encontrada || mp.cantidad}` : ''}
+                                </Typography>
+                              </Box>
+                              {mp.estado === 'no_habia' ? (
+                                <Chip label="No encontrado" size="small" color="error" variant="outlined" sx={{ height: 20, '& .MuiChip-label': { px: 0.8, fontSize: '0.6rem' } }} />
+                              ) : mp.precio > 0 ? (
+                                <Typography variant="body2" sx={{ fontWeight: 700, color: mp.estado === 'encontrado' ? '#69f0ae' : 'text.disabled', flexShrink: 0 }}>
+                                  {formatCurrency(mp.precio * qtyParaTotal(mp))}
+                                </Typography>
+                              ) : null}
+                            </Box>
+                          ))}
                         </Box>
-                        {mp.estado === 'no_habia' ? (
-                          <Chip label="No encontrado" size="small" color="error" variant="outlined" sx={{ height: 22, '& .MuiChip-label': { px: 1, fontSize: '0.65rem' } }} />
-                        ) : mp.precio > 0 ? (
-                          <Typography variant="body2" sx={{ fontWeight: 700, color: mp.estado === 'encontrado' ? '#69f0ae' : 'text.disabled', flexShrink: 0 }}>
-                            {formatCurrency(mp.precio * qtyParaTotal(mp))}
-                          </Typography>
-                        ) : null}
-                      </Box>
-                    ))}
+                      ))}</>
+                    })()}
                   </Box>
               )})()}
             </>
