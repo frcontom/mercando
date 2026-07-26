@@ -409,7 +409,9 @@ export default function MercadoDetailPage() {
                               </Card>
                             ))
                           )}
-                          <Button size="small" startIcon={<AddIcon />} onClick={() => { setAddProductoFor(mtc.id); setProductoForm({ producto_id: '', cantidad: '1' }) }}>Agregar producto</Button>
+                          {productos.value.filter(p => p.categoria_id === mtc.categoria_id).length > getProductos(mtc.id).length && (
+                            <Button size="small" startIcon={<AddIcon />} onClick={() => { setAddProductoFor(mtc.id); setProductoForm({ producto_id: '', cantidad: '1' }) }}>Agregar producto</Button>
+                          )}
                         </AccordionDetails>
                       </Accordion>
                     ))
