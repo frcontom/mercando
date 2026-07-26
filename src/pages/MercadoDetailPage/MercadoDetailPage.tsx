@@ -68,7 +68,17 @@ export default function MercadoDetailPage() {
 
   const [dataLoaded, setDataLoaded] = useState(false)
 
-  useEffect(() => { pendingCount.value = todosProductos.filter(p => p.estado === 'pendiente').length }, [refreshKey, dataLoaded, mercadoTiendas.value.length])
+  function updatePendingCount() {
+    let total = 0
+    for (const mt of mercadoTiendas.value) {
+      for (const c of getCategorias(mt.id)) {
+        for (const p of getProductos(c.id)) {
+          if (p.estado === 'pendiente') total++
+        }
+      }
+    }
+    pendingCount.value = total
+  }
 
   useEffect(() => {
     if (!id) return; (async () => {
@@ -77,6 +87,7 @@ export default function MercadoDetailPage() {
         await loadMercadoTiendas(id)
         for (const mt of mercadoTiendas.value) await loadCategoriasByTienda(mt.id)
         for (const cats of Object.values(mercadoTiendaCategorias.value).flat()) await loadProductosByCategoria(cats.id)
+        updatePendingCount()
       } catch (e) { console.error(e) }
       setDataLoaded(true)
     })()
@@ -90,7 +101,7 @@ export default function MercadoDetailPage() {
       await loadMercadoTiendas(id)
       for (const mt of mercadoTiendas.value) await loadCategoriasByTienda(mt.id)
       for (const cats of Object.values(mercadoTiendaCategorias.value).flat()) await loadProductosByCategoria(cats.id)
-      setRefreshKey(k => k + 1)
+      setRefreshKey(k => k + 1); updatePendingCount()
     }
     return () => { hideFab(); refreshHandler.value = null }
   }, [mercado?.estado, shoppingMode, id])
