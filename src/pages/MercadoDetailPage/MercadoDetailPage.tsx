@@ -409,7 +409,7 @@ export default function MercadoDetailPage() {
                             <Typography variant="body2" color="text.disabled" sx={{ py: 1 }}>Sin productos</Typography>
                           ) : (
                             getProductos(mtc.id).map(mp => (
-                              <Card key={mp.id} sx={{ mb: 1, '&:active': { transform: 'scale(0.98)' }, transition: 'transform 0.15s ease' }}>
+                              <Card key={mp.id} onClick={() => { setSelectedEstado(mp.estado); setPrecioEdit(mp.precio.toString()); setCantidadEdit(mp.cantidad_encontrada ? mp.cantidad_encontrada.toString() : mp.cantidad.toString()); setEstadoDialog({ open: true, item: mp }) }} sx={{ cursor: 'pointer', mb: 1, '&:active': { transform: 'scale(0.98)' }, transition: 'transform 0.15s ease' }}>
                                 <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
                                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                     <Box sx={{ flex: 1 }}>
