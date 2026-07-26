@@ -36,6 +36,7 @@ import { mercadoProductos, loadProductosByCategoria, getProductosByCategoria } f
 import { tiendas, loadTiendas, categorias, loadCategorias, productos, loadProductos } from '@/store'
 import { mercadoTiendasService, mercadoTiendaCategoriasService, mercadoProductosService } from '@/services'
 import { showSnackbar, showFab, hideFab, pendingCount, refreshHandler, userRole } from '@/store'
+import { playClick } from '@/core/utils/sound'
 import { subscribeToChanges } from '@/core/utils/realtime'
 import { formatCurrency } from '@/core/utils/formatters'
 import { ESTADOS_PRODUCTO, LABEL_ESTADOS } from '@/core/constants/estados'
@@ -203,6 +204,7 @@ export default function MercadoDetailPage() {
     try {
       await mercadoProductosService.update(item.id, { estado: selectedEstado, precio, cantidad: item.cantidad, cantidad_encontrada: encontrada })
       await loadProductosByCategoria(item.mercado_tienda_categoria_id)
+      if (selectedEstado === 'encontrado') playClick()
       if (navigator.vibrate) navigator.vibrate(selectedEstado === 'encontrado' ? 10 : 20)
       showSnackbar(`${item.producto?.nombre ?? 'Producto'} → ${LABEL_ESTADOS[selectedEstado]}`)
       setEstadoDialog({ open: false, item: null })
