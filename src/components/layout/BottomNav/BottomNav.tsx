@@ -5,13 +5,15 @@ import HomeIcon from '@mui/icons-material/Home'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import StoreIcon from '@mui/icons-material/Store'
 import CategoryIcon from '@mui/icons-material/Category'
+import InventoryIcon from '@mui/icons-material/Inventory'
 import SettingsIcon from '@mui/icons-material/Settings'
 
 const routes = [
   { label: 'Inicio', icon: <HomeIcon />, path: '/dashboard' },
   { label: 'Mercados', icon: <ShoppingCartIcon />, path: '/mercados' },
   { label: 'Tiendas', icon: <StoreIcon />, path: '/tiendas' },
-  { label: 'Categorías', icon: <CategoryIcon />, path: '/categorias' },
+  { label: 'Cat.', icon: <CategoryIcon />, path: '/categorias' },
+  { label: 'Prods.', icon: <InventoryIcon />, path: '/productos' },
   { label: 'Config', icon: <SettingsIcon />, path: '/configuracion' },
 ]
 
