@@ -484,7 +484,7 @@ export default function MercadoDetailPage() {
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
                   <StoreIcon tienda={mt.tienda} size={28} />
                   <Typography sx={{ flex: 1, fontWeight: 600 }}>{mt.tienda?.nombre}</Typography>
-                  <Button size="small" variant="outlined" startIcon={<AddIcon />} onClick={() => setAddCategoriaFor(mt.id)} sx={{ mr: 0.5 }}>Cat.</Button>
+                  <IconButton size="small" onClick={() => setAddCategoriaFor(mt.id)}><AddIcon fontSize="small" /></IconButton>
                   <IconButton size="small" onClick={() => setDeleteTarget({ type: 'tienda', id: mt.id })}><DeleteIcon fontSize="small" /></IconButton>
                 </Box>
                 {getCategorias(mt.id).length === 0 ? (
