@@ -26,8 +26,8 @@ import CardContent from '@mui/material/CardContent'
 import MenuItem from '@mui/material/MenuItem'
 import { mercados, loadMercados } from '@/store'
 import { mercadoTiendas, loadMercadoTiendas } from '@/store'
-import { mercadoTiendaCategorias, loadCategoriasByTienda } from '@/store'
-import { mercadoProductos, loadProductosByCategoria } from '@/store'
+import { mercadoTiendaCategorias, loadCategoriasByTienda, getCategoriasByTienda } from '@/store'
+import { mercadoProductos, loadProductosByCategoria, getProductosByCategoria } from '@/store'
 import { tiendas, loadTiendas, categorias, loadCategorias, productos, loadProductos } from '@/store'
 import { mercadoTiendasService, mercadoTiendaCategoriasService, mercadoProductosService } from '@/services'
 import { showSnackbar, showFab, hideFab } from '@/store'
@@ -44,7 +44,6 @@ export default function MercadoDetailPage() {
   const [catExpanded, setCatExpanded] = useState<string | false>(false)
   const [deleteTarget, setDeleteTarget] = useState<{ type: string; id: string } | null>(null)
 
-  // Dialogs
   const [addTiendaOpen, setAddTiendaOpen] = useState(false)
   const [addCategoriaFor, setAddCategoriaFor] = useState<string | null>(null)
   const [addProductoFor, setAddProductoFor] = useState<string | null>(null)
@@ -55,14 +54,14 @@ export default function MercadoDetailPage() {
 
   const mercado = mercados.value.find(m => m.id === id)
 
+  // Carga inicial
   useEffect(() => {
-    if (id) {
-      loadMercados()
-      loadMercadoTiendas(id)
-      loadTiendas()
-      loadCategorias()
-      loadProductos()
-    }
+    if (!id) return
+    loadMercados()
+    loadTiendas()
+    loadCategorias()
+    loadProductos()
+    loadMercadoTiendas(id)
   }, [id])
 
   useEffect(() => {
@@ -70,21 +69,27 @@ export default function MercadoDetailPage() {
     return () => hideFab()
   }, [mercado?.estado])
 
-  // Tienda expandida → cargar sus categorías
+  // Cuando cargan las tiendas del mercado, precargar categorías de TODAS
   useEffect(() => {
-    if (tiendaExpanded) loadCategoriasByTienda(tiendaExpanded)
-  }, [tiendaExpanded])
+    mercadoTiendas.value.forEach(mt => loadCategoriasByTienda(mt.id))
+  }, [mercadoTiendas.value.length])
 
-  // Categoría expandida → cargar sus productos
+  // Cuando cargan categorías, precargar productos de TODAS
   useEffect(() => {
-    if (catExpanded) loadProductosByCategoria(catExpanded)
-  }, [catExpanded])
+    const todas = Object.values(mercadoTiendaCategorias.value).flat()
+    todas.forEach(mtc => {
+      if (!getProductosByCategoria(mtc.id).length) loadProductosByCategoria(mtc.id)
+    })
+  }, [Object.keys(mercadoTiendaCategorias.value).length])
 
-  function getProductos(catId: string) {
-    return mercadoProductos.value.filter(p => p.mercado_tienda_categoria_id === catId)
+  function getCategorias(mtId: string) {
+    return getCategoriasByTienda(mtId)
   }
 
-  // CRUD Tiendas en mercado
+  function getProductos(mtcId: string) {
+    return getProductosByCategoria(mtcId)
+  }
+
   async function handleAddTienda(tiendaId: string) {
     if (!id) return
     try {
@@ -105,7 +110,6 @@ export default function MercadoDetailPage() {
     finally { setDeleteTarget(null) }
   }
 
-  // CRUD Categorías en tienda
   async function handleAddCategoria(categoriaId: string) {
     if (!addCategoriaFor) return
     try {
@@ -121,12 +125,11 @@ export default function MercadoDetailPage() {
     try {
       await mercadoTiendaCategoriasService.remove(deleteTarget.id)
       showSnackbar('Categoría eliminada')
-      if (tiendaExpanded) await loadCategoriasByTienda(tiendaExpanded)
+      for (const mt of mercadoTiendas.value) await loadCategoriasByTienda(mt.id)
     } catch { showSnackbar('Error al eliminar') }
     finally { setDeleteTarget(null) }
   }
 
-  // CRUD Productos en categoría
   async function handleAddProducto() {
     if (!addProductoFor || !productoForm.producto_id) return
     try {
@@ -147,7 +150,8 @@ export default function MercadoDetailPage() {
     try {
       await mercadoProductosService.remove(deleteTarget.id)
       showSnackbar('Producto eliminado')
-      if (catExpanded) await loadProductosByCategoria(catExpanded)
+      const mtcId = mercadoProductos.value[deleteTarget.id]?.[0]?.mercado_tienda_categoria_id
+      if (mtcId) await loadProductosByCategoria(mtcId)
     } catch { showSnackbar('Error al eliminar') }
     finally { setDeleteTarget(null) }
   }
@@ -160,14 +164,14 @@ export default function MercadoDetailPage() {
       await mercadoProductosService.update(item.id, { estado: selectedEstado, precio })
       showSnackbar('Producto actualizado')
       setEstadoDialog({ open: false, item: null })
-      if (catExpanded) await loadProductosByCategoria(catExpanded)
+      await loadProductosByCategoria(item.mercado_tienda_categoria_id)
     } catch { showSnackbar('Error al actualizar') }
   }
 
   if (!mercado) return <LoadingSpinner />
 
   const total = mercadoTiendas.value.reduce((sum, mt) => {
-    const cats = mercadoTiendaCategorias.value.filter(c => c.mercado_tienda_id === mt.id)
+    const cats = getCategorias(mt.id)
     return sum + cats.reduce((s, c) => {
       const prods = getProductos(c.id)
       return s + prods.reduce((sp, p) => sp + (p.subtotal || p.precio * p.cantidad), 0)
@@ -221,65 +225,63 @@ export default function MercadoDetailPage() {
                   Categorías
                 </Typography>
 
-                {mercadoTiendaCategorias.value.filter(c => c.mercado_tienda_id === mt.id).length === 0 ? (
+                {getCategorias(mt.id).length === 0 ? (
                   <Typography variant="body2" color="text.disabled" sx={{ py: 1 }}>Sin categorías aún</Typography>
                 ) : (
-                  mercadoTiendaCategorias.value
-                    .filter(c => c.mercado_tienda_id === mt.id)
-                    .map(mtc => (
-                      <Accordion
-                        key={mtc.id}
-                        expanded={catExpanded === mtc.id}
-                        onChange={(_, exp) => setCatExpanded(exp ? mtc.id : false)}
-                        sx={{ mb: 0.5 }}
-                      >
-                        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
-                            <Typography>{mtc.categoria?.icono}</Typography>
-                            <Typography sx={{ flex: 1 }}>{mtc.categoria?.nombre}</Typography>
-                            <IconButton size="small" onClick={e => { e.stopPropagation(); setDeleteTarget({ type: 'categoria', id: mtc.id }) }}>
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
-                          </Box>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                          {getProductos(mtc.id).length === 0 ? (
-                            <Typography variant="body2" color="text.disabled" sx={{ py: 1 }}>Sin productos</Typography>
-                          ) : (
-                            getProductos(mtc.id).map(mp => (
-                              <Card key={mp.id} sx={{ mb: 1, '&:active': { transform: 'scale(0.98)' }, transition: 'transform 0.15s ease' }}>
-                                <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
-                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <Box sx={{ flex: 1 }}>
-                                      <Typography variant="body2" sx={{ fontWeight: 500 }}>{mp.producto?.nombre}</Typography>
-                                      <Typography variant="caption" color="text.secondary">
-                                        {mp.cantidad} {mp.producto?.unidad} {mp.precio > 0 ? `· ${formatCurrency(mp.precio)}` : ''}
-                                      </Typography>
-                                    </Box>
-                                    <Chip
-                                      label={LABEL_ESTADOS[mp.estado]}
-                                      size="small"
-                                      color={mp.estado === 'encontrado' ? 'success' : mp.estado === 'no_habia' ? 'warning' : mp.estado === 'cancelado' ? 'error' : 'default'}
-                                      onClick={() => { setSelectedEstado(mp.estado); setPrecioEdit(mp.precio.toString()); setEstadoDialog({ open: true, item: mp }) }}
-                                    />
-                                    <IconButton size="small" onClick={() => setDeleteTarget({ type: 'producto', id: mp.id })}>
-                                      <DeleteIcon fontSize="small" />
-                                    </IconButton>
+                  getCategorias(mt.id).map(mtc => (
+                    <Accordion
+                      key={mtc.id}
+                      expanded={catExpanded === mtc.id}
+                      onChange={(_, exp) => setCatExpanded(exp ? mtc.id : false)}
+                      sx={{ mb: 0.5 }}
+                    >
+                      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
+                          <Typography>{mtc.categoria?.icono}</Typography>
+                          <Typography sx={{ flex: 1 }}>{mtc.categoria?.nombre}</Typography>
+                          <IconButton size="small" onClick={e => { e.stopPropagation(); setDeleteTarget({ type: 'categoria', id: mtc.id }) }}>
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      </AccordionSummary>
+                      <AccordionDetails>
+                        {getProductos(mtc.id).length === 0 ? (
+                          <Typography variant="body2" color="text.disabled" sx={{ py: 1 }}>Sin productos</Typography>
+                        ) : (
+                          getProductos(mtc.id).map(mp => (
+                            <Card key={mp.id} sx={{ mb: 1, '&:active': { transform: 'scale(0.98)' }, transition: 'transform 0.15s ease' }}>
+                              <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                  <Box sx={{ flex: 1 }}>
+                                    <Typography variant="body2" sx={{ fontWeight: 500 }}>{mp.producto?.nombre}</Typography>
+                                    <Typography variant="caption" color="text.secondary">
+                                      {mp.cantidad} {mp.producto?.unidad} {mp.precio > 0 ? `· ${formatCurrency(mp.precio)}` : ''}
+                                    </Typography>
                                   </Box>
-                                </CardContent>
-                              </Card>
-                            ))
-                          )}
-                          <Button
-                            size="small"
-                            startIcon={<AddIcon />}
-                            onClick={() => { setAddProductoFor(mtc.id); setProductoForm({ producto_id: '', cantidad: '1', precio: '' }) }}
-                          >
-                            Agregar producto
-                          </Button>
-                        </AccordionDetails>
-                      </Accordion>
-                    ))
+                                  <Chip
+                                    label={LABEL_ESTADOS[mp.estado]}
+                                    size="small"
+                                    color={mp.estado === 'encontrado' ? 'success' : mp.estado === 'no_habia' ? 'warning' : mp.estado === 'cancelado' ? 'error' : 'default'}
+                                    onClick={() => { setSelectedEstado(mp.estado); setPrecioEdit(mp.precio.toString()); setEstadoDialog({ open: true, item: mp }) }}
+                                  />
+                                  <IconButton size="small" onClick={() => setDeleteTarget({ type: 'producto', id: mp.id })}>
+                                    <DeleteIcon fontSize="small" />
+                                  </IconButton>
+                                </Box>
+                              </CardContent>
+                            </Card>
+                          ))
+                        )}
+                        <Button
+                          size="small"
+                          startIcon={<AddIcon />}
+                          onClick={() => { setAddProductoFor(mtc.id); setProductoForm({ producto_id: '', cantidad: '1', precio: '' }) }}
+                        >
+                          Agregar producto
+                        </Button>
+                      </AccordionDetails>
+                    </Accordion>
+                  ))
                 )}
 
                 <Button
@@ -325,7 +327,7 @@ export default function MercadoDetailPage() {
         <DialogTitle>Agregar categoría</DialogTitle>
         <DialogContent>
           <List>
-            {categorias.value.filter(c => !mercadoTiendaCategorias.value.some(mtc => mtc.categoria_id === c.id && mtc.mercado_tienda_id === addCategoriaFor)).map(cat => (
+            {categorias.value.filter(c => !getCategorias(addCategoriaFor!).some(mtc => mtc.categoria_id === c.id)).map(cat => (
               <ListItem key={cat.id} disablePadding>
                 <ListItemButton onClick={() => handleAddCategoria(cat.id)}>
                   <Typography sx={{ mr: 1 }}>{cat.icono}</Typography>
@@ -349,7 +351,7 @@ export default function MercadoDetailPage() {
             sx={{ mb: 2, mt: 1 }}
           >
             {productos.value
-              .filter(p => p.categoria_id === (mercadoTiendaCategorias.value.find(mtc => mtc.id === addProductoFor)?.categoria_id ?? ''))
+              .filter(p => p.categoria_id === (Object.values(mercadoTiendaCategorias.value).flat().find(mtc => mtc.id === addProductoFor)?.categoria_id ?? ''))
               .map(p => (
                 <MenuItem key={p.id} value={p.id}>{p.nombre} ({p.unidad})</MenuItem>
               ))}
@@ -399,11 +401,10 @@ export default function MercadoDetailPage() {
         </DialogActions>
       </Dialog>
 
-      {/* ConfirmDialog genérico */}
       <ConfirmDialog
         open={deleteTarget !== null}
         title="Eliminar"
-        message={`¿Eliminar este elemento?`}
+        message="¿Eliminar este elemento?"
         onConfirm={() => {
           if (deleteTarget?.type === 'tienda') handleRemoveTienda()
           else if (deleteTarget?.type === 'categoria') handleRemoveCategoria()
