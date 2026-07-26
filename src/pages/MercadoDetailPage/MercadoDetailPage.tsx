@@ -454,7 +454,7 @@ export default function MercadoDetailPage() {
             </Box>
           )}
           <TextField fullWidth type="text" label="Precio" value={precioEdit} onChange={e => { const val = e.target.value.replace(/[^0-9]/g, ''); setPrecioEdit(val) }} disabled={selectedEstado === 'no_habia'} slotProps={{ htmlInput: { inputMode: 'numeric' } }} />
-          {(precioEdit || Number(cantidadEdit) > 0) && (
+          {selectedEstado !== 'no_habia' && (precioEdit || Number(cantidadEdit) > 0) && (
             <Box sx={{ mt: 2, px: 1, py: 0.5, borderRadius: 2 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
                 <Typography variant="body2" color="text.secondary">Precio unitario</Typography>
