@@ -262,7 +262,8 @@ export default function MercadoDetailPage() {
                             {mp.producto?.nombre}
                           </Typography>
                           <Typography variant="caption" color="text.secondary">
-                            {mp.cantidad} {mp.producto?.unidad}
+                            {mp.cantidad_original ?? mp.cantidad} {mp.producto?.unidad}
+                            {mp.estado !== 'pendiente' ? ` | ${mp.estado === 'no_habia' ? '0' : mp.cantidad}` : ''}
                           </Typography>
                         </Box>
                         {mp.precio > 0 && mp.estado === 'encontrado' && (

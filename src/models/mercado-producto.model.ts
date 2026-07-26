@@ -6,6 +6,7 @@ export interface MercadoProducto {
   producto_id: string
   precio: number
   cantidad: number
+  cantidad_original: number
   subtotal: number
   estado: EstadoProducto
   observacion: string | null

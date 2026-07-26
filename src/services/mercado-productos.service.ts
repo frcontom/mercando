@@ -16,7 +16,7 @@ class MercadoProductosService {
   async add(dto: AddProductoDto): Promise<MercadoProducto | null> {
     const { data } = await supabase
       .from(this.table)
-      .insert(dto)
+      .insert({ ...dto, cantidad_original: dto.cantidad })
       .select()
       .single()
     return data
