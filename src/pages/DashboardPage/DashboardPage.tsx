@@ -32,13 +32,15 @@ export default function DashboardPage() {
 
   useEffect(() => {
     (async () => {
-      await loadMercados()
-      const activo = mercados.value.find(m => m.estado === 'activo')
-      if (activo) {
-        await loadMercadoTiendas(activo.id)
-        for (const mt of mercadoTiendas.value) await loadCategoriasByTienda(mt.id)
-        for (const cats of Object.values(mercadoTiendaCategorias.value).flat()) await loadProductosByCategoria(cats.id)
-      }
+      try {
+        await loadMercados()
+        const activo = mercados.value.find(m => m.estado === 'activo')
+        if (activo) {
+          await loadMercadoTiendas(activo.id)
+          for (const mt of mercadoTiendas.value) await loadCategoriasByTienda(mt.id)
+          for (const cats of Object.values(mercadoTiendaCategorias.value).flat()) await loadProductosByCategoria(cats.id)
+        }
+      } catch (e) { console.error(e) }
       setLoading(false)
     })()
   }, [])

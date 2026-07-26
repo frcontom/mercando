@@ -64,13 +64,17 @@ export default function MercadoDetailPage() {
 
   const mercado = mercados.value.find(m => m.id === id)
 
+  const [dataLoaded, setDataLoaded] = useState(false)
+
   useEffect(() => {
     if (!id) return; (async () => {
-      await Promise.all([loadMercados(), loadTiendas(), loadCategorias(), loadProductos()])
-      await loadMercadoTiendas(id)
-      for (const mt of mercadoTiendas.value) await loadCategoriasByTienda(mt.id)
-      const todas = Object.values(mercadoTiendaCategorias.value).flat()
-      for (const mtc of todas) await loadProductosByCategoria(mtc.id)
+      try {
+        await Promise.all([loadMercados(), loadTiendas(), loadCategorias(), loadProductos()])
+        await loadMercadoTiendas(id)
+        for (const mt of mercadoTiendas.value) await loadCategoriasByTienda(mt.id)
+        for (const cats of Object.values(mercadoTiendaCategorias.value).flat()) await loadProductosByCategoria(cats.id)
+      } catch (e) { console.error(e) }
+      setDataLoaded(true)
     })()
   }, [id])
 
@@ -172,7 +176,7 @@ export default function MercadoDetailPage() {
     } catch { showSnackbar('Error') }
   }
 
-  if (!mercado) return <LoadingSpinner />
+  if (!dataLoaded || !mercado) return <LoadingSpinner />
 
   const todosProductos = mercadoTiendas.value.flatMap(mt => getProductosFromTienda(mt.id))
   const totalGlobal = todosProductos.reduce((s, p) => s + (p.subtotal ?? p.precio * qtyParaTotal(p)), 0)

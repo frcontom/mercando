@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { isAuthenticated } from '@/store'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
@@ -33,7 +33,7 @@ const SuspenseWrapper = ({ children }: { children: React.ReactNode }) => (
 
 export function AppRouter() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route path="/" element={
           <SuspenseWrapper>
@@ -62,6 +62,6 @@ export function AppRouter() {
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   )
 }
