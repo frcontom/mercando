@@ -87,7 +87,10 @@ export default function MercadoDetailPage() {
     return getProductosFromTienda(mtId).filter(p => p.estado === 'encontrado').length
   }
   function totalTienda(mtId: string) {
-    return getProductosFromTienda(mtId).reduce((s, p) => s + (p.subtotal || p.precio * p.cantidad), 0)
+    return getProductosFromTienda(mtId).reduce((s, p) => s + (p.subtotal ?? p.precio * p.cantidad), 0)
+  }
+  function totalEncontradosTienda(mtId: string) {
+    return getProductosFromTienda(mtId).filter(p => p.estado === 'encontrado').reduce((s, p) => s + (p.subtotal ?? p.precio * p.cantidad), 0)
   }
 
   async function toggleProductoEstado(mp: MercadoProducto) {
@@ -149,8 +152,9 @@ export default function MercadoDetailPage() {
   if (!mercado) return <LoadingSpinner />
 
   const todosProductos = mercadoTiendas.value.flatMap(mt => getProductosFromTienda(mt.id))
-  const totalGlobal = todosProductos.reduce((s, p) => s + (p.subtotal || p.precio * p.cantidad), 0)
+  const totalGlobal = todosProductos.reduce((s, p) => s + (p.subtotal ?? p.precio * p.cantidad), 0)
   const encontradosGlobal = todosProductos.filter(p => p.estado === 'encontrado').length
+  const totalEncontrados = todosProductos.filter(p => p.estado === 'encontrado').reduce((s, p) => s + (p.subtotal ?? p.precio * p.cantidad), 0)
   const tiendasDisponibles = tiendas.value.filter(t => !mercadoTiendas.value.some(mt => mt.tienda_id === t.id))
 
   const currentMT = mercadoTiendas.value.find(mt => mt.id === currentTiendaId)
@@ -179,13 +183,13 @@ export default function MercadoDetailPage() {
           <Typography variant="caption" color="text.secondary">{new Date(mercado.fecha).toLocaleDateString()}</Typography>
         </Box>
         {shoppingMode && (
-          <Box sx={{ mt: 1 }}>
+            <Box sx={{ mt: 1 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
               <Typography variant="caption" color="text.secondary">
-                {encontradosGlobal}/{todosProductos.length} productos
+                {encontradosGlobal}/{todosProductos.length}
               </Typography>
               <Typography variant="caption" sx={{ fontWeight: 600, color: '#69f0ae' }}>
-                {formatCurrency(totalGlobal)}
+                {formatCurrency(totalEncontrados)} / {formatCurrency(totalGlobal)}
               </Typography>
             </Box>
             <LinearProgress variant="determinate" value={todosProductos.length > 0 ? (encontradosGlobal / todosProductos.length) * 100 : 0} sx={{ height: 8, borderRadius: 4 }} />
@@ -266,9 +270,9 @@ export default function MercadoDetailPage() {
                           <Typography sx={{ fontSize: 32 }}>{mt.tienda?.icono}</Typography>
                           <Box sx={{ flex: 1 }}>
                             <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{mt.tienda?.nombre}</Typography>
-                            <Typography variant="caption" color="text.secondary">
-                              {enc}/{prods.length} · {formatCurrency(totalTienda(mt.id))}
-                            </Typography>
+                              <Typography variant="caption" color="text.secondary">
+                                {enc}/{prods.length} · {formatCurrency(totalEncontradosTienda(mt.id))} / {formatCurrency(totalTienda(mt.id))}
+                              </Typography>
                             <LinearProgress variant="determinate" value={prods.length > 0 ? (enc / prods.length) * 100 : 0} sx={{ height: 6, borderRadius: 3, mt: 0.5 }} />
                           </Box>
                         </Box>
