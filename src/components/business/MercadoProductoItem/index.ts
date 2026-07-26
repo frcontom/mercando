@@ -1,0 +1,1 @@
+export { MercadoProductoItem } from './MercadoProductoItem'
