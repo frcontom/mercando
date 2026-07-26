@@ -86,7 +86,7 @@ export default function MercadoDetailPage() {
   }, [mercado?.estado, shoppingMode])
 
   useEffect(() => {
-    if (selectedEstado === 'no_habia') { setCantidadEdit('0'); setPrecioEdit('') }
+    if (selectedEstado === 'no_habia') { setCantidadEdit('0'); setPrecioEdit('0') }
     else if (estadoDialog.item && selectedEstado === 'encontrado') {
       setCantidadEdit((estadoDialog.item.cantidad_encontrada || estadoDialog.item.cantidad).toString())
     }
