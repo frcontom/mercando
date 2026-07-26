@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams, useLocation } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
@@ -45,8 +45,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 
 export default function MercadoDetailPage() {
   const { id } = useParams()
-  const location = useLocation()
-  const [shoppingMode, setShoppingMode] = useState((location.state as { mode?: string })?.mode === 'shop')
+  const [shoppingMode, setShoppingMode] = useState(true)
   const [currentTiendaId, setCurrentTiendaId] = useState<string | null>(null)
   const [tiendaExpanded, setTiendaExpanded] = useState<string | false>(false)
   const [catExpanded, setCatExpanded] = useState<string | false>(false)
