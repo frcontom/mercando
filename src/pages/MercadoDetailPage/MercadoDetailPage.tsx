@@ -124,7 +124,7 @@ export default function MercadoDetailPage() {
   }, [id])
 
   useEffect(() => {
-    if (selectedEstado === 'no_habia') { setCantidadEdit('0'); setPrecioEdit('0') }
+    if (selectedEstado === 'no_habia' || selectedEstado === 'pendiente') { setCantidadEdit('0'); setPrecioEdit('0') }
     else if (selectedEstado === 'encontrado') {
       setCantidadEdit(estadoDialog.item ? (estadoDialog.item.cantidad_encontrada || estadoDialog.item.cantidad).toString() : '1')
       setPrecioEdit(estadoDialog.item && estadoDialog.item.precio > 0 ? estadoDialog.item.precio.toString() : '')
@@ -584,7 +584,7 @@ export default function MercadoDetailPage() {
           {estadoDialog.item && (
             <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
               <TextField type="number" label="Ocupas" value={estadoDialog.item.cantidad} slotProps={{ htmlInput: { readOnly: true, style: { textAlign: 'center' } } }} sx={{ flex: 1, '& .MuiInputBase-root': { bgcolor: 'action.hover' } }} />
-              {selectedEstado === 'no_habia' ? (
+              {selectedEstado === 'no_habia' || selectedEstado === 'pendiente' ? (
                 <TextField select label="Llevas" value="0" disabled sx={{ flex: 1 }}>
                   <MenuItem value="0">0</MenuItem>
                 </TextField>
@@ -597,8 +597,8 @@ export default function MercadoDetailPage() {
               )}
             </Box>
           )}
-          <TextField fullWidth type="text" label="Precio" value={precioEdit} onChange={e => { const val = e.target.value.replace(/[^0-9]/g, ''); setPrecioEdit(val) }} disabled={selectedEstado === 'no_habia'} required={selectedEstado === 'encontrado'} slotProps={{ htmlInput: { inputMode: 'numeric' } }} />
-          {selectedEstado !== 'no_habia' && (precioEdit || Number(cantidadEdit) > 0) && (
+          <TextField fullWidth type="text" label="Precio" value={precioEdit} onChange={e => { const val = e.target.value.replace(/[^0-9]/g, ''); setPrecioEdit(val) }} disabled={selectedEstado !== 'encontrado'} required={selectedEstado === 'encontrado'} slotProps={{ htmlInput: { inputMode: 'numeric' } }} />
+          {selectedEstado === 'encontrado' && (precioEdit || Number(cantidadEdit) > 0) && (
             <Box sx={{ mt: 2, px: 1, py: 0.5, borderRadius: 2 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
                 <Typography variant="body2" color="text.secondary">Precio unitario</Typography>
