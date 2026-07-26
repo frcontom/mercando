@@ -58,6 +58,7 @@ export default function MercadoDetailPage() {
   const [addProductoFor, setAddProductoFor] = useState<string | null>(null)
   const [productoForm, setProductoForm] = useState({ producto_id: '', cantidad: '1' })
   const [estadoDialog, setEstadoDialog] = useState<{ open: boolean; item: MercadoProducto | null }>({ open: false, item: null })
+  const [quantityDialog, setQuantityDialog] = useState<{ open: boolean; item: MercadoProducto | null }>({ open: false, item: null })
   const [selectedEstado, setSelectedEstado] = useState<EstadoProducto>('pendiente')
   const [refreshKey, setRefreshKey] = useState(0)
   const [precioEdit, setPrecioEdit] = useState('')
@@ -409,7 +410,7 @@ export default function MercadoDetailPage() {
                             <Typography variant="body2" color="text.disabled" sx={{ py: 1 }}>Sin productos</Typography>
                           ) : (
                             getProductos(mtc.id).map(mp => (
-                              <Card key={mp.id} onClick={() => { setSelectedEstado(mp.estado); setPrecioEdit(mp.precio.toString()); setCantidadEdit(mp.cantidad_encontrada ? mp.cantidad_encontrada.toString() : mp.cantidad.toString()); setEstadoDialog({ open: true, item: mp }) }} sx={{ cursor: 'pointer', mb: 1, '&:active': { transform: 'scale(0.98)' }, transition: 'transform 0.15s ease' }}>
+                              <Card key={mp.id} onClick={() => { setCantidadEdit(mp.cantidad.toString()); setQuantityDialog({ open: true, item: mp }) }} sx={{ cursor: 'pointer', mb: 1, '&:active': { transform: 'scale(0.98)' }, transition: 'transform 0.15s ease' }}>
                                 <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
                                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                     <Box sx={{ flex: 1 }}>
@@ -472,6 +473,22 @@ export default function MercadoDetailPage() {
         <DialogActions>
           <Button onClick={() => setAddProductoFor(null)}>Cancelar</Button>
           <Button onClick={handleAddProducto} variant="contained" disabled={!productoForm.producto_id}>Agregar</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={quantityDialog.open} onClose={() => setQuantityDialog({ open: false, item: null })} fullWidth maxWidth="xs">
+        <DialogTitle>{quantityDialog.item?.producto?.nombre ?? 'Editar cantidad'}</DialogTitle>
+        <DialogContent>
+          <TextField fullWidth type="number" label="Cantidad" value={cantidadEdit} onChange={e => setCantidadEdit(e.target.value)} slotProps={{ htmlInput: { min: 1, style: { textAlign: 'center' } } }} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setQuantityDialog({ open: false, item: null })}>Cancelar</Button>
+          <Button onClick={async () => {
+            const item = quantityDialog.item; if (!item) return
+            try { await mercadoProductosService.update(item.id, { cantidad: Number(cantidadEdit) || 1 }); await loadProductosByCategoria(item.mercado_tienda_categoria_id); setRefreshKey(k => k + 1); showSnackbar('Cantidad actualizada') }
+            catch { showSnackbar('Error') }
+            finally { setQuantityDialog({ open: false, item: null }) }
+          }} variant="contained">Guardar</Button>
         </DialogActions>
       </Dialog>
 
