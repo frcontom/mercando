@@ -207,7 +207,7 @@ export default function MercadoDetailPage() {
       <Box sx={{ p: 2, bgcolor: 'background.paper' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h6">{mercado.nombre}</Typography>
-          {mercado.estado === 'activo' && (
+          {mercado.estado === 'activo' && !currentTiendaId && (
             <Button
               size="small"
               variant={shoppingMode ? 'contained' : 'outlined'}
