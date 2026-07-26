@@ -7,7 +7,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import StoreIcon from '@mui/icons-material/Store'
 import CategoryIcon from '@mui/icons-material/Category'
 import InventoryIcon from '@mui/icons-material/Inventory'
-import { pendingCount } from '@/store'
+import { pendingCount, userRole } from '@/store'
 
 const routes = [
   { label: 'Inicio', icon: <HomeIcon />, path: '/dashboard' },
@@ -22,6 +22,8 @@ export function BottomNav() {
   const location = useLocation()
 
   const value = routes.findIndex(r => location.pathname.startsWith(r.path))
+
+  if (userRole.value !== 'admin') return null
 
   return (
     <BottomNavigation

@@ -35,7 +35,7 @@ import { mercadoTiendaCategorias, loadCategoriasByTienda, getCategoriasByTienda 
 import { mercadoProductos, loadProductosByCategoria, getProductosByCategoria } from '@/store'
 import { tiendas, loadTiendas, categorias, loadCategorias, productos, loadProductos } from '@/store'
 import { mercadoTiendasService, mercadoTiendaCategoriasService, mercadoProductosService } from '@/services'
-import { showSnackbar, showFab, hideFab, pendingCount, refreshHandler } from '@/store'
+import { showSnackbar, showFab, hideFab, pendingCount, refreshHandler, userRole } from '@/store'
 import { subscribeToChanges } from '@/core/utils/realtime'
 import { formatCurrency } from '@/core/utils/formatters'
 import { ESTADOS_PRODUCTO, LABEL_ESTADOS } from '@/core/constants/estados'
@@ -227,7 +227,7 @@ export default function MercadoDetailPage() {
       <Box sx={{ p: 2, bgcolor: 'background.paper' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h6">{mercado.nombre}</Typography>
-          {mercado.estado === 'activo' && searchParams.get('edit') === '1' && !currentTiendaId && (
+          {mercado.estado === 'activo' && userRole.value === 'admin' && searchParams.get('edit') === '1' && !currentTiendaId && (
             <Button size="small" variant="outlined" startIcon={<EditIcon />} onClick={() => setShoppingMode(false)}>
               Editar
             </Button>

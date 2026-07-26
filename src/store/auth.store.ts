@@ -1,18 +1,32 @@
 import { signal } from '@preact/signals-react'
-import { authService } from '@/services'
+import { APP_PASSWORD, BUYER_PASSWORD, SESSION_KEY, ROLE_KEY } from '@/core/constants/password'
 
-export const isAuthenticated = signal(authService.tieneSesion())
+export type UserRole = 'admin' | 'buyer'
 
-export function login(password: string): boolean {
-  const valid = authService.validarPassword(password)
-  if (valid) {
-    authService.guardarSesion()
+export const isAuthenticated = signal(!!localStorage.getItem(SESSION_KEY))
+export const userRole = signal<UserRole>((localStorage.getItem(ROLE_KEY) as UserRole) ?? 'admin')
+
+export function login(password: string): UserRole | null {
+  if (password === APP_PASSWORD) {
+    localStorage.setItem(SESSION_KEY, Date.now().toString())
+    localStorage.setItem(ROLE_KEY, 'admin')
     isAuthenticated.value = true
+    userRole.value = 'admin'
+    return 'admin'
   }
-  return valid
+  if (password === BUYER_PASSWORD) {
+    localStorage.setItem(SESSION_KEY, Date.now().toString())
+    localStorage.setItem(ROLE_KEY, 'buyer')
+    isAuthenticated.value = true
+    userRole.value = 'buyer'
+    return 'buyer'
+  }
+  return null
 }
 
 export function logout(): void {
-  authService.cerrarSesion()
+  localStorage.removeItem(SESSION_KEY)
+  localStorage.removeItem(ROLE_KEY)
   isAuthenticated.value = false
+  userRole.value = 'admin'
 }
