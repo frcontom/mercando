@@ -190,7 +190,9 @@ export default function MercadoDetailPage() {
 
   if (!dataLoaded || !mercado) return <LoadingSpinner />
 
+  const order = { pendiente: 0, encontrado: 1, no_habia: 2 }
   const todosProductos = mercadoTiendas.value.flatMap(mt => getProductosFromTienda(mt.id))
+    .sort((a, b) => (order[a.estado] ?? 0) - (order[b.estado] ?? 0))
   const totalGlobal = todosProductos.reduce((s, p) => s + (p.subtotal ?? p.precio * qtyParaTotal(p)), 0)
   const encontradosGlobal = todosProductos.filter(p => p.estado === 'encontrado').length
   const totalEncontrados = todosProductos.filter(p => p.estado === 'encontrado').reduce((s, p) => s + (p.subtotal ?? p.precio * qtyParaTotal(p)), 0)
