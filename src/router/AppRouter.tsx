@@ -1,9 +1,10 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { isAuthenticated } from '@/store'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { PageTransition } from '@/components/ui/PageTransition'
+import { waitForSupabase } from '@/core/utils/supabase-init'
 
 const SplashPage = lazy(() => import('@/pages/SplashPage/SplashPage'))
 const PasswordPage = lazy(() => import('@/pages/PasswordPage/PasswordPage'))
@@ -31,9 +32,17 @@ const SuspenseWrapper = ({ children }: { children: React.ReactNode }) => (
   </Suspense>
 )
 
+function SupabaseGate({ children }: { children: React.ReactNode }) {
+  const [ready, setReady] = useState(false)
+  useEffect(() => { waitForSupabase().then(() => setReady(true)) }, [])
+  if (!ready) return <LoadingSpinner />
+  return <>{children}</>
+}
+
 export function AppRouter() {
   return (
     <HashRouter>
+      <SupabaseGate>
       <Routes>
         <Route path="/" element={
           <SuspenseWrapper>
@@ -62,6 +71,7 @@ export function AppRouter() {
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </SupabaseGate>
     </HashRouter>
   )
 }
