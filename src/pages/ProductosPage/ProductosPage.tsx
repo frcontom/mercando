@@ -6,7 +6,7 @@ import ToggleButton from '@mui/material/ToggleButton'
 import StarIcon from '@mui/icons-material/Star'
 import AddIcon from '@mui/icons-material/Add'
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd'
-import Button from '@mui/material/Button'
+import DeleteIcon from '@mui/icons-material/Delete'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 import TextField from '@mui/material/TextField'
@@ -133,6 +133,11 @@ export default function ProductosPage() {
               <PlaylistAddIcon fontSize="small" />
             </IconButton>
           </Tooltip>
+          <Tooltip title="Borrar todos">
+            <IconButton size="small" onClick={() => setDeleteAllOpen(true)}>
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
           <ToggleButton
             value="favs"
             selected={showFavs}
@@ -192,12 +197,6 @@ export default function ProductosPage() {
         onSave={handleBulkSave}
         onClose={() => { setBulkOpen(false) }}
       />
-
-      <Box sx={{ mt: 3, px: 2 }}>
-        <Button fullWidth color="error" variant="outlined" onClick={() => setDeleteAllOpen(true)}>
-          Borrar todos los productos
-        </Button>
-      </Box>
 
       <ConfirmDialog
         open={deleteTarget !== null}
