@@ -262,7 +262,7 @@ export default function MercadoDetailPage() {
             <>
               <Typography variant="subtitle2" color="text.secondary" gutterBottom>Selecciona una tienda</Typography>
               {mercadoTiendas.value.length === 0 ? (
-                <EmptyState message="Agrega tiendas desde el modo editar" />
+                <EmptyState message="No hay que comprar" />
               ) : (
                 mercadoTiendas.value.map(mt => {
                   const prods = getProductosFromTienda(mt.id)
