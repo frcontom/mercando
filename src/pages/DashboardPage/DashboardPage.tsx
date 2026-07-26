@@ -139,6 +139,29 @@ export default function DashboardPage() {
             </Typography>
           ) : (
             <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: 1.5, mb: 3 }}>
+              <Card
+                onClick={() => navigate(`/mercados/${activo.id}?tienda=__todas__`)}
+                sx={{
+                  cursor: 'pointer',
+                  aspectRatio: '1',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  p: 1,
+                  border: '1px dashed rgba(255,255,255,0.2)',
+                  '&:active': { transform: 'scale(0.95)' },
+                  transition: 'transform 0.15s ease',
+                }}
+              >
+                <Typography sx={{ fontSize: 28, mb: 0.5, opacity: 0.5 }}>📋</Typography>
+                <Typography variant="caption" sx={{ fontWeight: 600, textAlign: 'center', lineHeight: 1.2, fontSize: '0.65rem' }}>
+                  Todas
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.6rem' }}>
+                  {encontradosGlobal}/{todosProductos.length}
+                </Typography>
+              </Card>
               {mercadoTiendas.value.map(mt => {
                 const prods = getProductosFromTienda(mt.id)
                 const enc = prods.filter(p => p.estado === 'encontrado').length
