@@ -8,6 +8,8 @@ import Button from '@mui/material/Button'
 import MenuItem from '@mui/material/MenuItem'
 import type { Producto, CreateProductoDto, UpdateProductoDto, Categoria } from '@/models'
 
+const UNIDADES = ['kg', 'g', 'lb', 'pieza', 'litro', 'ml', 'bolsa', 'paquete', 'caja', 'botella', 'lata', 'docena', 'atado', 'manojo', 'otros']
+
 interface ProductoFormDialogProps {
   open: boolean
   producto?: Producto | null
@@ -21,11 +23,12 @@ export function ProductoFormDialog({ open, producto, categorias, onSave, onClose
   const [unidad, setUnidad] = useState('')
   const [categoriaId, setCategoriaId] = useState('')
   const [saving, setSaving] = useState(false)
+  const isNew = !producto
 
   useEffect(() => {
     if (open) {
       setNombre(producto?.nombre ?? '')
-      setUnidad(producto?.unidad ?? '')
+      setUnidad(producto?.unidad ?? 'pieza')
       setCategoriaId(producto?.categoria_id ?? (categorias[0]?.id ?? ''))
     }
   }, [open, producto, categorias])
@@ -43,7 +46,7 @@ export function ProductoFormDialog({ open, producto, categorias, onSave, onClose
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
-      <DialogTitle>{producto ? 'Editar producto' : 'Nuevo producto'}</DialogTitle>
+      <DialogTitle>{isNew ? 'Nuevo producto' : 'Editar producto'}</DialogTitle>
       <DialogContent>
         <TextField
           select
@@ -65,17 +68,19 @@ export function ProductoFormDialog({ open, producto, categorias, onSave, onClose
           onChange={e => setNombre(e.target.value)}
           sx={{ mb: 2 }}
         />
-        <TextField
-          select
-          fullWidth
-          label="Unidad"
-          value={unidad}
-          onChange={e => setUnidad(e.target.value)}
-        >
-          {['kg', 'g', 'lb', 'pieza', 'litro', 'ml', 'bolsa', 'paquete', 'caja', 'botella', 'lata', 'docena', 'atado', 'manojo'].map(u => (
-            <MenuItem key={u} value={u}>{u}</MenuItem>
-          ))}
-        </TextField>
+        {!isNew && (
+          <TextField
+            select
+            fullWidth
+            label="Unidad"
+            value={unidad}
+            onChange={e => setUnidad(e.target.value)}
+          >
+            {UNIDADES.map(u => (
+              <MenuItem key={u} value={u}>{u}</MenuItem>
+            ))}
+          </TextField>
+        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancelar</Button>
