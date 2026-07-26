@@ -19,22 +19,31 @@ export default function TiendasPage() {
   useEffect(() => { loadTiendas() }, [])
 
   async function handleSave(data: CreateTiendaDto | UpdateTiendaDto) {
-    if (editing) {
-      await tiendasService.update(editing.id, data as UpdateTiendaDto)
-      showSnackbar('Tienda actualizada')
-    } else {
-      await tiendasService.create(data as CreateTiendaDto)
-      showSnackbar('Tienda creada')
+    try {
+      if (editing) {
+        await tiendasService.update(editing.id, data as UpdateTiendaDto)
+        showSnackbar('Tienda actualizada')
+      } else {
+        await tiendasService.create(data as CreateTiendaDto)
+        showSnackbar('Tienda creada')
+      }
+      await loadTiendas()
+    } catch {
+      showSnackbar('Error al guardar la tienda')
     }
-    await loadTiendas()
   }
 
   async function handleDelete() {
     if (!deleteTarget) return
-    await tiendasService.delete(deleteTarget.id)
-    showSnackbar('Tienda eliminada')
-    setDeleteTarget(null)
-    await loadTiendas()
+    try {
+      await tiendasService.delete(deleteTarget.id)
+      showSnackbar('Tienda eliminada')
+      await loadTiendas()
+    } catch {
+      showSnackbar('Error al eliminar: tienda tiene productos asignados')
+    } finally {
+      setDeleteTarget(null)
+    }
   }
 
   function openCreate() {

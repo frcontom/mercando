@@ -36,27 +36,40 @@ export default function ProductosPage() {
   })
 
   async function handleSave(data: CreateProductoDto | UpdateProductoDto) {
-    if (editing) {
-      await productosService.update(editing.id, data as UpdateProductoDto)
-      showSnackbar('Producto actualizado')
-    } else {
-      await productosService.create(data as CreateProductoDto)
-      showSnackbar('Producto creado')
+    try {
+      if (editing) {
+        await productosService.update(editing.id, data as UpdateProductoDto)
+        showSnackbar('Producto actualizado')
+      } else {
+        await productosService.create(data as CreateProductoDto)
+        showSnackbar('Producto creado')
+      }
+      await loadProductos()
+    } catch {
+      showSnackbar('Error al guardar el producto')
     }
-    await loadProductos()
   }
 
   async function handleDelete() {
     if (!deleteTarget) return
-    await productosService.delete(deleteTarget.id)
-    showSnackbar('Producto eliminado')
-    setDeleteTarget(null)
-    await loadProductos()
+    try {
+      await productosService.delete(deleteTarget.id)
+      showSnackbar('Producto eliminado')
+      await loadProductos()
+    } catch {
+      showSnackbar('Error al eliminar el producto')
+    } finally {
+      setDeleteTarget(null)
+    }
   }
 
   async function toggleFavorito(producto: Producto) {
-    await productosService.update(producto.id, { favorito: !producto.favorito })
-    await loadProductos()
+    try {
+      await productosService.update(producto.id, { favorito: !producto.favorito })
+      await loadProductos()
+    } catch {
+      showSnackbar('Error al actualizar favorito')
+    }
   }
 
   function openCreate() {

@@ -19,22 +19,31 @@ export default function CategoriasPage() {
   useEffect(() => { loadCategorias() }, [])
 
   async function handleSave(data: CreateCategoriaDto | UpdateCategoriaDto) {
-    if (editing) {
-      await categoriasService.update(editing.id, data as UpdateCategoriaDto)
-      showSnackbar('Categoría actualizada')
-    } else {
-      await categoriasService.create(data as CreateCategoriaDto)
-      showSnackbar('Categoría creada')
+    try {
+      if (editing) {
+        await categoriasService.update(editing.id, data as UpdateCategoriaDto)
+        showSnackbar('Categoría actualizada')
+      } else {
+        await categoriasService.create(data as CreateCategoriaDto)
+        showSnackbar('Categoría creada')
+      }
+      await loadCategorias()
+    } catch {
+      showSnackbar('Error al guardar la categoría')
     }
-    await loadCategorias()
   }
 
   async function handleDelete() {
     if (!deleteTarget) return
-    await categoriasService.delete(deleteTarget.id)
-    showSnackbar('Categoría eliminada')
-    setDeleteTarget(null)
-    await loadCategorias()
+    try {
+      await categoriasService.delete(deleteTarget.id)
+      showSnackbar('Categoría eliminada')
+      await loadCategorias()
+    } catch {
+      showSnackbar('Error al eliminar: categoría tiene productos')
+    } finally {
+      setDeleteTarget(null)
+    }
   }
 
   function openCreate() {

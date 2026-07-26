@@ -40,29 +40,42 @@ export default function MercadosPage() {
   useEffect(() => { loadMercados() }, [])
 
   async function handleSave(data: CreateMercadoDto | UpdateMercadoDto) {
-    if (editing) {
-      await mercadosService.update(editing.id, data as UpdateMercadoDto)
-      showSnackbar('Mercado actualizado')
-    } else {
-      await mercadosService.create(data as CreateMercadoDto)
-      showSnackbar('Mercado creado')
+    try {
+      if (editing) {
+        await mercadosService.update(editing.id, data as UpdateMercadoDto)
+        showSnackbar('Mercado actualizado')
+      } else {
+        await mercadosService.create(data as CreateMercadoDto)
+        showSnackbar('Mercado creado')
+      }
+      await loadMercados()
+    } catch {
+      showSnackbar('Error al guardar el mercado')
     }
-    await loadMercados()
   }
 
   async function handleDelete() {
     if (!deleteTarget) return
-    await mercadosService.delete(deleteTarget.id)
-    showSnackbar('Mercado eliminado')
-    setDeleteTarget(null)
-    await loadMercados()
+    try {
+      await mercadosService.delete(deleteTarget.id)
+      showSnackbar('Mercado eliminado')
+      await loadMercados()
+    } catch {
+      showSnackbar('Error al eliminar: mercado tiene productos')
+    } finally {
+      setDeleteTarget(null)
+    }
   }
 
   async function toggleEstado(m: Mercado) {
-    const nuevo = nextEstado[m.estado]
-    await mercadosService.update(m.id, { estado: nuevo })
-    showSnackbar(`Mercado marcado como "${nuevo}"`)
-    await loadMercados()
+    try {
+      const nuevo = nextEstado[m.estado]
+      await mercadosService.update(m.id, { estado: nuevo })
+      showSnackbar(`Mercado marcado como "${nuevo}"`)
+      await loadMercados()
+    } catch {
+      showSnackbar('Error al cambiar estado')
+    }
   }
 
   if (loadingMercados.value) return <LoadingSpinner />
