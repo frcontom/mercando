@@ -37,6 +37,7 @@ import { tiendas, loadTiendas, categorias, loadCategorias, productos, loadProduc
 import { mercadoTiendasService, mercadoTiendaCategoriasService, mercadoProductosService } from '@/services'
 import { showSnackbar, showFab, hideFab, pendingCount, refreshHandler, userRole } from '@/store'
 import { playClick } from '@/core/utils/sound'
+import { CompraCompletadaDialog } from '@/components/business/CompraCompletadaDialog'
 import confetti from 'canvas-confetti'
 import { subscribeToChanges } from '@/core/utils/realtime'
 import { formatCurrency } from '@/core/utils/formatters'
@@ -66,6 +67,7 @@ export default function MercadoDetailPage() {
   const [precioEdit, setPrecioEdit] = useState('')
   const [cantidadEdit, setCantidadEdit] = useState('1')
   const [searchQuery, setSearchQuery] = useState('')
+  const [summaryOpen, setSummaryOpen] = useState(false)
 
   const mercado = mercados.value.find(m => m.id === id)
 
@@ -213,6 +215,7 @@ export default function MercadoDetailPage() {
       updatePendingCount()
       if (pendingCount.value === 0) {
         confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, colors: ['#90caf9', '#69f0ae', '#ffd740'] })
+        setTimeout(() => setSummaryOpen(true), 1200)
       }
     } catch { showSnackbar('Error') }
   }
@@ -545,6 +548,14 @@ export default function MercadoDetailPage() {
       </Dialog>
 
       <ConfirmDialog open={deleteTarget !== null} title="Eliminar" message="¿Eliminar este elemento?" onConfirm={() => { if (deleteTarget?.type === 'tienda') handleRemoveTienda(); else if (deleteTarget?.type === 'categoria') handleRemoveCategoria(); else if (deleteTarget?.type === 'producto') handleRemoveProducto() }} onCancel={() => setDeleteTarget(null)} />
+      <CompraCompletadaDialog
+        open={summaryOpen}
+        totalGastado={totalEncontrados}
+        presupuesto={mercado?.presupuesto ?? 0}
+        encontrados={encontradosGlobal}
+        total={todosProductos.length}
+        onClose={() => setSummaryOpen(false)}
+      />
     </Box>
   )
 }
