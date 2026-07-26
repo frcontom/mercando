@@ -9,11 +9,12 @@ import type { Categoria } from '@/models'
 
 interface CategoriaItemProps {
   categoria: Categoria
+  productCount: number
   onEdit: (categoria: Categoria) => void
   onDelete: (categoria: Categoria) => void
 }
 
-export function CategoriaItem({ categoria, onEdit, onDelete }: CategoriaItemProps) {
+export function CategoriaItem({ categoria, productCount, onEdit, onDelete }: CategoriaItemProps) {
   return (
     <Card sx={{ '&:active': { transform: 'scale(0.98)' }, transition: 'transform 0.15s ease' }}>
       <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, pb: '16px !important' }}>
@@ -21,6 +22,9 @@ export function CategoriaItem({ categoria, onEdit, onDelete }: CategoriaItemProp
         <Box sx={{ flex: 1 }}>
           <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
             {categoria.nombre}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {productCount} producto{productCount !== 1 ? 's' : ''}
           </Typography>
         </Box>
         <IconButton size="small" onClick={() => onEdit(categoria)}>

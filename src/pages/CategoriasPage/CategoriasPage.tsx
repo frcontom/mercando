@@ -3,7 +3,7 @@ import Box from '@mui/material/Box'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 import Button from '@mui/material/Button'
-import { categorias as categoriasSignal, loadingCategorias, loadCategorias, showSnackbar } from '@/store'
+import { categorias as categoriasSignal, loadingCategorias, loadCategorias, productos, showSnackbar } from '@/store'
 import { useSignalValue } from '@/hooks/useSignalValue'
 import { categoriasService } from '@/services'
 import type { Categoria, CreateCategoriaDto, UpdateCategoriaDto } from '@/models'
@@ -81,6 +81,7 @@ export default function CategoriasPage() {
             <CategoriaItem
               key={c.id}
               categoria={c}
+              productCount={productos.value.filter(p => p.categoria_id === c.id).length}
               onEdit={openEdit}
               onDelete={setDeleteTarget}
             />
