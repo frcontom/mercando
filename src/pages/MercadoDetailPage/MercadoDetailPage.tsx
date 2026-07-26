@@ -112,25 +112,10 @@ export default function MercadoDetailPage() {
   }
 
   async function toggleProductoEstado(mp: MercadoProducto) {
-    if (mp.estado === 'encontrado' || mp.estado === 'no_habia') {
-      await mercadoProductosService.update(mp.id, { estado: 'pendiente' })
-      await loadProductosByCategoria(mp.mercado_tienda_categoria_id)
-      setRefreshKey(k => k + 1)
-      return
-    }
-    if (mp.precio === 0) {
-      setSelectedEstado('encontrado')
-      setPrecioEdit('')
-      setCantidadEdit(mp.cantidad_encontrada ? mp.cantidad_encontrada.toString() : mp.cantidad.toString())
-      setEstadoDialog({ open: true, item: mp })
-      return
-    }
-    try {
-      await mercadoProductosService.update(mp.id, { estado: 'encontrado' })
-      await loadProductosByCategoria(mp.mercado_tienda_categoria_id)
-      setRefreshKey(k => k + 1)
-      showSnackbar(`${mp.producto?.nombre} ✓`)
-    } catch { showSnackbar('Error') }
+    setSelectedEstado(mp.estado === 'pendiente' ? 'encontrado' : mp.estado)
+    setPrecioEdit(mp.precio > 0 ? mp.precio.toString() : '')
+    setCantidadEdit(mp.cantidad_encontrada > 0 ? mp.cantidad_encontrada.toString() : mp.cantidad.toString())
+    setEstadoDialog({ open: true, item: mp })
   }
 
   async function handleAddTienda(tiendaId: string) {
