@@ -410,9 +410,7 @@ export default function MercadoDetailPage() {
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant="body2" color="text.secondary">
-                  {productoForm.cantidad} × {formatCurrency(Number(productoForm.precio))}
-                </Typography>
+                <Typography variant="body2" color="text.secondary">Total a pagar</Typography>
                 <Typography variant="h6" sx={{ fontWeight: 800, color: '#69f0ae', minWidth: 120, textAlign: 'right' }}>
                   {formatCurrency(Number(productoForm.precio) * Number(productoForm.cantidad))}
                 </Typography>
