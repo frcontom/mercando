@@ -327,7 +327,7 @@ export default function MercadoDetailPage() {
         <DialogTitle>Agregar categoría</DialogTitle>
         <DialogContent>
           <List>
-            {categorias.value.filter(c => !getCategorias(addCategoriaFor!).some(mtc => mtc.categoria_id === c.id)).map(cat => (
+            {categorias.value.filter(c => !getCategorias(addCategoriaFor!).some(mtc => mtc.categoria_id === c.id) && productos.value.some(p => p.categoria_id === c.id)).map(cat => (
               <ListItem key={cat.id} disablePadding>
                 <ListItemButton onClick={() => handleAddCategoria(cat.id)}>
                   <Typography sx={{ mr: 1 }}>{cat.icono}</Typography>
