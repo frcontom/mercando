@@ -85,6 +85,10 @@ export default function MercadoDetailPage() {
     return () => hideFab()
   }, [mercado?.estado, shoppingMode])
 
+  useEffect(() => {
+    if (selectedEstado === 'no_habia') { setCantidadEdit('0'); setPrecioEdit('') }
+  }, [selectedEstado])
+
   function getCategorias(mtId: string) { return getCategoriasByTienda(mtId) }
   function getProductos(mtcId: string) { return getProductosByCategoria(mtcId) }
   function getProductosFromTienda(mtId: string) {
@@ -442,10 +446,10 @@ export default function MercadoDetailPage() {
           {estadoDialog.item && (
             <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
               <TextField type="number" label="Ocupas" value={estadoDialog.item.cantidad} slotProps={{ htmlInput: { readOnly: true, style: { textAlign: 'center' } } }} sx={{ flex: 1, '& .MuiInputBase-root': { bgcolor: 'action.hover' } }} />
-              <TextField type="number" label="Llevas" value={cantidadEdit} onChange={e => setCantidadEdit(e.target.value)} slotProps={{ htmlInput: { min: 0, style: { textAlign: 'center' } } }} sx={{ flex: 1 }} />
+              <TextField type="number" label="Llevas" value={cantidadEdit} onChange={e => setCantidadEdit(e.target.value)} disabled={selectedEstado === 'no_habia'} slotProps={{ htmlInput: { min: 0, style: { textAlign: 'center' } } }} sx={{ flex: 1 }} />
             </Box>
           )}
-          <TextField fullWidth type="text" label="Precio" value={precioEdit} onChange={e => { const val = e.target.value.replace(/[^0-9]/g, ''); setPrecioEdit(val) }} slotProps={{ htmlInput: { inputMode: 'numeric' } }} />
+          <TextField fullWidth type="text" label="Precio" value={precioEdit} onChange={e => { const val = e.target.value.replace(/[^0-9]/g, ''); setPrecioEdit(val) }} disabled={selectedEstado === 'no_habia'} slotProps={{ htmlInput: { inputMode: 'numeric' } }} />
           {(precioEdit || Number(cantidadEdit) > 0) && (
             <Box sx={{ mt: 2, px: 1, py: 0.5, borderRadius: 2 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
