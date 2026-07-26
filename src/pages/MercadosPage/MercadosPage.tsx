@@ -5,12 +5,13 @@ import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
+import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import Chip from '@mui/material/Chip'
 import { mercados, loadingMercados, loadMercados } from '@/store'
 import { mercadosService } from '@/services'
 import { showSnackbar } from '@/store'
-import type { Mercado, CreateMercadoDto, UpdateMercadoDto } from '@/models'
+import type { Mercado, MercadoEstado, CreateMercadoDto, UpdateMercadoDto } from '@/models'
 import { MercadoFormDialog } from '@/components/business/MercadoFormDialog'
 import { AppFab } from '@/components/ui/AppFab'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
@@ -18,10 +19,16 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { formatCurrency } from '@/core/utils/formatters'
 
-const estadoChip: Record<string, 'info' | 'warning' | 'success'> = {
+const estadoColors: Record<MercadoEstado, 'info' | 'warning' | 'success'> = {
   planeando: 'info',
   en_curso: 'warning',
   completado: 'success',
+}
+
+const nextEstado: Record<MercadoEstado, MercadoEstado> = {
+  planeando: 'en_curso',
+  en_curso: 'completado',
+  completado: 'planeando',
 }
 
 export default function MercadosPage() {
@@ -51,6 +58,13 @@ export default function MercadosPage() {
     await loadMercados()
   }
 
+  async function toggleEstado(m: Mercado) {
+    const nuevo = nextEstado[m.estado]
+    await mercadosService.update(m.id, { estado: nuevo })
+    showSnackbar(`Mercado marcado como "${nuevo}"`)
+    await loadMercados()
+  }
+
   if (loadingMercados.value) return <LoadingSpinner />
 
   return (
@@ -77,10 +91,15 @@ export default function MercadosPage() {
                   </Box>
                   <Chip
                     label={m.estado}
-                    color={estadoChip[m.estado]}
+                    color={estadoColors[m.estado]}
                     size="small"
+                    onClick={e => { e.stopPropagation(); toggleEstado(m) }}
+                    sx={{ cursor: 'pointer' }}
                   />
                   <IconButton size="small" onClick={e => { e.stopPropagation(); setEditing(m); setFormOpen(true) }}>
+                    <EditIcon fontSize="small" />
+                  </IconButton>
+                  <IconButton size="small" onClick={e => { e.stopPropagation(); setDeleteTarget(m) }}>
                     <DeleteIcon fontSize="small" />
                   </IconButton>
                 </Box>

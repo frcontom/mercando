@@ -10,6 +10,7 @@ import DialogActions from '@mui/material/DialogActions'
 import Button from '@mui/material/Button'
 import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
+import LinearProgress from '@mui/material/LinearProgress'
 import { mercados, loadMercados, mercadoProductos, loadingMercadoProductos, loadMercadoProductos, tiendas, loadTiendas, productos, loadProductos } from '@/store'
 import { mercadoProductosService } from '@/services'
 import { showSnackbar } from '@/store'
@@ -81,16 +82,37 @@ export default function MercadoDetailPage() {
   if (loadingMercadoProductos.value) return <LoadingSpinner />
 
   const total = mercadoProductos.value.reduce((sum, p) => sum + (p.subtotal || p.precio * p.cantidad), 0)
+  const grupos = new Map<string, MercadoProducto[]>()
+  for (const mp of mercadoProductos.value) {
+    const key = mp.tienda?.nombre ?? 'Sin tienda'
+    if (!grupos.has(key)) grupos.set(key, [])
+    grupos.get(key)!.push(mp)
+  }
+  const pendientes = mercadoProductos.value.filter(p => p.estado === 'pendiente').length
+  const encontrados = mercadoProductos.value.filter(p => p.estado === 'encontrado').length
 
   return (
     <Box sx={{ pb: 10 }}>
       <Box sx={{ p: 2, bgcolor: 'background.paper' }}>
         <Typography variant="h6">{mercado.nombre}</Typography>
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 0.5 }}>
-          <Chip label={mercado.estado} size="small" />
+          <Chip label={mercado.estado} size="small" color={mercado.estado === 'completado' ? 'success' : 'warning'} />
           <Typography variant="caption" color="text.secondary">
-            {new Date(mercado.fecha).toLocaleDateString()} · {formatCurrency(total)} / {formatCurrency(mercado.presupuesto)}
+            {new Date(mercado.fecha).toLocaleDateString()}
           </Typography>
+        </Box>
+        <Box sx={{ mt: 1 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Typography variant="caption" color="text.secondary">
+              {encontrados}/{mercadoProductos.value.length} encontrados · {pendientes} pendientes
+            </Typography>
+            <Typography variant="caption">{formatCurrency(total)} / {formatCurrency(mercado.presupuesto)}</Typography>
+          </Box>
+          <LinearProgress
+            variant="determinate"
+            value={Math.min(total / mercado.presupuesto, 1) * 100}
+            sx={{ mt: 0.5, height: 6, borderRadius: 3 }}
+          />
         </Box>
       </Box>
 
@@ -98,20 +120,27 @@ export default function MercadoDetailPage() {
         {mercadoProductos.value.length === 0 ? (
           <EmptyState message="Agrega productos a este mercado" />
         ) : (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-            {mercadoProductos.value.map(mp => (
-              <MercadoProductoItem
-                key={mp.id}
-                item={mp}
-                onDelete={setDeleteTarget}
-                onChangeEstado={openEstadoDialog}
-              />
-            ))}
-          </Box>
+          Array.from(grupos.entries()).map(([tienda, items]) => (
+            <Box key={tienda} sx={{ mb: 2 }}>
+              <Typography variant="subtitle2" color="primary" sx={{ mb: 1 }}>
+                {tienda}
+              </Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                {items.map(mp => (
+                  <MercadoProductoItem
+                    key={mp.id}
+                    item={mp}
+                    onDelete={setDeleteTarget}
+                    onChangeEstado={openEstadoDialog}
+                  />
+                ))}
+              </Box>
+            </Box>
+          ))
         )}
       </Box>
 
-      <AppFab onClick={() => setAsignarOpen(true)} />
+      {mercado.estado !== 'completado' && <AppFab onClick={() => setAsignarOpen(true)} />}
 
       <AsignarProductosDialog
         open={asignarOpen}
@@ -154,7 +183,7 @@ export default function MercadoDetailPage() {
       <ConfirmDialog
         open={deleteTarget !== null}
         title="Eliminar producto"
-        message={`¿Eliminar este producto del mercado?`}
+        message="¿Eliminar este producto del mercado?"
         onConfirm={handleDeleteItem}
         onCancel={() => setDeleteTarget(null)}
       />
