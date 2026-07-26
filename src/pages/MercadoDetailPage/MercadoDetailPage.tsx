@@ -63,6 +63,7 @@ export default function MercadoDetailPage() {
   const [refreshKey, setRefreshKey] = useState(0)
   const [precioEdit, setPrecioEdit] = useState('')
   const [cantidadEdit, setCantidadEdit] = useState('1')
+  const [searchQuery, setSearchQuery] = useState('')
 
   const mercado = mercados.value.find(m => m.id === id)
 
@@ -250,11 +251,24 @@ export default function MercadoDetailPage() {
                 </Box>
                 <Typography variant="h6" sx={{ fontWeight: 700, color: '#69f0ae' }}>{formatCurrency(totalTienda(currentTiendaId))}</Typography>
               </Box>
-              {currentProductos.length === 0 ? (
-                <EmptyState message="Sin productos en esta tienda" />
-              ) : (
-                <Box key={refreshKey} sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                  {currentProductos.map(mp => (
+              <TextField
+                fullWidth
+                size="small"
+                placeholder="Buscar producto…"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                slotProps={{ htmlInput: { style: { fontSize: '0.875rem' } } }}
+                sx={{ mb: 2 }}
+              />
+              {(() => {
+                const filtered = currentProductos.filter(mp =>
+                  mp.producto?.nombre.toLowerCase().includes(searchQuery.toLowerCase())
+                )
+                return filtered.length === 0 ? (
+                  <EmptyState message="Sin productos en esta tienda" />
+                ) : (
+                  <Box key={refreshKey} sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    {filtered.map(mp => (
                     <Card
                       key={mp.id}
                       onClick={() => toggleProductoEstado(mp)}
@@ -294,7 +308,7 @@ export default function MercadoDetailPage() {
                     </Card>
                   ))}
                 </Box>
-              )}
+              )})()}
             </>
           ) : (
             <>
