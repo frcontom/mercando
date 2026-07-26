@@ -86,9 +86,14 @@ export default function MercadosPage() {
 
   return (
     <Box sx={{ p: 2, pb: 10 }}>
-      <Button fullWidth variant="contained" startIcon={<AddIcon />} onClick={openCreate} sx={{ mb: 2 }}>
-        Crear mercado
-      </Button>
+      <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+        <Button fullWidth variant="contained" startIcon={<AddIcon />} onClick={openCreate}>
+          Crear mercado
+        </Button>
+        <Button variant="outlined" color="error" onClick={() => setDeleteAllOpen(true)} sx={{ minWidth: 44, px: 1 }}>
+          <DeleteIcon />
+        </Button>
+      </Box>
       {items.length === 0 ? (
         <EmptyState message="No hay mercados aún" />
       ) : (
@@ -135,12 +140,6 @@ export default function MercadosPage() {
         onSave={handleSave}
         onClose={() => { setFormOpen(false); setEditing(null) }}
       />
-
-      <Box sx={{ mt: 3 }}>
-        <Button fullWidth color="error" variant="outlined" onClick={() => setDeleteAllOpen(true)}>
-          Borrar todos los mercados
-        </Button>
-      </Box>
 
       <ConfirmDialog
         open={deleteTarget !== null}

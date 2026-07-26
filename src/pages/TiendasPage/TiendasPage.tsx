@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
 import AddIcon from '@mui/icons-material/Add'
+import DeleteIcon from '@mui/icons-material/Delete'
 import Button from '@mui/material/Button'
 import { tiendas as tiendasSignal, loadingTiendas, loadTiendas, showSnackbar } from '@/store'
 import { useSignalValue } from '@/hooks/useSignalValue'
@@ -64,9 +65,14 @@ export default function TiendasPage() {
 
   return (
     <Box sx={{ p: 2, pb: 10 }}>
-      <Button fullWidth variant="contained" startIcon={<AddIcon />} onClick={openCreate} sx={{ mb: 2 }}>
-        Crear tienda
-      </Button>
+      <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+        <Button fullWidth variant="contained" startIcon={<AddIcon />} onClick={openCreate}>
+          Crear tienda
+        </Button>
+        <Button variant="outlined" color="error" onClick={() => setDeleteAllOpen(true)} sx={{ minWidth: 44, px: 1 }}>
+          <DeleteIcon />
+        </Button>
+      </Box>
       {items.length === 0 ? (
         <EmptyState message="No hay tiendas aún" />
       ) : (
@@ -89,12 +95,6 @@ export default function TiendasPage() {
         onSave={handleSave}
         onClose={() => { setFormOpen(false); setEditing(null) }}
       />
-
-      <Box sx={{ mt: 3 }}>
-        <Button fullWidth color="error" variant="outlined" onClick={() => setDeleteAllOpen(true)}>
-          Borrar todas las tiendas
-        </Button>
-      </Box>
 
       <ConfirmDialog
         open={deleteTarget !== null}
