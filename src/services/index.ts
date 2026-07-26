@@ -1,0 +1,7 @@
+export { authService } from './auth.service'
+export { mercadosService } from './mercados.service'
+export { tiendasService } from './tiendas.service'
+export { categoriasService } from './categorias.service'
+export { productosService } from './productos.service'
+export { mercadoProductosService } from './mercado-productos.service'
+export { historialPreciosService } from './historial-precios.service'

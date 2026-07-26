@@ -1,0 +1,1 @@
+export { TiendaFormDialog } from './TiendaFormDialog'

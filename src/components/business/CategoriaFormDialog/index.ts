@@ -1,0 +1,1 @@
+export { CategoriaFormDialog } from './CategoriaFormDialog'
