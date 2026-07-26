@@ -444,7 +444,7 @@ export default function MercadoDetailPage() {
         </DialogTitle>
         <DialogContent>
           <TextField select fullWidth label="Estado" value={selectedEstado} onChange={e => setSelectedEstado(e.target.value as EstadoProducto)} sx={{ mb: 2, mt: 1 }}>
-            {ESTADOS_PRODUCTO.map(e => (<MenuItem key={e} value={e}>{LABEL_ESTADOS[e]}</MenuItem>))}
+            {ESTADOS_PRODUCTO.filter(e => e !== 'pendiente').map(e => (<MenuItem key={e} value={e}>{LABEL_ESTADOS[e]}</MenuItem>))}
           </TextField>
           {estadoDialog.item && (
             <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
