@@ -364,10 +364,14 @@ export default function MercadoDetailPage() {
             sx={{ mb: 2 }}
           />
           <TextField
-            fullWidth type="number" label="Precio"
+            fullWidth type="text" label="Precio"
             value={productoForm.precio}
-            onChange={e => setProductoForm(p => ({ ...p, precio: e.target.value }))}
-            slotProps={{ htmlInput: { min: 0 } }}
+            onChange={e => {
+              const val = e.target.value.replace(/[^0-9]/g, '')
+              setProductoForm(p => ({ ...p, precio: val }))
+            }}
+            slotProps={{ htmlInput: { inputMode: 'numeric' } }}
+            helperText={productoForm.precio ? formatCurrency(Number(productoForm.precio)) : ''}
           />
         </DialogContent>
         <DialogActions>
@@ -389,10 +393,14 @@ export default function MercadoDetailPage() {
             {ESTADOS_PRODUCTO.map(e => (<MenuItem key={e} value={e}>{LABEL_ESTADOS[e]}</MenuItem>))}
           </TextField>
           <TextField
-            fullWidth type="number" label="Precio"
+            fullWidth type="text" label="Precio"
             value={precioEdit}
-            onChange={e => setPrecioEdit(e.target.value)}
-            slotProps={{ htmlInput: { min: 0 } }}
+            onChange={e => {
+              const val = e.target.value.replace(/[^0-9]/g, '')
+              setPrecioEdit(val)
+            }}
+            slotProps={{ htmlInput: { inputMode: 'numeric' } }}
+            helperText={precioEdit ? formatCurrency(Number(precioEdit)) : ''}
           />
         </DialogContent>
         <DialogActions>
