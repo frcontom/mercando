@@ -133,7 +133,7 @@ export default function ProductosPage() {
       <ProductoFormDialog
         open={formOpen}
         producto={editing}
-        categorias={categorias.value}
+        categoriaFija={categorias.value[0]?.id ?? ''}
         onSave={handleSave}
         onClose={() => { setFormOpen(false); setEditing(null) }}
       />
