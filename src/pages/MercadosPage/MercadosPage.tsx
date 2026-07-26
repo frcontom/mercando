@@ -95,7 +95,7 @@ export default function MercadosPage() {
           {items.map(m => (
             <Card
               key={m.id}
-              onClick={() => navigate(`/mercados/${m.id}`)}
+              onClick={() => navigate(`/mercados/${m.id}?edit=1`)}
               sx={{ cursor: 'pointer', '&:active': { transform: 'scale(0.98)' }, transition: 'transform 0.15s ease' }}
             >
               <CardContent sx={{ pb: '16px !important' }}>

@@ -206,7 +206,7 @@ export default function MercadoDetailPage() {
       <Box sx={{ p: 2, bgcolor: 'background.paper' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h6">{mercado.nombre}</Typography>
-          {mercado.estado === 'activo' && !currentTiendaId && (
+          {mercado.estado === 'activo' && searchParams.get('edit') === '1' && !currentTiendaId && (
             <Button size="small" variant="outlined" startIcon={<EditIcon />} onClick={() => setShoppingMode(false)}>
               Editar
             </Button>
@@ -236,7 +236,7 @@ export default function MercadoDetailPage() {
         <Box sx={{ p: 2 }}>
           {currentTiendaId && (currentMT || currentTiendaId === '__todas__') ? (
             <>
-              <Button size="small" startIcon={<ArrowBackIcon />} onClick={() => { setCurrentTiendaId(null); setSearchParams({}) }} sx={{ mb: 1 }}>
+              <Button size="small" startIcon={<ArrowBackIcon />} onClick={() => { setCurrentTiendaId(null); const e = searchParams.get('edit'); setSearchParams(e ? { edit: e } : {}) }} sx={{ mb: 1 }}>
                 {currentTiendaId === '__todas__' ? 'Inicio' : 'Todas las tiendas'}
               </Button>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
@@ -313,7 +313,7 @@ export default function MercadoDetailPage() {
                 <EmptyState message="No hay que comprar" />
               ) : (
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Card onClick={() => { setCurrentTiendaId('__todas__'); setSearchParams({}) }} sx={{ cursor: 'pointer', mb: 1.5, '&:active': { transform: 'scale(0.98)' }, transition: 'transform 0.15s ease' }}>
+                  <Card onClick={() => { setCurrentTiendaId('__todas__'); const e = searchParams.get('edit'); setSearchParams(e ? { edit: e } : {}) }} sx={{ cursor: 'pointer', mb: 1.5, '&:active': { transform: 'scale(0.98)' }, transition: 'transform 0.15s ease' }}>
                     <CardContent sx={{ pb: '12px !important' }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                         <Typography sx={{ fontSize: 28, opacity: 0.5 }}>📋</Typography>
@@ -326,7 +326,7 @@ export default function MercadoDetailPage() {
                     </CardContent>
                   </Card>
                   {mercadoTiendas.value.map(mt => (
-                    <Card key={mt.id} onClick={() => { setCurrentTiendaId(mt.id); setSearchParams({ tienda: mt.id }) }} sx={{ cursor: 'pointer', mb: 1.5, '&:active': { transform: 'scale(0.98)' }, transition: 'transform 0.15s ease' }}>
+                    <Card key={mt.id} onClick={() => { setCurrentTiendaId(mt.id); const e = searchParams.get('edit'); setSearchParams(e ? { edit: e, tienda: mt.id } : { tienda: mt.id }) }} sx={{ cursor: 'pointer', mb: 1.5, '&:active': { transform: 'scale(0.98)' }, transition: 'transform 0.15s ease' }}>
                       <CardContent sx={{ pb: '12px !important' }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                           <Typography sx={{ fontSize: 32 }}>{mt.tienda?.icono}</Typography>
