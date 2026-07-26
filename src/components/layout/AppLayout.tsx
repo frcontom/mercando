@@ -1,12 +1,11 @@
 import { Outlet, useLocation } from 'react-router-dom'
 import { BottomNav } from './BottomNav/BottomNav'
 import { TopBar } from './TopBar/TopBar'
-import Fab from '@mui/material/Fab'
-import AddIcon from '@mui/icons-material/Add'
+
 import Box from '@mui/material/Box'
 import { PageTransition } from '@/components/ui/PageTransition'
 import { PullToRefresh } from '@/components/ui/PullToRefresh'
-import { fabVisible, fabAction, refreshHandler } from '@/store'
+import { refreshHandler } from '@/store'
 
 const topBarTitles: Record<string, string> = {
   '/dashboard': 'Smart Market Planner',
@@ -34,16 +33,6 @@ export function AppLayout() {
           </PageTransition>
         </PullToRefresh>
       </Box>
-      {fabVisible.value && (
-        <Box className="fab-pulse" sx={{ position: 'absolute', bottom: showBottomNav ? 80 : 16, right: 16, zIndex: 10, animation: 'fade-in-up 0.3s ease-out' }}>
-          <Fab
-            color="primary"
-            onClick={() => fabAction.value?.()}
-          >
-            <AddIcon />
-          </Fab>
-        </Box>
-      )}
       {showBottomNav && <BottomNav />}
     </Box>
   )

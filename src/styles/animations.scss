@@ -17,11 +17,6 @@
   100% { opacity: 1; transform: scale(1); }
 }
 
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(144, 202, 249, 0.4); }
-  50% { box-shadow: 0 0 0 12px rgba(144, 202, 249, 0); }
-}
-
 @keyframes slide-in-right {
   0% { opacity: 0; transform: translateX(20px); }
   100% { opacity: 1; transform: translateX(0); }
@@ -57,13 +52,6 @@
 
 .scale-in {
   animation: scale-in 0.2s ease-out both;
-}
-
-// ------------------------------------------------------------
-// FAB pulse
-// ------------------------------------------------------------
-.fab-pulse .MuiFab-root {
-  animation: pulse-glow 2s ease-in-out infinite;
 }
 
 // ------------------------------------------------------------

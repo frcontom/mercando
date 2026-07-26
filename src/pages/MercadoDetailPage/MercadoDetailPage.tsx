@@ -31,7 +31,7 @@ import { mercadoTiendaCategorias, loadCategoriasByTienda, getCategoriasByTienda 
 import { mercadoProductos, loadProductosByCategoria, getProductosByCategoria } from '@/store'
 import { tiendas, loadTiendas, categorias, loadCategorias, productos, loadProductos } from '@/store'
 import { mercadoTiendasService, mercadoTiendaCategoriasService, mercadoProductosService } from '@/services'
-import { showSnackbar, showFab, hideFab, pendingCount, refreshHandler, userRole } from '@/store'
+import { showSnackbar, pendingCount, refreshHandler, userRole } from '@/store'
 import { StoreIcon } from '@/components/business/StoreIcon'
 import { playClick } from '@/core/utils/sound'
 import { CompraCompletadaDialog } from '@/components/business/CompraCompletadaDialog'
@@ -94,8 +94,6 @@ export default function MercadoDetailPage() {
   }, [id])
 
   useEffect(() => {
-    if (mercado?.estado === 'activo' && !shoppingMode) showFab(() => setAddTiendaOpen(true))
-    else hideFab()
     refreshHandler.value = async () => {
       if (!id) return
       await loadMercadoTiendas(id)
@@ -103,8 +101,8 @@ export default function MercadoDetailPage() {
       for (const cats of Object.values(mercadoTiendaCategorias.value).flat()) await loadProductosByCategoria(cats.id)
       setRefreshKey(k => k + 1); updatePendingCount()
     }
-    return () => { hideFab(); refreshHandler.value = null }
-  }, [mercado?.estado, shoppingMode, id])
+    return () => { refreshHandler.value = null }
+  }, [id])
 
   useEffect(() => {
     if (!id) return
