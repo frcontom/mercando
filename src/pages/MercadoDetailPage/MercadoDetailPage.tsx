@@ -255,18 +255,25 @@ export default function MercadoDetailPage() {
                                   <Box sx={{ flex: 1 }}>
                                     <Typography variant="body2" sx={{ fontWeight: 500 }}>{mp.producto?.nombre}</Typography>
                                     <Typography variant="caption" color="text.secondary">
-                                      {mp.cantidad} {mp.producto?.unidad} {mp.precio > 0 ? `· ${formatCurrency(mp.precio)}` : ''}
+                                      {mp.cantidad} {mp.producto?.unidad}
                                     </Typography>
                                   </Box>
-                                  <Chip
-                                    label={LABEL_ESTADOS[mp.estado]}
-                                    size="small"
-                                    color={mp.estado === 'encontrado' ? 'success' : mp.estado === 'no_habia' ? 'warning' : mp.estado === 'cancelado' ? 'error' : 'default'}
-                                    onClick={() => { setSelectedEstado(mp.estado); setPrecioEdit(mp.precio.toString()); setEstadoDialog({ open: true, item: mp }) }}
-                                  />
-                                  <IconButton size="small" onClick={() => setDeleteTarget({ type: 'producto', id: mp.id })}>
-                                    <DeleteIcon fontSize="small" />
-                                  </IconButton>
+                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                    {mp.precio > 0 && (
+                                      <Typography variant="h6" sx={{ fontWeight: 700, color: '#ffd740', textAlign: 'center', mr: 1 }}>
+                                        {formatCurrency(mp.precio)}
+                                      </Typography>
+                                    )}
+                                    <Chip
+                                      label={LABEL_ESTADOS[mp.estado]}
+                                      size="small"
+                                      color={mp.estado === 'encontrado' ? 'success' : mp.estado === 'no_habia' ? 'warning' : mp.estado === 'cancelado' ? 'error' : 'default'}
+                                      onClick={() => { setSelectedEstado(mp.estado); setPrecioEdit(mp.precio.toString()); setEstadoDialog({ open: true, item: mp }) }}
+                                    />
+                                    <IconButton size="small" onClick={() => setDeleteTarget({ type: 'producto', id: mp.id })}>
+                                      <DeleteIcon fontSize="small" />
+                                    </IconButton>
+                                  </Box>
                                 </Box>
                               </CardContent>
                             </Card>
