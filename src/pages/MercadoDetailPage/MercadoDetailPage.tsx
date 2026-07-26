@@ -391,7 +391,12 @@ export default function MercadoDetailPage() {
               const val = e.target.value.replace(/[^0-9]/g, '')
               setProductoForm(p => ({ ...p, precio: val }))
             }}
-            slotProps={{ htmlInput: { inputMode: 'numeric' } }}
+            slotProps={{
+              htmlInput: { inputMode: 'numeric' },
+              formHelperText: {
+                sx: { textAlign: 'center', fontSize: '1.25rem', color: '#69f0ae', fontWeight: 700 },
+              },
+            }}
             helperText={productoForm.precio ? formatCurrency(Number(productoForm.precio)) : ''}
           />
         </DialogContent>
@@ -420,7 +425,12 @@ export default function MercadoDetailPage() {
               const val = e.target.value.replace(/[^0-9]/g, '')
               setPrecioEdit(val)
             }}
-            slotProps={{ htmlInput: { inputMode: 'numeric' } }}
+            slotProps={{
+              htmlInput: { inputMode: 'numeric' },
+              formHelperText: {
+                sx: { textAlign: 'center', fontSize: '1.25rem', color: '#69f0ae', fontWeight: 700 },
+              },
+            }}
             helperText={precioEdit ? formatCurrency(Number(precioEdit)) : ''}
           />
         </DialogContent>
