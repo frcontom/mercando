@@ -9,9 +9,9 @@ import AddIcon from '@mui/icons-material/Add'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import EditIcon from '@mui/icons-material/Edit'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout'
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
-import RemoveCircleOutlinedIcon from '@mui/icons-material/RemoveCircleOutlined'
+import DoDisturbAltIcon from '@mui/icons-material/DoDisturbAlt'
 import LinearProgress from '@mui/material/LinearProgress'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
@@ -251,9 +251,9 @@ export default function MercadoDetailPage() {
                     >
                       <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 }, display: 'flex', alignItems: 'center', gap: 1.5 }}>
                         {mp.estado === 'encontrado' ? (
-                          <CheckCircleIcon sx={{ color: '#69f0ae', fontSize: 28 }} />
+                          <ShoppingCartCheckoutIcon sx={{ color: '#69f0ae', fontSize: 28 }} />
                         ) : mp.estado === 'no_habia' ? (
-                          <RemoveCircleOutlinedIcon sx={{ color: '#ff9800', fontSize: 28 }} />
+                          <DoDisturbAltIcon sx={{ color: '#ff9800', fontSize: 28 }} />
                         ) : (
                           <RadioButtonUncheckedIcon sx={{ color: 'text.disabled', fontSize: 28 }} />
                         )}
@@ -265,7 +265,7 @@ export default function MercadoDetailPage() {
                             {mp.estado === 'no_habia' ? 'No había' : `${mp.cantidad} ${mp.producto?.unidad}`}
                           </Typography>
                         </Box>
-                        {mp.precio > 0 && mp.estado !== 'no_habia' && (
+                        {mp.precio > 0 && mp.estado === 'encontrado' && (
                           <Typography variant="body1" sx={{ fontWeight: 700, color: '#69f0ae' }}>
                             {formatCurrency(mp.precio * mp.cantidad)}
                           </Typography>
