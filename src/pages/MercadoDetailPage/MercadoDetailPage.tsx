@@ -273,13 +273,18 @@ export default function MercadoDetailPage() {
               <Button size="small" startIcon={<ArrowBackIcon />} onClick={() => { setCurrentTiendaId(null); const e = searchParams.get('edit'); setSearchParams(e ? { edit: e } : {}) }} sx={{ mb: 1 }}>
                 {currentTiendaId === '__todas__' ? 'Inicio' : 'Todas las tiendas'}
               </Button>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                {currentTiendaId === '__todas__' ? <Typography sx={{ fontSize: 24 }}>📋</Typography> : <StoreIcon tienda={currentMT?.tienda} size={28} />}
-                <Box sx={{ flex: 1 }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{currentTiendaId === '__todas__' ? 'Todas las tiendas' : currentMT?.tienda?.nombre}</Typography>
-                  <LinearProgress variant="determinate" value={currentProductos.length > 0 ? (countEncontrados(currentTiendaId) / currentProductos.length) * 100 : 0} sx={{ height: 6, borderRadius: 3, mt: 0.5 }} />
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
+                {currentTiendaId === '__todas__' ? <Typography sx={{ fontSize: 24 }}>📋</Typography> : <StoreIcon tienda={currentMT?.tienda} size={32} />}
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600, lineHeight: 1.2 }}>{currentTiendaId === '__todas__' ? 'Todas las tiendas' : currentMT?.tienda?.nombre}</Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {countEncontrados(currentTiendaId)}/{currentProductos.length}
+                  </Typography>
                 </Box>
-                <Typography variant="h6" sx={{ fontWeight: 700, color: '#69f0ae' }}>{formatCurrency(currentTiendaId === '__todas__' ? totalGlobal : totalTienda(currentTiendaId))}</Typography>
+                <Box sx={{ textAlign: 'right' }}>
+                  <Typography variant="body1" sx={{ fontWeight: 700, color: '#69f0ae', lineHeight: 1.2 }}>{formatCurrency(currentTiendaId === '__todas__' ? totalEncontrados : totalTienda(currentTiendaId))}</Typography>
+                  <Typography variant="caption" color="text.secondary">/ {formatCurrency(currentTiendaId === '__todas__' ? totalGlobal : totalTienda(currentTiendaId))}</Typography>
+                </Box>
               </Box>
               <TextField
                 fullWidth
