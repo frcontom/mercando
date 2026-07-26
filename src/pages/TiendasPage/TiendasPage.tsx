@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
-import { tiendas as tiendasSignal, loadingTiendas, loadTiendas, showSnackbar, showFab, hideFab } from '@/store'
+import AddIcon from '@mui/icons-material/Add'
+import Button from '@mui/material/Button'
+import { tiendas as tiendasSignal, loadingTiendas, loadTiendas, showSnackbar } from '@/store'
 import { useSignalValue } from '@/hooks/useSignalValue'
 import { tiendasService } from '@/services'
 import type { Tienda, CreateTiendaDto, UpdateTiendaDto } from '@/models'
 import { TiendaCard } from '@/components/business/TiendaCard'
 import { TiendaFormDialog } from '@/components/business/TiendaFormDialog'
-
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
@@ -18,11 +19,7 @@ export default function TiendasPage() {
   const [editing, setEditing] = useState<Tienda | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Tienda | null>(null)
 
-  useEffect(() => {
-    loadTiendas()
-    showFab(openCreate)
-    return () => hideFab()
-  }, [])
+  useEffect(() => { loadTiendas() }, [])
 
   async function handleSave(data: CreateTiendaDto | UpdateTiendaDto) {
     try {
@@ -66,6 +63,9 @@ export default function TiendasPage() {
 
   return (
     <Box sx={{ p: 2, pb: 10 }}>
+      <Button fullWidth variant="contained" startIcon={<AddIcon />} onClick={openCreate} sx={{ mb: 2 }}>
+        Crear tienda
+      </Button>
       {items.length === 0 ? (
         <EmptyState message="No hay tiendas aún" />
       ) : (
