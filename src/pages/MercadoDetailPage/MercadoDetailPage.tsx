@@ -35,7 +35,7 @@ import { mercadoTiendaCategorias, loadCategoriasByTienda, getCategoriasByTienda 
 import { mercadoProductos, loadProductosByCategoria, getProductosByCategoria } from '@/store'
 import { tiendas, loadTiendas, categorias, loadCategorias, productos, loadProductos } from '@/store'
 import { mercadoTiendasService, mercadoTiendaCategoriasService, mercadoProductosService } from '@/services'
-import { showSnackbar, showFab, hideFab } from '@/store'
+import { showSnackbar, showFab, hideFab, pendingCount, refreshHandler } from '@/store'
 import { subscribeToChanges } from '@/core/utils/realtime'
 import { formatCurrency } from '@/core/utils/formatters'
 import { ESTADOS_PRODUCTO, LABEL_ESTADOS } from '@/core/constants/estados'
@@ -68,6 +68,8 @@ export default function MercadoDetailPage() {
 
   const [dataLoaded, setDataLoaded] = useState(false)
 
+  useEffect(() => { pendingCount.value = todosProductos.filter(p => p.estado === 'pendiente').length }, [refreshKey, dataLoaded, mercadoTiendas.value.length])
+
   useEffect(() => {
     if (!id) return; (async () => {
       try {
@@ -83,8 +85,15 @@ export default function MercadoDetailPage() {
   useEffect(() => {
     if (mercado?.estado === 'activo' && !shoppingMode) showFab(() => setAddTiendaOpen(true))
     else hideFab()
-    return () => hideFab()
-  }, [mercado?.estado, shoppingMode])
+    refreshHandler.value = async () => {
+      if (!id) return
+      await loadMercadoTiendas(id)
+      for (const mt of mercadoTiendas.value) await loadCategoriasByTienda(mt.id)
+      for (const cats of Object.values(mercadoTiendaCategorias.value).flat()) await loadProductosByCategoria(cats.id)
+      setRefreshKey(k => k + 1)
+    }
+    return () => { hideFab(); refreshHandler.value = null }
+  }, [mercado?.estado, shoppingMode, id])
 
   useEffect(() => {
     if (!id) return
@@ -181,6 +190,7 @@ export default function MercadoDetailPage() {
     try {
       await mercadoProductosService.update(item.id, { estado: selectedEstado, precio, cantidad_encontrada: cantidad })
       await loadProductosByCategoria(item.mercado_tienda_categoria_id)
+      if (navigator.vibrate) navigator.vibrate(selectedEstado === 'encontrado' ? 10 : 20)
       showSnackbar(`${item.producto?.nombre ?? 'Producto'} → ${LABEL_ESTADOS[selectedEstado]} · ${cantidad} × ${formatCurrency(precio)}`)
       setEstadoDialog({ open: false, item: null })
       setRefreshKey(k => k + 1)

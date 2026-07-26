@@ -6,4 +6,4 @@ export { list as productos, loading as loadingProductos, loadProductos } from '.
 export { list as mercadoTiendas, loading as loadingMercadoTiendas, loadMercadoTiendas } from './mercado-tiendas.store'
 export { map as mercadoTiendaCategorias, loading as loadingMTCategorias, loadCategoriasByTienda, getCategoriasByTienda, clearCategorias } from './mercado-tienda-categorias.store'
 export { map as mercadoProductos, loading as loadingMercadoProductos, loadProductosByCategoria, getProductosByCategoria, clearProductos } from './mercado-productos.store'
-export { snackbarMessage, snackbarOpen, showSnackbar, hideSnackbar, fabVisible, fabAction, showFab, hideFab } from './ui.store'
+export { snackbarMessage, snackbarOpen, showSnackbar, hideSnackbar, fabVisible, fabAction, showFab, hideFab, pendingCount, refreshHandler } from './ui.store'

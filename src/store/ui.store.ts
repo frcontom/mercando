@@ -24,3 +24,6 @@ export function hideFab(): void {
   fabVisible.value = false
   fabAction.value = null
 }
+
+export const pendingCount = signal(0)
+export const refreshHandler = signal<(() => Promise<void>) | null>(null)

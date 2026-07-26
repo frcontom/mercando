@@ -1,11 +1,13 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import BottomNavigation from '@mui/material/BottomNavigation'
 import BottomNavigationAction from '@mui/material/BottomNavigationAction'
+import Badge from '@mui/material/Badge'
 import HomeIcon from '@mui/icons-material/Home'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import StoreIcon from '@mui/icons-material/Store'
 import CategoryIcon from '@mui/icons-material/Category'
 import InventoryIcon from '@mui/icons-material/Inventory'
+import { pendingCount } from '@/store'
 
 const routes = [
   { label: 'Inicio', icon: <HomeIcon />, path: '/dashboard' },
@@ -28,7 +30,16 @@ export function BottomNav() {
       sx={{ height: 64 }}
     >
       {routes.map(r => (
-        <BottomNavigationAction key={r.path} label={r.label} icon={r.icon} sx={{ minWidth: 0 }} />
+        <BottomNavigationAction
+          key={r.path}
+          label={r.label}
+          icon={r.path === '/mercados' ? (
+            <Badge badgeContent={pendingCount.value} color="warning" max={99} invisible={pendingCount.value === 0}>
+              {r.icon}
+            </Badge>
+          ) : r.icon}
+          sx={{ minWidth: 0 }}
+        />
       ))}
     </BottomNavigation>
   )

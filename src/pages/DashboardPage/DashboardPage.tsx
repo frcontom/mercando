@@ -11,6 +11,7 @@ import { mercadoTiendas, loadMercadoTiendas } from '@/store'
 import { mercadoTiendaCategorias, loadCategoriasByTienda, getCategoriasByTienda } from '@/store'
 import { loadProductosByCategoria, getProductosByCategoria } from '@/store'
 import { formatCurrency } from '@/core/utils/formatters'
+import { refreshHandler } from '@/store'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import type { MercadoProducto } from '@/models'
 
@@ -45,6 +46,16 @@ export default function DashboardPage() {
       } catch (e) { console.error(e) }
       setLoading(false)
     })()
+    refreshHandler.value = async () => {
+      await loadMercados()
+      const a = mercados.value.find(m => m.estado === 'activo')
+      if (a) {
+        await loadMercadoTiendas(a.id)
+        for (const mt of mercadoTiendas.value) await loadCategoriasByTienda(mt.id)
+        for (const cats of Object.values(mercadoTiendaCategorias.value).flat()) await loadProductosByCategoria(cats.id)
+      }
+    }
+    return () => { refreshHandler.value = null }
   }, [])
 
   const activo = mercados.value.find(m => m.estado === 'activo')
