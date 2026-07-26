@@ -266,11 +266,13 @@ export default function MercadoDetailPage() {
                             {mp.estado !== 'pendiente' ? ` | ${mp.estado === 'no_habia' ? '0' : mp.cantidad}` : ''}
                           </Typography>
                         </Box>
-                        {mp.precio > 0 && (
-                          <Typography variant="body1" sx={{ fontWeight: 700, color: mp.estado === 'no_habia' ? 'error.main' : mp.estado === 'encontrado' ? '#69f0ae' : 'text.disabled' }}>
+                        {mp.estado === 'no_habia' ? (
+                          <Chip label="No encontrado" size="small" color="error" variant="outlined" />
+                        ) : mp.precio > 0 ? (
+                          <Typography variant="body1" sx={{ fontWeight: 700, color: mp.estado === 'encontrado' ? '#69f0ae' : 'text.disabled' }}>
                             {formatCurrency(mp.precio * mp.cantidad)}
                           </Typography>
-                        )}
+                        ) : null}
                       </CardContent>
                     </Card>
                   ))}
