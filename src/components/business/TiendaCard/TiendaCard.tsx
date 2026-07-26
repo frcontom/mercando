@@ -28,9 +28,14 @@ export function TiendaCard({ tienda, onEdit, onDelete }: TiendaCardProps) {
             justifyContent: 'center',
             fontSize: 20,
             flexShrink: 0,
+            overflow: 'hidden',
           }}
         >
-          {tienda.icono}
+          {tienda.icono.startsWith('/') || tienda.icono.startsWith('http') ? (
+            <img src={tienda.icono} alt={tienda.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            tienda.icono
+          )}
         </Box>
         <Box sx={{ flex: 1 }}>
           <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>

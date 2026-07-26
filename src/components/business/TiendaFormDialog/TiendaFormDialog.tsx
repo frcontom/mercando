@@ -9,7 +9,7 @@ import Box from '@mui/material/Box'
 import type { Tienda, CreateTiendaDto, UpdateTiendaDto } from '@/models'
 
 const PRESET_COLORS = ['#90caf9', '#f48fb1', '#a5d6a7', '#fff59d', '#ce93d8', '#81d4fa', '#ffab91', '#b0bec5']
-const PRESET_ICONS = ['🛒', '🏪', '🛍️', '🥩', '🥬', '🧀', '🥛', '🍞', '🐟', '🍎', '🥚', '🧃']
+const PRESET_ICONS = ['🛒', '🏪', '🛍️', '🥩', '🥬', '🧀', '🥛', '🍞', '🐟', '🍎', '🥚', '🧃', '/tiendas/d1.svg', '/tiendas/sanmateo.svg', '/tiendas/surtimax.svg']
 
 interface TiendaFormDialogProps {
   open: boolean
@@ -93,9 +93,14 @@ export function TiendaFormDialog({ open, tienda, onSave, onClose }: TiendaFormDi
                   cursor: 'pointer',
                   bgcolor: icono === i ? 'action.selected' : 'action.hover',
                   transition: 'background 0.15s ease',
+                  overflow: 'hidden',
                 }}
               >
-                {i}
+                {i.startsWith('/') || i.startsWith('http') ? (
+                  <img src={i} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  i
+                )}
               </Box>
             ))}
           </Box>
