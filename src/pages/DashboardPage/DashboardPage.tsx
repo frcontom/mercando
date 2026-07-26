@@ -88,7 +88,7 @@ export default function DashboardPage() {
               mb: 3,
               background: 'linear-gradient(135deg, #0d1b2a 0%, #1b2838 50%, #1a1a3e 100%)',
               border: '1px solid rgba(144, 202, 249, 0.12)',
-              borderRadius: 4,
+              borderRadius: 2,
               position: 'relative',
               overflow: 'hidden',
               '&::before': {
