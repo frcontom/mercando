@@ -15,14 +15,14 @@ import TextField from '@mui/material/TextField'
 import LinearProgress from '@mui/material/LinearProgress'
 import { mercados, loadMercados, mercadoProductos, loadingMercadoProductos, loadMercadoProductos, tiendas, loadTiendas, productos, loadProductos } from '@/store'
 import { mercadoProductosService, historialPreciosService } from '@/services'
-import { showSnackbar } from '@/store'
+import { showSnackbar, showFab, hideFab } from '@/store'
 import { formatCurrency } from '@/core/utils/formatters'
 import { ESTADOS_PRODUCTO, LABEL_ESTADOS } from '@/core/constants/estados'
 import type { EstadoProducto, MercadoProducto } from '@/models'
 import { MercadoProductoItem } from '@/components/business/MercadoProductoItem'
 import { AsignarProductosDialog } from '@/components/business/AsignarProductosDialog'
 import { HistorialPreciosDialog } from '@/components/business/HistorialPreciosDialog'
-import { AppFab } from '@/components/ui/AppFab'
+
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
@@ -46,6 +46,13 @@ export default function MercadoDetailPage() {
       loadProductos()
     }
   }, [id])
+
+  useEffect(() => {
+    if (mercado?.estado !== 'completado') {
+      showFab(() => setAsignarOpen(true))
+    }
+    return () => hideFab()
+  }, [mercado?.estado])
 
   async function handleAsignar(selected: { producto_id: string; tienda_id: string; cantidad: number }[]) {
     if (!id) return
@@ -174,8 +181,6 @@ export default function MercadoDetailPage() {
           ))
         )}
       </Box>
-
-      {mercado.estado !== 'completado' && <AppFab onClick={() => setAsignarOpen(true)} />}
 
       <AsignarProductosDialog
         open={asignarOpen}

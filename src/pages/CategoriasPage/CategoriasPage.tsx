@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
-import { categorias, loadingCategorias, loadCategorias } from '@/store'
+import { categorias, loadingCategorias, loadCategorias, showSnackbar, showFab, hideFab } from '@/store'
 import { categoriasService } from '@/services'
-import { showSnackbar } from '@/store'
 import type { Categoria, CreateCategoriaDto, UpdateCategoriaDto } from '@/models'
 import { CategoriaItem } from '@/components/business/CategoriaItem'
 import { CategoriaFormDialog } from '@/components/business/CategoriaFormDialog'
-import { AppFab } from '@/components/ui/AppFab'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
@@ -16,7 +14,11 @@ export default function CategoriasPage() {
   const [editing, setEditing] = useState<Categoria | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Categoria | null>(null)
 
-  useEffect(() => { loadCategorias() }, [])
+  useEffect(() => {
+    loadCategorias()
+    showFab(openCreate)
+    return () => hideFab()
+  }, [])
 
   async function handleSave(data: CreateCategoriaDto | UpdateCategoriaDto) {
     try {
@@ -74,8 +76,6 @@ export default function CategoriasPage() {
           ))}
         </Box>
       )}
-
-      <AppFab onClick={openCreate} />
 
       <CategoriaFormDialog
         open={formOpen}

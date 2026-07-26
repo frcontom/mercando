@@ -4,4 +4,4 @@ export { list as tiendas, loading as loadingTiendas, loadTiendas } from './tiend
 export { list as categorias, loading as loadingCategorias, loadCategorias } from './categorias.store'
 export { list as productos, loading as loadingProductos, loadProductos } from './productos.store'
 export { list as mercadoProductos, loading as loadingMercadoProductos, loadMercadoProductos } from './mercado-productos.store'
-export { snackbarMessage, snackbarOpen, showSnackbar, hideSnackbar } from './ui.store'
+export { snackbarMessage, snackbarOpen, showSnackbar, hideSnackbar, fabVisible, fabAction, showFab, hideFab } from './ui.store'

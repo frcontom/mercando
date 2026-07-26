@@ -4,13 +4,12 @@ import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
 import ToggleButton from '@mui/material/ToggleButton'
 import StarIcon from '@mui/icons-material/Star'
-import { productos, loadingProductos, loadProductos, categorias, loadCategorias } from '@/store'
+import { productos, loadingProductos, loadProductos, categorias, loadCategorias, showSnackbar, showFab, hideFab } from '@/store'
 import { productosService } from '@/services'
-import { showSnackbar } from '@/store'
 import type { Producto, CreateProductoDto, UpdateProductoDto } from '@/models'
 import { ProductoItem } from '@/components/business/ProductoItem'
 import { ProductoFormDialog } from '@/components/business/ProductoFormDialog'
-import { AppFab } from '@/components/ui/AppFab'
+
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
@@ -25,6 +24,8 @@ export default function ProductosPage() {
   useEffect(() => {
     loadCategorias()
     loadProductos()
+    showFab(openCreate)
+    return () => hideFab()
   }, [])
 
   const categoriaId = categorias.value[tab]?.id ?? ''
@@ -128,8 +129,6 @@ export default function ProductosPage() {
           </Box>
         )}
       </Box>
-
-      <AppFab onClick={openCreate} />
 
       <ProductoFormDialog
         open={formOpen}

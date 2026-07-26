@@ -8,12 +8,10 @@ import IconButton from '@mui/material/IconButton'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import Chip from '@mui/material/Chip'
-import { mercados, loadingMercados, loadMercados } from '@/store'
+import { mercados, loadingMercados, loadMercados, showSnackbar, showFab, hideFab } from '@/store'
 import { mercadosService } from '@/services'
-import { showSnackbar } from '@/store'
 import type { Mercado, MercadoEstado, CreateMercadoDto, UpdateMercadoDto } from '@/models'
 import { MercadoFormDialog } from '@/components/business/MercadoFormDialog'
-import { AppFab } from '@/components/ui/AppFab'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
@@ -37,7 +35,11 @@ export default function MercadosPage() {
   const [editing, setEditing] = useState<Mercado | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Mercado | null>(null)
 
-  useEffect(() => { loadMercados() }, [])
+  useEffect(() => {
+    loadMercados()
+    showFab(() => { setEditing(null); setFormOpen(true) })
+    return () => hideFab()
+  }, [])
 
   async function handleSave(data: CreateMercadoDto | UpdateMercadoDto) {
     try {
@@ -121,8 +123,6 @@ export default function MercadosPage() {
           ))}
         </Box>
       )}
-
-      <AppFab onClick={() => { setEditing(null); setFormOpen(true) }} />
 
       <MercadoFormDialog
         open={formOpen}

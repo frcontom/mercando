@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
-import { tiendas, loadingTiendas, loadTiendas } from '@/store'
+import { tiendas, loadingTiendas, loadTiendas, showSnackbar, showFab, hideFab } from '@/store'
 import { tiendasService } from '@/services'
-import { showSnackbar } from '@/store'
 import type { Tienda, CreateTiendaDto, UpdateTiendaDto } from '@/models'
 import { TiendaCard } from '@/components/business/TiendaCard'
 import { TiendaFormDialog } from '@/components/business/TiendaFormDialog'
-import { AppFab } from '@/components/ui/AppFab'
+
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
@@ -16,7 +15,11 @@ export default function TiendasPage() {
   const [editing, setEditing] = useState<Tienda | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Tienda | null>(null)
 
-  useEffect(() => { loadTiendas() }, [])
+  useEffect(() => {
+    loadTiendas()
+    showFab(openCreate)
+    return () => hideFab()
+  }, [])
 
   async function handleSave(data: CreateTiendaDto | UpdateTiendaDto) {
     try {
@@ -74,8 +77,6 @@ export default function TiendasPage() {
           ))}
         </Box>
       )}
-
-      <AppFab onClick={openCreate} />
 
       <TiendaFormDialog
         open={formOpen}
