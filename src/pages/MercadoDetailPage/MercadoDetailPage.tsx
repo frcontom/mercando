@@ -577,7 +577,7 @@ export default function MercadoDetailPage() {
                 options={disponibles}
                 value={selected}
                 onChange={(_, v) => setProductoForm(p => ({ ...p, producto_id: v?.id ?? '' }))}
-                getOptionLabel={o => `${o.nombre} (${o.unidad})`}
+                getOptionLabel={o => o.nombre}
                 isOptionEqualToValue={(o, v) => o.id === v.id}
                 renderInput={params => <TextField {...params} label="Producto" autoFocus sx={{ mb: 2, mt: 1 }} />}
                 noOptionsText="Sin resultados"
