@@ -110,7 +110,9 @@ export default function MercadoDetailPage() {
   function getCategorias(mtId: string) { return getCategoriasByTienda(mtId) }
   function getProductos(mtcId: string) { return getProductosByCategoria(mtcId) }
   function getProductosFromTienda(mtId: string) {
+    const order = { pendiente: 0, encontrado: 1, no_habia: 2 }
     return getCategorias(mtId).flatMap(c => getProductos(c.id))
+      .sort((a, b) => (order[a.estado] ?? 0) - (order[b.estado] ?? 0))
   }
   function qtyParaTotal(mp: MercadoProducto) {
     return mp.estado !== 'pendiente' && mp.cantidad_encontrada > 0 ? mp.cantidad_encontrada : mp.cantidad
