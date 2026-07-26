@@ -66,12 +66,16 @@ export function ProductoFormDialog({ open, producto, categorias, onSave, onClose
           sx={{ mb: 2 }}
         />
         <TextField
+          select
           fullWidth
           label="Unidad"
           value={unidad}
           onChange={e => setUnidad(e.target.value)}
-          placeholder="kg, pieza, litro, bolsa..."
-        />
+        >
+          {['kg', 'g', 'lb', 'pieza', 'litro', 'ml', 'bolsa', 'paquete', 'caja', 'botella', 'lata', 'docena', 'atado', 'manojo', 'otros'].map(u => (
+            <MenuItem key={u} value={u}>{u}</MenuItem>
+          ))}
+        </TextField>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancelar</Button>
