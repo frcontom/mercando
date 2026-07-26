@@ -436,7 +436,7 @@ export default function MercadoDetailPage() {
           </TextField>
           {estadoDialog.item && (
             <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-              <TextField type="number" label="Ocupas" value={estadoDialog.item.cantidad} slotProps={{ htmlInput: { readOnly: true, style: { textAlign: 'center' } } }} sx={{ flex: 1 }} />
+              <TextField type="number" label="Ocupas" value={estadoDialog.item.cantidad} slotProps={{ htmlInput: { readOnly: true, style: { textAlign: 'center' } } }} sx={{ flex: 1, '& .MuiInputBase-root': { bgcolor: 'action.hover' } }} />
               <TextField type="number" label="Llevas" value={cantidadEdit} onChange={e => setCantidadEdit(e.target.value)} slotProps={{ htmlInput: { min: 0, style: { textAlign: 'center' } } }} sx={{ flex: 1 }} />
             </Box>
           )}
