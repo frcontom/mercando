@@ -32,18 +32,14 @@ export function AppLayout() {
         </PageTransition>
       </Box>
       {fabVisible.value && (
-        <Fab
-          color="primary"
-          onClick={() => fabAction.value?.()}
-          sx={{
-            position: 'absolute',
-            bottom: showBottomNav ? 80 : 16,
-            right: 16,
-            zIndex: 10,
-          }}
-        >
-          <AddIcon />
-        </Fab>
+        <Box className="fab-pulse" sx={{ position: 'absolute', bottom: showBottomNav ? 80 : 16, right: 16, zIndex: 10, animation: 'fade-in-up 0.3s ease-out' }}>
+          <Fab
+            color="primary"
+            onClick={() => fabAction.value?.()}
+          >
+            <AddIcon />
+          </Fab>
+        </Box>
       )}
       {showBottomNav && <BottomNav />}
     </Box>

@@ -1,0 +1,83 @@
+// ------------------------------------------------------------
+// Animaciones globales para la app
+// ------------------------------------------------------------
+
+@keyframes fade-in-up {
+  0% { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes scale-in {
+  0% { opacity: 0; transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(144, 202, 249, 0.4); }
+  50% { box-shadow: 0 0 0 12px rgba(144, 202, 249, 0); }
+}
+
+@keyframes slide-in-right {
+  0% { opacity: 0; transform: translateX(20px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+// ------------------------------------------------------------
+// Clases utilitarias
+// ------------------------------------------------------------
+
+.card-enter {
+  animation: fade-in-up 0.3s ease-out both;
+}
+
+.card-enter:nth-child(1) { animation-delay: 0.02s; }
+.card-enter:nth-child(2) { animation-delay: 0.06s; }
+.card-enter:nth-child(3) { animation-delay: 0.1s; }
+.card-enter:nth-child(4) { animation-delay: 0.14s; }
+.card-enter:nth-child(5) { animation-delay: 0.18s; }
+.card-enter:nth-child(6) { animation-delay: 0.22s; }
+.card-enter:nth-child(7) { animation-delay: 0.26s; }
+.card-enter:nth-child(8) { animation-delay: 0.3s; }
+.card-enter:nth-child(9) { animation-delay: 0.34s; }
+.card-enter:nth-child(10) { animation-delay: 0.38s; }
+.card-enter:nth-child(11) { animation-delay: 0.42s; }
+.card-enter:nth-child(12) { animation-delay: 0.46s; }
+.card-enter:nth-child(13) { animation-delay: 0.5s; }
+.card-enter:nth-child(14) { animation-delay: 0.54s; }
+.card-enter:nth-child(15) { animation-delay: 0.58s; }
+
+.fade-in {
+  animation: fade-in 0.2s ease-out both;
+}
+
+.scale-in {
+  animation: scale-in 0.2s ease-out both;
+}
+
+// ------------------------------------------------------------
+// FAB pulse
+// ------------------------------------------------------------
+.fab-pulse .MuiFab-root {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+// ------------------------------------------------------------
+// Scrollbar delgada
+// ------------------------------------------------------------
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+}

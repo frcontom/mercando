@@ -25,14 +25,10 @@ export function BottomNav() {
     <BottomNavigation
       value={value === -1 ? 0 : value}
       onChange={(_, index) => navigate(routes[index].path)}
-      sx={{
-        height: 64,
-        borderTop: '1px solid',
-        borderColor: 'divider',
-      }}
+      sx={{ height: 64 }}
     >
       {routes.map(r => (
-        <BottomNavigationAction key={r.path} label={r.label} icon={r.icon} />
+        <BottomNavigationAction key={r.path} label={r.label} icon={r.icon} sx={{ minWidth: 0 }} />
       ))}
     </BottomNavigation>
   )

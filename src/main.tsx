@@ -4,6 +4,7 @@ import App from './App'
 import './styles/index.css'
 import './styles/main.scss'
 import './styles/transitions.scss'
+import './styles/animations.scss'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

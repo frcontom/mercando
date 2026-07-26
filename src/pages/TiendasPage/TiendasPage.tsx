@@ -70,13 +70,14 @@ export default function TiendasPage() {
         <EmptyState message="No hay tiendas aún" />
       ) : (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-          {items.map(t => (
-            <TiendaCard
-              key={t.id}
-              tienda={t}
-              onEdit={openEdit}
-              onDelete={setDeleteTarget}
-            />
+          {items.map((t, i) => (
+            <Box key={t.id} className="card-enter" style={{ animationDelay: `${0.03 * i}s` }}>
+              <TiendaCard
+                tienda={t}
+                onEdit={openEdit}
+                onDelete={setDeleteTarget}
+              />
+            </Box>
           ))}
         </Box>
       )}
