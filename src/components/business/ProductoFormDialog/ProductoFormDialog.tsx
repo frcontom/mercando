@@ -6,21 +6,22 @@ import DialogActions from '@mui/material/DialogActions'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
 import MenuItem from '@mui/material/MenuItem'
-import type { Producto, CreateProductoDto, UpdateProductoDto } from '@/models'
+import type { Producto, CreateProductoDto, UpdateProductoDto, Categoria } from '@/models'
 
 const UNIDADES = ['kg', 'g', 'lb', 'pieza', 'litro', 'ml', 'bolsa', 'paquete', 'caja', 'botella', 'lata', 'docena', 'atado', 'manojo', 'otros']
 
 interface ProductoFormDialogProps {
   open: boolean
   producto?: Producto | null
-  categoriaFija: string
+  categorias: Categoria[]
   onSave: (data: CreateProductoDto | UpdateProductoDto) => Promise<void>
   onClose: () => void
 }
 
-export function ProductoFormDialog({ open, producto, categoriaFija, onSave, onClose }: ProductoFormDialogProps) {
+export function ProductoFormDialog({ open, producto, categorias, onSave, onClose }: ProductoFormDialogProps) {
   const [nombre, setNombre] = useState('')
   const [unidad, setUnidad] = useState('')
+  const [categoriaId, setCategoriaId] = useState('')
   const [saving, setSaving] = useState(false)
   const isNew = !producto
 
@@ -28,14 +29,15 @@ export function ProductoFormDialog({ open, producto, categoriaFija, onSave, onCl
     if (open) {
       setNombre(producto?.nombre ?? '')
       setUnidad(producto?.unidad ?? 'pieza')
+      setCategoriaId(producto?.categoria_id ?? (categorias[0]?.id ?? ''))
     }
-  }, [open, producto])
+  }, [open, producto, categorias])
 
   async function handleSave() {
     if (!nombre.trim()) return
     setSaving(true)
     try {
-      await onSave({ nombre: nombre.trim(), unidad: unidad.trim(), categoria_id: categoriaFija })
+      await onSave({ nombre: nombre.trim(), unidad: unidad.trim(), categoria_id: categoriaId })
       onClose()
     } finally {
       setSaving(false)
@@ -47,12 +49,24 @@ export function ProductoFormDialog({ open, producto, categoriaFija, onSave, onCl
       <DialogTitle>{isNew ? 'Nuevo producto' : 'Editar producto'}</DialogTitle>
       <DialogContent>
         <TextField
+          select
+          fullWidth
+          label="Categoría"
+          value={categoriaId}
+          onChange={e => setCategoriaId(e.target.value)}
+          sx={{ mb: 2, mt: 1 }}
+        >
+          {categorias.map(c => (
+            <MenuItem key={c.id} value={c.id}>{c.icono} {c.nombre}</MenuItem>
+          ))}
+        </TextField>
+        <TextField
           autoFocus
           fullWidth
           label="Nombre"
           value={nombre}
           onChange={e => setNombre(e.target.value)}
-          sx={{ mt: 1 }}
+          sx={{ mb: 2 }}
         />
         {!isNew && (
           <TextField
@@ -61,7 +75,6 @@ export function ProductoFormDialog({ open, producto, categoriaFija, onSave, onCl
             label="Unidad"
             value={unidad}
             onChange={e => setUnidad(e.target.value)}
-            sx={{ mt: 2 }}
           >
             {UNIDADES.map(u => (
               <MenuItem key={u} value={u}>{u}</MenuItem>
