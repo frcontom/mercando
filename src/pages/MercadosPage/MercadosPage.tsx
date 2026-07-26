@@ -6,9 +6,11 @@ import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import EditIcon from '@mui/icons-material/Edit'
+import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
+import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
-import { mercados as mercadosSignal, loadingMercados, loadMercados, showSnackbar, showFab, hideFab } from '@/store'
+import { mercados as mercadosSignal, loadingMercados, loadMercados, showSnackbar } from '@/store'
 import { useSignalValue } from '@/hooks/useSignalValue'
 import { mercadosService } from '@/services'
 import type { Mercado, MercadoEstado, CreateMercadoDto, UpdateMercadoDto } from '@/models'
@@ -36,11 +38,7 @@ export default function MercadosPage() {
   const [editing, setEditing] = useState<Mercado | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Mercado | null>(null)
 
-  useEffect(() => {
-    loadMercados()
-    showFab(() => { setEditing(null); setFormOpen(true) })
-    return () => hideFab()
-  }, [])
+  useEffect(() => { loadMercados() }, [])
 
   async function handleSave(data: CreateMercadoDto | UpdateMercadoDto) {
     try {
@@ -81,10 +79,15 @@ export default function MercadosPage() {
     }
   }
 
+  function openCreate() { setEditing(null); setFormOpen(true) }
+
   if (isLoading) return <LoadingSpinner />
 
   return (
     <Box sx={{ p: 2, pb: 10 }}>
+      <Button fullWidth variant="contained" startIcon={<AddIcon />} onClick={openCreate} sx={{ mb: 2 }}>
+        Crear mercado
+      </Button>
       {items.length === 0 ? (
         <EmptyState message="No hay mercados aún" />
       ) : (
