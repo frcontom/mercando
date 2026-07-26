@@ -43,6 +43,15 @@ class ProductosService {
   async delete(id: string): Promise<void> {
     await supabase.from(this.table).delete().eq('id', id)
   }
+
+  async deleteAll(): Promise<void> {
+    const { data } = await supabase.from(this.table).select('id')
+    const ids = data?.map(p => p.id) ?? []
+    if (ids.length === 0) return
+    const mpIds = (await supabase.from('mercado_productos').select('id').in('producto_id', ids)).data?.map(mp => mp.id) ?? []
+    if (mpIds.length > 0) await supabase.from('mercado_productos').delete().in('id', mpIds)
+    await supabase.from(this.table).delete().in('id', ids)
+  }
 }
 
 export const productosService = new ProductosService()

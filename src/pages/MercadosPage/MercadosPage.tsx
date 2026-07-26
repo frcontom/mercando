@@ -37,6 +37,7 @@ export default function MercadosPage() {
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Mercado | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Mercado | null>(null)
+  const [deleteAllOpen, setDeleteAllOpen] = useState(false)
 
   useEffect(() => { loadMercados() }, [])
 
@@ -135,12 +136,30 @@ export default function MercadosPage() {
         onClose={() => { setFormOpen(false); setEditing(null) }}
       />
 
+      <Box sx={{ mt: 3 }}>
+        <Button fullWidth color="error" variant="outlined" onClick={() => setDeleteAllOpen(true)}>
+          Borrar todos los mercados
+        </Button>
+      </Box>
+
       <ConfirmDialog
         open={deleteTarget !== null}
         title="Eliminar mercado"
         message={`¿Eliminar "${deleteTarget?.nombre}"?`}
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
+      />
+
+      <ConfirmDialog
+        open={deleteAllOpen}
+        title="Borrar todos los mercados"
+        message="¿Eliminar todos los mercados y sus productos asociados? Esta acción no se puede deshacer."
+        onConfirm={async () => {
+          try { await mercadosService.deleteAll(); showSnackbar('Mercados eliminados'); await loadMercados() }
+          catch { showSnackbar('Error al eliminar') }
+          finally { setDeleteAllOpen(false) }
+        }}
+        onCancel={() => setDeleteAllOpen(false)}
       />
     </Box>
   )

@@ -43,6 +43,10 @@ class MercadosService {
   async delete(id: string): Promise<void> {
     await supabase.from(this.table).delete().eq('id', id)
   }
+
+  async deleteAll(): Promise<void> {
+    await supabase.from(this.table).delete().neq('id', '00000000-0000-0000-0000-000000000000')
+  }
 }
 
 export const mercadosService = new MercadosService()
