@@ -37,6 +37,7 @@ import { mercadoProductos, loadProductosByCategoria, getProductosByCategoria } f
 import { tiendas, loadTiendas, categorias, loadCategorias, productos, loadProductos } from '@/store'
 import { mercadoTiendasService, mercadoTiendaCategoriasService, mercadoProductosService } from '@/services'
 import { showSnackbar, showFab, hideFab } from '@/store'
+import { subscribeToChanges } from '@/core/utils/realtime'
 import { formatCurrency } from '@/core/utils/formatters'
 import { ESTADOS_PRODUCTO, LABEL_ESTADOS } from '@/core/constants/estados'
 import type { EstadoProducto, MercadoProducto } from '@/models'
@@ -84,6 +85,19 @@ export default function MercadoDetailPage() {
     else hideFab()
     return () => hideFab()
   }, [mercado?.estado, shoppingMode])
+
+  useEffect(() => {
+    if (!id) return
+    const handler = () => { (async () => {
+      await loadMercadoTiendas(id)
+      for (const mt of mercadoTiendas.value) await loadCategoriasByTienda(mt.id)
+      for (const cats of Object.values(mercadoTiendaCategorias.value).flat()) await loadProductosByCategoria(cats.id)
+      setRefreshKey(k => k + 1)
+    })() }
+    window.addEventListener('refresh-mercado', handler)
+    subscribeToChanges(id)
+    return () => window.removeEventListener('refresh-mercado', handler)
+  }, [id])
 
   useEffect(() => {
     if (selectedEstado === 'no_habia') { setCantidadEdit('0'); setPrecioEdit('0') }

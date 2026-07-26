@@ -5,6 +5,7 @@ import { AppLayout } from '@/components/layout/AppLayout'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { PageTransition } from '@/components/ui/PageTransition'
 import { waitForSupabase } from '@/core/utils/supabase-init'
+import { subscribeToChanges } from '@/core/utils/realtime'
 
 const SplashPage = lazy(() => import('@/pages/SplashPage/SplashPage'))
 const PasswordPage = lazy(() => import('@/pages/PasswordPage/PasswordPage'))
@@ -34,7 +35,12 @@ const SuspenseWrapper = ({ children }: { children: React.ReactNode }) => (
 
 function SupabaseGate({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false)
-  useEffect(() => { waitForSupabase().then(() => setReady(true)) }, [])
+  useEffect(() => {
+    waitForSupabase().then(() => {
+      setReady(true)
+      subscribeToChanges()
+    })
+  }, [])
   if (!ready) return <LoadingSpinner />
   return <>{children}</>
 }
