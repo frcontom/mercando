@@ -444,7 +444,7 @@ export default function MercadoDetailPage() {
         <DialogTitle>Agregar producto</DialogTitle>
         <DialogContent>
           <TextField select fullWidth label="Producto" value={productoForm.producto_id} onChange={e => setProductoForm(p => ({ ...p, producto_id: e.target.value }))} sx={{ mb: 2, mt: 1 }}>
-            {productos.value.filter(p => p.categoria_id === (Object.values(mercadoTiendaCategorias.value).flat().find(mtc => mtc.id === addProductoFor)?.categoria_id ?? '')).map(p => (<MenuItem key={p.id} value={p.id}>{p.nombre} ({p.unidad})</MenuItem>))}
+            {productos.value.filter(p => p.categoria_id === (Object.values(mercadoTiendaCategorias.value).flat().find(mtc => mtc.id === addProductoFor)?.categoria_id ?? '') && !getProductos(addProductoFor!).some(mp => mp.producto_id === p.id)).map(p => (<MenuItem key={p.id} value={p.id}>{p.nombre} ({p.unidad})</MenuItem>))}
           </TextField>
           <TextField fullWidth type="number" label="Cantidad" value={productoForm.cantidad} onChange={e => setProductoForm(p => ({ ...p, cantidad: e.target.value }))} slotProps={{ htmlInput: { min: 1 } }} />
         </DialogContent>
