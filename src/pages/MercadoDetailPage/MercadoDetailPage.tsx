@@ -37,6 +37,7 @@ import { tiendas, loadTiendas, categorias, loadCategorias, productos, loadProduc
 import { mercadoTiendasService, mercadoTiendaCategoriasService, mercadoProductosService } from '@/services'
 import { showSnackbar, showFab, hideFab, pendingCount, refreshHandler, userRole } from '@/store'
 import { playClick } from '@/core/utils/sound'
+import confetti from 'canvas-confetti'
 import { subscribeToChanges } from '@/core/utils/realtime'
 import { formatCurrency } from '@/core/utils/formatters'
 import { ESTADOS_PRODUCTO, LABEL_ESTADOS } from '@/core/constants/estados'
@@ -209,6 +210,10 @@ export default function MercadoDetailPage() {
       showSnackbar(`${item.producto?.nombre ?? 'Producto'} → ${LABEL_ESTADOS[selectedEstado]}`)
       setEstadoDialog({ open: false, item: null })
       setRefreshKey(k => k + 1)
+      updatePendingCount()
+      if (pendingCount.value === 0) {
+        confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, colors: ['#90caf9', '#69f0ae', '#ffd740'] })
+      }
     } catch { showSnackbar('Error') }
   }
 
