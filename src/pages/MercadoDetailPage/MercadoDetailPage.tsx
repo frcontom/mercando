@@ -399,11 +399,7 @@ export default function MercadoDetailPage() {
             }}
             slotProps={{
               htmlInput: { inputMode: 'numeric' },
-              formHelperText: {
-                sx: { textAlign: 'center', fontSize: '1.25rem', color: '#69f0ae', fontWeight: 700 },
-              },
             }}
-            helperText={productoForm.precio ? formatCurrency(Number(productoForm.precio)) : ''}
           />
           {productoForm.precio && Number(productoForm.precio) > 0 && (
             <Box sx={{ mt: 2, p: 1.5, bgcolor: 'action.hover', borderRadius: 2 }}>
