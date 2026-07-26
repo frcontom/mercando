@@ -12,6 +12,7 @@ import ListItemIcon from '@mui/material/ListItemIcon'
 import Checkbox from '@mui/material/Checkbox'
 import MenuItem from '@mui/material/MenuItem'
 import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
 import type { Producto, Tienda } from '@/models'
 
 interface AsignarProductosDialogProps {
@@ -42,6 +43,14 @@ export function AsignarProductosDialog({ open, productos, tiendas, onSave, onClo
       else next.add(id)
       return next
     })
+  }
+
+  function toggleTodos() {
+    if (selected.size === productos.length) {
+      setSelected(new Set())
+    } else {
+      setSelected(new Set(productos.map(p => p.id)))
+    }
   }
 
   async function handleSave() {
@@ -76,7 +85,17 @@ export function AsignarProductosDialog({ open, productos, tiendas, onSave, onClo
             <MenuItem key={t.id} value={t.id}>{t.icono} {t.nombre}</MenuItem>
           ))}
         </TextField>
-        <Box sx={{ maxHeight: 300, overflow: 'auto' }}>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+          <Typography variant="body2" color="text.secondary">
+            Productos
+          </Typography>
+          <Button size="small" onClick={toggleTodos}>
+            {selected.size === productos.length ? 'Deseleccionar todos' : 'Seleccionar todos'}
+          </Button>
+        </Box>
+
+        <Box sx={{ maxHeight: 260, overflow: 'auto' }}>
           <List dense>
             {productos.map(p => (
               <ListItem key={p.id} onClick={() => toggleProducto(p.id)} sx={{ cursor: 'pointer' }}>
@@ -92,7 +111,7 @@ export function AsignarProductosDialog({ open, productos, tiendas, onSave, onClo
       <DialogActions>
         <Button onClick={onClose}>Cancelar</Button>
         <Button onClick={handleSave} variant="contained" disabled={selected.size === 0 || saving}>
-          {saving ? 'Guardando...' : `Agregar (${selected.size})`}
+          {saving ? 'Guardando...' : `Agregar a ${tiendas.find(t => t.id === tiendaId)?.nombre ?? ''} (${selected.size})`}
         </Button>
       </DialogActions>
     </Dialog>
