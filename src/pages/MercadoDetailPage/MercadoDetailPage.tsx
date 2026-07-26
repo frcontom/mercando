@@ -119,6 +119,7 @@ export default function MercadoDetailPage() {
     return mp.estado !== 'pendiente' && mp.cantidad_encontrada > 0 ? mp.cantidad_encontrada : mp.cantidad
   }
   function countEncontrados(mtId: string) {
+    if (mtId === '__todas__') return encontradosGlobal
     return getProductosFromTienda(mtId).filter(p => p.estado === 'encontrado').length
   }
   function totalTienda(mtId: string) {
@@ -196,7 +197,7 @@ export default function MercadoDetailPage() {
   const tiendasDisponibles = tiendas.value.filter(t => !mercadoTiendas.value.some(mt => mt.tienda_id === t.id))
 
   const currentMT = mercadoTiendas.value.find(mt => mt.id === currentTiendaId)
-  const currentProductos = currentTiendaId ? getProductosFromTienda(currentTiendaId) : []
+  const currentProductos = currentTiendaId === '__todas__' ? todosProductos : currentTiendaId ? getProductosFromTienda(currentTiendaId) : []
 
   return (
     <Box sx={{ pb: 10 }}>
@@ -238,18 +239,18 @@ export default function MercadoDetailPage() {
       {/* SHOP MODE */}
       {shoppingMode && (
         <Box sx={{ p: 2 }}>
-          {currentTiendaId && currentMT ? (
+          {currentTiendaId && (currentMT || currentTiendaId === '__todas__') ? (
             <>
               <Button size="small" startIcon={<ArrowBackIcon />} onClick={() => { setCurrentTiendaId(null); setSearchParams({}) }} sx={{ mb: 1 }}>
-                Todas las tiendas
+                {currentTiendaId === '__todas__' ? 'Inicio' : 'Todas las tiendas'}
               </Button>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                <Typography sx={{ fontSize: 24 }}>{currentMT.tienda?.icono}</Typography>
+                <Typography sx={{ fontSize: 24 }}>{currentTiendaId === '__todas__' ? '📋' : currentMT?.tienda?.icono}</Typography>
                 <Box sx={{ flex: 1 }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{currentMT.tienda?.nombre}</Typography>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{currentTiendaId === '__todas__' ? 'Todas las tiendas' : currentMT?.tienda?.nombre}</Typography>
                   <LinearProgress variant="determinate" value={currentProductos.length > 0 ? (countEncontrados(currentTiendaId) / currentProductos.length) * 100 : 0} sx={{ height: 6, borderRadius: 3, mt: 0.5 }} />
                 </Box>
-                <Typography variant="h6" sx={{ fontWeight: 700, color: '#69f0ae' }}>{formatCurrency(totalTienda(currentTiendaId))}</Typography>
+                <Typography variant="h6" sx={{ fontWeight: 700, color: '#69f0ae' }}>{formatCurrency(currentTiendaId === '__todas__' ? totalGlobal : totalTienda(currentTiendaId))}</Typography>
               </Box>
               <TextField
                 fullWidth
@@ -316,26 +317,36 @@ export default function MercadoDetailPage() {
               {mercadoTiendas.value.length === 0 ? (
                 <EmptyState message="No hay que comprar" />
               ) : (
-                mercadoTiendas.value.map(mt => {
-                  const prods = getProductosFromTienda(mt.id)
-                  const enc = countEncontrados(mt.id)
-                  return (
+                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                  <Card onClick={() => { setCurrentTiendaId('__todas__'); setSearchParams({}) }} sx={{ cursor: 'pointer', mb: 1.5, '&:active': { transform: 'scale(0.98)' }, transition: 'transform 0.15s ease' }}>
+                    <CardContent sx={{ pb: '12px !important' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        <Typography sx={{ fontSize: 28, opacity: 0.5 }}>📋</Typography>
+                        <Box sx={{ flex: 1 }}>
+                          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>Todas las tiendas</Typography>
+                          <Typography variant="caption" color="text.secondary">{encontradosGlobal}/{todosProductos.length} · {formatCurrency(totalEncontrados)} / {formatCurrency(totalGlobal)}</Typography>
+                          <LinearProgress variant="determinate" value={todosProductos.length > 0 ? (encontradosGlobal / todosProductos.length) * 100 : 0} sx={{ height: 6, borderRadius: 3, mt: 0.5 }} />
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                  {mercadoTiendas.value.map(mt => (
                     <Card key={mt.id} onClick={() => { setCurrentTiendaId(mt.id); setSearchParams({ tienda: mt.id }) }} sx={{ cursor: 'pointer', mb: 1.5, '&:active': { transform: 'scale(0.98)' }, transition: 'transform 0.15s ease' }}>
                       <CardContent sx={{ pb: '12px !important' }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                           <Typography sx={{ fontSize: 32 }}>{mt.tienda?.icono}</Typography>
                           <Box sx={{ flex: 1 }}>
                             <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{mt.tienda?.nombre}</Typography>
-                              <Typography variant="caption" color="text.secondary">
-                                {enc}/{prods.length} · {formatCurrency(totalEncontradosTienda(mt.id))} / {formatCurrency(totalTienda(mt.id))}
-                              </Typography>
-                            <LinearProgress variant="determinate" value={prods.length > 0 ? (enc / prods.length) * 100 : 0} sx={{ height: 6, borderRadius: 3, mt: 0.5 }} />
+                            <Typography variant="caption" color="text.secondary">
+                              {countEncontrados(mt.id)}/{getProductosFromTienda(mt.id).length} · {formatCurrency(totalEncontradosTienda(mt.id))} / {formatCurrency(totalTienda(mt.id))}
+                            </Typography>
+                            <LinearProgress variant="determinate" value={getProductosFromTienda(mt.id).length > 0 ? (countEncontrados(mt.id) / getProductosFromTienda(mt.id).length) * 100 : 0} sx={{ height: 6, borderRadius: 3, mt: 0.5 }} />
                           </Box>
                         </Box>
                       </CardContent>
                     </Card>
-                  )
-                })
+                  ))}
+                </Box>
               )}
             </>
           )}
