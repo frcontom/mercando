@@ -33,6 +33,7 @@ import { tiendas, loadTiendas, categorias, loadCategorias, productos, loadProduc
 import { mercadoTiendasService, mercadoTiendaCategoriasService, mercadoProductosService } from '@/services'
 import { showSnackbar, pendingCount, refreshHandler, userRole } from '@/store'
 import { StoreIcon } from '@/components/business/StoreIcon'
+import { QuickAddDialog } from '@/components/business/QuickAddDialog'
 import { playClick } from '@/core/utils/sound'
 import { CompraCompletadaDialog } from '@/components/business/CompraCompletadaDialog'
 import confetti from 'canvas-confetti'
@@ -63,6 +64,7 @@ export default function MercadoDetailPage() {
   const [cantidadEdit, setCantidadEdit] = useState('1')
   const [searchQuery, setSearchQuery] = useState('')
   const [summaryOpen, setSummaryOpen] = useState(false)
+  const [quickAddOpen, setQuickAddOpen] = useState(false)
 
   const mercado = mercados.value.find(m => m.id === id)
 
@@ -232,10 +234,13 @@ export default function MercadoDetailPage() {
       <Box sx={{ p: 2, bgcolor: 'background.paper' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h6">{mercado.nombre}</Typography>
-          {mercado.estado === 'activo' && userRole.value === 'admin' && searchParams.get('edit') === '1' && !currentTiendaId && (
-            <Button size="small" variant="outlined" startIcon={<EditIcon />} onClick={() => setShoppingMode(false)}>
-              Editar
-            </Button>
+          {mercado.estado === 'activo' && userRole.value === 'admin' && (
+            <Box sx={{ display: 'flex', gap: 0.5 }}>
+              {searchParams.get('edit') === '1' && !currentTiendaId && (
+                <Button size="small" variant="outlined" startIcon={<EditIcon />} onClick={() => setShoppingMode(false)}>Editar</Button>
+              )}
+              <Button size="small" variant="contained" onClick={() => setQuickAddOpen(true)} sx={{ minWidth: 40, px: 1, fontSize: '1.1rem', lineHeight: 1 }}>+</Button>
+            </Box>
           )}
         </Box>
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 0.5 }}>
@@ -646,6 +651,17 @@ export default function MercadoDetailPage() {
         encontrados={encontradosGlobal}
         total={todosProductos.length}
         onClose={() => setSummaryOpen(false)}
+      />
+      <QuickAddDialog
+        open={quickAddOpen}
+        tiendas={mercadoTiendas.value}
+        categorias={Object.values(mercadoTiendaCategorias.value).flat()}
+        productosDisp={productos.value}
+        onSave={async (data) => {
+          try { await mercadoProductosService.add(data); showSnackbar('Producto agregado'); await loadProductosByCategoria(data.mercado_tienda_categoria_id); setRefreshKey(k => k + 1); updatePendingCount() }
+          catch { showSnackbar('Error') }
+        }}
+        onClose={() => setQuickAddOpen(false)}
       />
     </Box>
   )
