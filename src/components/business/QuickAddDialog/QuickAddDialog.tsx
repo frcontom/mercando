@@ -9,6 +9,7 @@ import Autocomplete from '@mui/material/Autocomplete'
 import MenuItem from '@mui/material/MenuItem'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
+import { StoreIcon } from '@/components/business/StoreIcon'
 import { categorias as categoriasList } from '@/store'
 import { ESTADOS_PRODUCTO, LABEL_ESTADOS } from '@/core/constants/estados'
 import type { EstadoProducto, MercadoProducto, Producto, MercadoTienda, MercadoTiendaCategoria } from '@/models'
@@ -86,11 +87,8 @@ export function QuickAddDialog({ open, tiendas, categorias, productosDisp, produ
       <DialogContent>
         <TextField select fullWidth label="Tienda" value={tiendaId} onChange={e => { setTiendaId(e.target.value); setCategoriaId(''); setProducto(null) }} sx={{ mb: 2, mt: 1 }}>
           {tiendas.map(t => (
-            <MenuItem key={t.id} value={t.id}>
-              {t.tienda?.icono.startsWith('/') || t.tienda?.icono.startsWith('http')
-                ? <Box component="img" src={t.tienda?.icono} sx={{ width: 20, height: 20, borderRadius: '50%', mr: 1, objectFit: 'cover' }} />
-                : <Box component="span" sx={{ mr: 1 }}>{t.tienda?.icono}</Box>}
-              {t.tienda?.nombre}
+            <MenuItem key={t.id} value={t.id} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <StoreIcon tienda={t.tienda} size={24} /> {t.tienda?.nombre}
             </MenuItem>
           ))}
         </TextField>
