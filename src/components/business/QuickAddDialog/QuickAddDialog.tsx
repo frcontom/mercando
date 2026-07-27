@@ -19,6 +19,7 @@ interface QuickAddDialogProps {
   tiendas: MercadoTienda[]
   categorias: MercadoTiendaCategoria[]
   productosDisp: Producto[]
+  productosIdsEnMercado: Set<string>
   editItem?: MercadoProducto | null
   onSave: (data: { mercado_tienda_categoria_id: string; producto_id: string; cantidad: number; precio: number; cantidad_encontrada: number; estado: EstadoProducto }) => Promise<void>
   onClose: () => void
@@ -26,7 +27,7 @@ interface QuickAddDialogProps {
   selectedCategoriaId?: string
 }
 
-export function QuickAddDialog({ open, tiendas, categorias, productosDisp, editItem, onSave, onClose, selectedTiendaId, selectedCategoriaId }: QuickAddDialogProps) {
+export function QuickAddDialog({ open, tiendas, categorias, productosDisp, productosIdsEnMercado, editItem, onSave, onClose, selectedTiendaId, selectedCategoriaId }: QuickAddDialogProps) {
   const [tiendaId, setTiendaId] = useState(selectedTiendaId ?? tiendas[0]?.id ?? '')
   const [categoriaId, setCategoriaId] = useState(selectedCategoriaId ?? '')
   const [producto, setProducto] = useState<Producto | null>(null)
@@ -36,6 +37,7 @@ export function QuickAddDialog({ open, tiendas, categorias, productosDisp, editI
   const [saving, setSaving] = useState(false)
 
   const disponibles = productosDisp.filter(p => {
+    if (productosIdsEnMercado.has(p.id)) return false
     if (!categoriaId) return true
     const catRef = categoriasList.value.find(c => c.id === p.categoria_id)
     const mtc = categorias.find(mtc => mtc.id === categoriaId)

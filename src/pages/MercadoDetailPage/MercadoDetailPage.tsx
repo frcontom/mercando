@@ -658,6 +658,7 @@ export default function MercadoDetailPage() {
         tiendas={mercadoTiendas.value}
         categorias={Object.values(mercadoTiendaCategorias.value).flat()}
         productosDisp={productos.value}
+        productosIdsEnMercado={new Set(todosProductos.map(p => p.producto_id))}
         onSave={async (data) => {
           try {
             const { data: nuevo } = await supabase.from('mercado_productos').insert({
