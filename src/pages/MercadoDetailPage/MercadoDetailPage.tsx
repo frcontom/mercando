@@ -31,6 +31,7 @@ import { mercadoTiendaCategorias, loadCategoriasByTienda, getCategoriasByTienda 
 import { mercadoProductos, loadProductosByCategoria, getProductosByCategoria } from '@/store'
 import { tiendas, loadTiendas, categorias, loadCategorias, productos, loadProductos } from '@/store'
 import { mercadoTiendasService, mercadoTiendaCategoriasService, mercadoProductosService } from '@/services'
+import { supabase } from '@/services/supabase.client'
 import { showSnackbar, pendingCount, refreshHandler, userRole } from '@/store'
 import { StoreIcon } from '@/components/business/StoreIcon'
 import { QuickAddDialog } from '@/components/business/QuickAddDialog'
@@ -658,8 +659,17 @@ export default function MercadoDetailPage() {
         categorias={Object.values(mercadoTiendaCategorias.value).flat()}
         productosDisp={productos.value}
         onSave={async (data) => {
-          try { await mercadoProductosService.add(data); showSnackbar('Producto agregado'); await loadProductosByCategoria(data.mercado_tienda_categoria_id); setRefreshKey(k => k + 1); updatePendingCount() }
-          catch { showSnackbar('Error') }
+          try {
+            const { data: nuevo } = await supabase.from('mercado_productos').insert({
+              mercado_tienda_categoria_id: data.mercado_tienda_categoria_id,
+              producto_id: data.producto_id,
+              cantidad: data.cantidad,
+              cantidad_encontrada: data.cantidad_encontrada,
+              precio: data.precio,
+              estado: data.estado,
+            }).select().single()
+            showSnackbar('Producto agregado'); if (nuevo) await loadProductosByCategoria(nuevo.mercado_tienda_categoria_id); setRefreshKey(k => k + 1); updatePendingCount()
+          } catch { showSnackbar('Error') }
         }}
         onClose={() => setQuickAddOpen(false)}
       />
