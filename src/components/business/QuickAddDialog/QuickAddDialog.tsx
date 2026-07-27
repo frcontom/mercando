@@ -85,7 +85,16 @@ export function QuickAddDialog({ open, tiendas, categorias, productosDisp, produ
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
       <DialogTitle>{editItem ? 'Editar producto' : 'Agregar producto rápido'}</DialogTitle>
       <DialogContent>
-        <TextField select fullWidth label="Tienda" value={tiendaId} onChange={e => { setTiendaId(e.target.value); setCategoriaId(''); setProducto(null) }} sx={{ mb: 2, mt: 1 }}>
+        <TextField select fullWidth label="Tienda" value={tiendaId} onChange={e => { setTiendaId(e.target.value); setCategoriaId(''); setProducto(null) }}
+          slotProps={{
+            select: {
+              renderValue: (val: unknown) => {
+                const t = tiendas.find(ti => ti.id === val)
+                return <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><StoreIcon tienda={t?.tienda} size={24} />{t?.tienda?.nombre}</Box>
+              }
+            }
+          }}
+          sx={{ mb: 2, mt: 1 }}>
           {tiendas.map(t => (
             <MenuItem key={t.id} value={t.id} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <StoreIcon tienda={t.tienda} size={24} /> {t.tienda?.nombre}
