@@ -86,7 +86,12 @@ export function QuickAddDialog({ open, tiendas, categorias, productosDisp, produ
       <DialogContent>
         <TextField select fullWidth label="Tienda" value={tiendaId} onChange={e => { setTiendaId(e.target.value); setCategoriaId(''); setProducto(null) }} sx={{ mb: 2, mt: 1 }}>
           {tiendas.map(t => (
-            <MenuItem key={t.id} value={t.id}>{t.tienda?.icono} {t.tienda?.nombre}</MenuItem>
+            <MenuItem key={t.id} value={t.id}>
+              {t.tienda?.icono.startsWith('/') || t.tienda?.icono.startsWith('http')
+                ? <Box component="img" src={t.tienda?.icono} sx={{ width: 20, height: 20, borderRadius: '50%', mr: 1, objectFit: 'cover' }} />
+                : <Box component="span" sx={{ mr: 1 }}>{t.tienda?.icono}</Box>}
+              {t.tienda?.nombre}
+            </MenuItem>
           ))}
         </TextField>
         {tiendaId && (
