@@ -5,6 +5,9 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
+import FormControl from '@mui/material/FormControl'
+import InputLabel from '@mui/material/InputLabel'
+import Select from '@mui/material/Select'
 import Autocomplete from '@mui/material/Autocomplete'
 import MenuItem from '@mui/material/MenuItem'
 import Box from '@mui/material/Box'
@@ -85,22 +88,21 @@ export function QuickAddDialog({ open, tiendas, categorias, productosDisp, produ
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
       <DialogTitle>{editItem ? 'Editar producto' : 'Agregar producto rápido'}</DialogTitle>
       <DialogContent>
-        <TextField select fullWidth label="Tienda" value={tiendaId} onChange={e => { setTiendaId(e.target.value); setCategoriaId(''); setProducto(null) }}
-          slotProps={{
-            select: {
-              renderValue: (val: unknown) => {
-                const t = tiendas.find(ti => ti.id === val)
-                return <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><StoreIcon tienda={t?.tienda} size={24} />{t?.tienda?.nombre}</Box>
-              }
-            }
-          }}
-          sx={{ mb: 2, mt: 1 }}>
-          {tiendas.map(t => (
-            <MenuItem key={t.id} value={t.id} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <StoreIcon tienda={t.tienda} size={24} /> {t.tienda?.nombre}
-            </MenuItem>
-          ))}
-        </TextField>
+        <FormControl fullWidth sx={{ mb: 2, mt: 1 }}>
+          <InputLabel>Tienda</InputLabel>
+          <Select label="Tienda" value={tiendaId} onChange={e => { setTiendaId(e.target.value); setCategoriaId(''); setProducto(null) }}
+            renderValue={(val) => {
+              const t = tiendas.find(ti => ti.id === val)
+              return <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><StoreIcon tienda={t?.tienda} size={24} />{t?.tienda?.nombre}</Box>
+            }}
+          >
+            {tiendas.map(t => (
+              <MenuItem key={t.id} value={t.id} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <StoreIcon tienda={t.tienda} size={24} /> {t.tienda?.nombre}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         {tiendaId && (
           <TextField select fullWidth label="Categoría" value={categoriaId} onChange={e => { setCategoriaId(e.target.value); setProducto(null) }} sx={{ mb: 2 }}>
             <MenuItem value="">Seleccionar categoría</MenuItem>

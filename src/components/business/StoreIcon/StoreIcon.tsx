@@ -15,7 +15,7 @@ export function StoreIcon({ tienda, size = 32 }: StoreIconProps) {
         component="img"
         src={icono}
         alt={tienda?.nombre}
-        sx={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+        sx={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, display: 'inline-block', verticalAlign: 'middle' }}
       />
     )
   }
