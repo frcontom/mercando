@@ -315,22 +315,25 @@ export default function MercadoDetailPage() {
                             const encontrada = mp.cantidad_encontrada || mp.cantidad
                             const avance = mp.cantidad > 0 ? encontrada / mp.cantidad : 0
                             let touchStartX = 0
+                            let touchStartY = 0
                             let touchMoved = false
                             return (
                             <Box
                               key={mp.id}
                               onClick={() => { if (!touchMoved) toggleProductoEstado(mp); touchMoved = false }}
-                              onTouchStart={e => { touchStartX = e.touches[0].clientX; touchMoved = false }}
-                              onTouchMove={e => { if (Math.abs(e.touches[0].clientX - touchStartX) > 20) touchMoved = true }}
+                              onTouchStart={e => { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; touchMoved = false }}
+                              onTouchMove={e => {
+                                const dx = Math.abs(e.touches[0].clientX - touchStartX)
+                                const dy = Math.abs(e.touches[0].clientY - touchStartY)
+                                if (dx > 30 && dx > dy) touchMoved = true
+                              }}
                               onTouchEnd={e => {
                                 if (!touchMoved) return
                                 const dx = e.changedTouches[0].clientX - touchStartX
                                 if (Math.abs(dx) > 50) {
                                   const nuevoEstado = dx > 0 ? 'encontrado' : 'no_habia'
                                   if (mp.estado !== nuevoEstado) {
-                                    mercadoProductosService.update(mp.id, { estado: nuevoEstado as any }).then(() => {
-                                      loadProductosByCategoria(mp.mercado_tienda_categoria_id).then(() => setRefreshKey(k => k + 1))
-                                    })
+                                    mercadoProductosService.update(mp.id, { estado: nuevoEstado as any })
                                   }
                                 }
                               }}
