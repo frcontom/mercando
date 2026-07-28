@@ -108,16 +108,19 @@ export default function ProductosPage() {
   }
 
   async function addToMarket(producto: Producto) {
-    const activo = mercados.value.find(m => m.estado === 'activo')
-    if (!activo) { showSnackbar('No hay mercado activo'); return }
-    await loadMercadoTiendas(activo.id)
-    const mt = mercadoTiendas.value[0]
-    if (!mt) { showSnackbar('El mercado activo no tiene tiendas'); return }
-    await loadCategoriasByTienda(mt.id)
-    const mtc = Object.values(mercadoTiendaCategorias.value).flat().find(c => c.categoria_id === producto.categoria_id)
-    if (!mtc) { showSnackbar(`${producto.categoria_id} no está en la tienda`); return }
-    try { await mercadoProductosService.add({ mercado_tienda_categoria_id: mtc.id, producto_id: producto.id, cantidad: 1 }); showSnackbar(`${producto.nombre} agregado al mercado`) }
-    catch { showSnackbar('Error al agregar') }
+    try {
+      const activo = mercados.value.find(m => m.estado === 'activo')
+      if (!activo) { showSnackbar('Crea un mercado activo primero'); return }
+      await loadMercadoTiendas(activo.id)
+      if (mercadoTiendas.value.length === 0) { showSnackbar('El mercado no tiene tiendas'); return }
+      const mt = mercadoTiendas.value[0]
+      await loadCategoriasByTienda(mt.id)
+      const categoriasList = Object.values(mercadoTiendaCategorias.value).flat()
+      const mtc = categoriasList.find(c => c.categoria_id === producto.categoria_id)
+      if (!mtc) { showSnackbar('Agrega esta categoría a la tienda primero'); return }
+      await mercadoProductosService.add({ mercado_tienda_categoria_id: mtc.id, producto_id: producto.id, cantidad: 1 })
+      showSnackbar(`${producto.nombre} agregado ✓`)
+    } catch { showSnackbar('Error al agregar producto') }
   }
 
   if (isLoading) return <LoadingSpinner />
