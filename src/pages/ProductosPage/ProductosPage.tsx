@@ -124,43 +124,28 @@ export default function ProductosPage() {
 
   return (
     <Box sx={{ pb: 10 }}>
+      <Box sx={{ display: 'flex', gap: 0.5, px: 2, pt: 1.5, pb: 0.5 }}>
+        <Tooltip title="Crear producto">
+          <IconButton size="small" onClick={openCreate}><AddIcon fontSize="small" /></IconButton>
+        </Tooltip>
+        <Tooltip title="Crear varios">
+          <IconButton size="small" onClick={() => setBulkOpen(true)}><PlaylistAddIcon fontSize="small" /></IconButton>
+        </Tooltip>
+        <Tooltip title="Borrar todos">
+          <IconButton size="small" onClick={() => setDeleteAllOpen(true)}><DeleteIcon fontSize="small" /></IconButton>
+        </Tooltip>
+        <Box sx={{ flex: 1 }} />
+        <ToggleButton value="favs" selected={showFavs} onChange={() => setShowFavs(!showFavs)} size="small" sx={{ flexShrink: 0 }}>
+          <StarIcon fontSize="small" color={showFavs ? 'warning' : 'inherit'} />
+        </ToggleButton>
+      </Box>
       {categorias.value.length > 0 && (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, px: 2, pt: 1 }}>
-          <Tabs
-            value={tab}
-            onChange={(_, v) => setTab(v)}
-            variant="scrollable"
-            scrollButtons={false}
-            sx={{ flex: 1, minHeight: 48 }}
-          >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, px: 2 }}>
+          <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="scrollable" scrollButtons={false} sx={{ flex: 1, minHeight: 48 }}>
             {categorias.value.map(c => (
               <Tab key={c.id} label={`${c.icono} ${c.nombre}`} sx={{ minHeight: 48, py: 1 }} />
             ))}
           </Tabs>
-          <Tooltip title="Crear producto">
-            <IconButton size="small" onClick={openCreate}>
-              <AddIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Crear varios">
-            <IconButton size="small" onClick={() => setBulkOpen(true)}>
-              <PlaylistAddIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Borrar todos">
-            <IconButton size="small" onClick={() => setDeleteAllOpen(true)}>
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <ToggleButton
-            value="favs"
-            selected={showFavs}
-            onChange={() => setShowFavs(!showFavs)}
-            size="small"
-            sx={{ flexShrink: 0 }}
-          >
-            <StarIcon fontSize="small" color={showFavs ? 'warning' : 'inherit'} />
-          </ToggleButton>
         </Box>
       )}
 
