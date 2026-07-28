@@ -7,8 +7,7 @@ import StarIcon from '@mui/icons-material/Star'
 import AddIcon from '@mui/icons-material/Add'
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd'
 import DeleteIcon from '@mui/icons-material/Delete'
-import IconButton from '@mui/material/IconButton'
-import Tooltip from '@mui/material/Tooltip'
+import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import InputAdornment from '@mui/material/InputAdornment'
 import SearchIcon from '@mui/icons-material/Search'
@@ -126,21 +125,6 @@ export default function ProductosPage() {
 
   return (
     <Box sx={{ pb: 10 }}>
-      <Box sx={{ display: 'flex', gap: 0.5, px: 2, pt: 1.5, pb: 0.5 }}>
-        <Tooltip title="Crear producto">
-          <IconButton size="small" onClick={openCreate}><AddIcon fontSize="small" /></IconButton>
-        </Tooltip>
-        <Tooltip title="Crear varios">
-          <IconButton size="small" onClick={() => setBulkOpen(true)}><PlaylistAddIcon fontSize="small" /></IconButton>
-        </Tooltip>
-        <Tooltip title="Borrar todos">
-          <IconButton size="small" onClick={() => setDeleteAllOpen(true)}><DeleteIcon fontSize="small" /></IconButton>
-        </Tooltip>
-        <Box sx={{ flex: 1 }} />
-        <ToggleButton value="favs" selected={showFavs} onChange={() => setShowFavs(!showFavs)} size="small" sx={{ flexShrink: 0 }}>
-          <StarIcon fontSize="small" color={showFavs ? 'warning' : 'inherit'} />
-        </ToggleButton>
-      </Box>
       {categorias.value.length > 0 && (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, px: 2 }}>
           <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="scrollable" scrollButtons={false} sx={{ flex: 1, minHeight: 48 }}>
@@ -164,6 +148,14 @@ export default function ProductosPage() {
             },
           }}
         />
+      </Box>
+      <Box sx={{ display: 'flex', gap: 0.5, px: 2, pb: 1 }}>
+        <Button variant="contained" size="small" startIcon={<AddIcon />} onClick={openCreate} sx={{ flex: 1, fontSize: '0.7rem' }}>Crear</Button>
+        <Button variant="outlined" size="small" startIcon={<PlaylistAddIcon />} onClick={() => setBulkOpen(true)} sx={{ flex: 1, fontSize: '0.7rem' }}>Masivo</Button>
+        <Button variant="outlined" size="small" color="error" startIcon={<DeleteIcon />} onClick={() => setDeleteAllOpen(true)} sx={{ flex: 1, fontSize: '0.7rem' }}>Borrar</Button>
+        <ToggleButton value="favs" selected={showFavs} onChange={() => setShowFavs(!showFavs)} size="small" sx={{ flex: 1, fontSize: '0.7rem' }}>
+          <StarIcon fontSize="small" color={showFavs ? 'warning' : 'inherit'} sx={{ mr: 0.3 }} /> Favs
+        </ToggleButton>
       </Box>
       <Box sx={{ p: 2, pt: 0 }}>
         {filtered.length === 0 ? (
