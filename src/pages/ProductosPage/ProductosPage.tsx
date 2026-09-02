@@ -18,7 +18,7 @@ import MenuItem from '@mui/material/MenuItem'
 import InputAdornment from '@mui/material/InputAdornment'
 import SearchIcon from '@mui/icons-material/Search'
 import { productos as productosSignal, loadingProductos, loadProductos, categorias, loadCategorias, mercados, loadMercados, mercadoTiendas, mercadoTiendaCategorias, loadMercadoTiendas, loadCategoriasByTienda, showSnackbar } from '@/store'
-import { mercadoProductosService } from '@/services'
+import { supabase } from '@/services/supabase.client'
 import { useSignalValue } from '@/hooks/useSignalValue'
 import { productosService } from '@/services'
 import type { Producto, CreateProductoDto, UpdateProductoDto } from '@/models'
@@ -127,18 +127,24 @@ export default function ProductosPage() {
     const producto = marketProduct
     if (!producto) return
     const activo = mercados.value.find(m => m.estado === 'activo')
+    console.log('[confirmAddToMarket] mercado activo:', activo?.id)
     if (!activo) { showSnackbar('No hay mercado activo'); setMarketProduct(null); return }
     try {
       await loadMercadoTiendas(activo.id)
       const mt = mercadoTiendas.value[0]
+      console.log('[confirmAddToMarket] primera tienda:', mt?.id, mt?.tienda?.nombre)
       if (!mt) { showSnackbar('El mercado no tiene tiendas'); setMarketProduct(null); return }
       await loadCategoriasByTienda(mt.id)
       const todas = Object.values(mercadoTiendaCategorias.value).flat()
+      console.log('[confirmAddToMarket] categorias cargadas:', todas.length)
       const mtc = todas.find(c => c.categoria_id === producto.categoria_id)
+      console.log('[confirmAddToMarket] categoria match:', mtc?.id, 'para producto cat:', producto.categoria_id)
       if (!mtc) { showSnackbar('Agrega esta categoría al mercado primero'); setMarketProduct(null); return }
-      await mercadoProductosService.add({ mercado_tienda_categoria_id: mtc.id, producto_id: producto.id, cantidad: Number(marketCantidad) || 1 })
+      const { error } = await supabase.from('mercado_productos').insert({ mercado_tienda_categoria_id: mtc.id, producto_id: producto.id, cantidad: Number(marketCantidad) || 1 }).select().single()
+      console.log('[confirmAddToMarket] error supabase:', error)
+      if (error) { showSnackbar('Error: ' + error.message); setMarketProduct(null); return }
       showSnackbar(`${producto.nombre} → Mercado ✓`)
-    } catch { showSnackbar('Error al agregar') }
+    } catch (e) { console.error(e); showSnackbar('Error al agregar') }
     setMarketProduct(null)
   }
 
