@@ -8,7 +8,13 @@ import AddIcon from '@mui/icons-material/Add'
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd'
 import DeleteIcon from '@mui/icons-material/Delete'
 import Button from '@mui/material/Button'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import DialogActions from '@mui/material/DialogActions'
 import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
+import MenuItem from '@mui/material/MenuItem'
 import InputAdornment from '@mui/material/InputAdornment'
 import SearchIcon from '@mui/icons-material/Search'
 import { productos as productosSignal, loadingProductos, loadProductos, categorias, loadCategorias, mercados, mercadoTiendas, mercadoTiendaCategorias, loadMercadoTiendas, loadCategoriasByTienda, showSnackbar } from '@/store'
@@ -34,6 +40,8 @@ export default function ProductosPage() {
   const [editing, setEditing] = useState<Producto | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Producto | null>(null)
   const [deleteAllOpen, setDeleteAllOpen] = useState(false)
+  const [marketProduct, setMarketProduct] = useState<Producto | null>(null)
+  const [marketCantidad, setMarketCantidad] = useState('1')
 
   useEffect(() => { loadCategorias(); loadProductos() }, [])
 
@@ -106,20 +114,30 @@ export default function ProductosPage() {
     setFormOpen(true)
   }
 
-  async function addToMarket(producto: Producto) {
+  function addToMarket(producto: Producto) {
+    const activo = mercados.value.find(m => m.estado === 'activo')
+    if (!activo) { showSnackbar('No hay mercado activo'); return }
+    setMarketProduct(producto)
+    setMarketCantidad('1')
+  }
+
+  async function confirmAddToMarket() {
+    const producto = marketProduct
+    if (!producto) return
+    const activo = mercados.value.find(m => m.estado === 'activo')
+    if (!activo) { showSnackbar('No hay mercado activo'); setMarketProduct(null); return }
     try {
-      const activo = mercados.value.find(m => m.estado === 'activo')
-      if (!activo) { showSnackbar('No hay mercado activo'); return }
       await loadMercadoTiendas(activo.id)
       const mt = mercadoTiendas.value[0]
-      if (!mt) { showSnackbar('El mercado no tiene tiendas'); return }
+      if (!mt) { showSnackbar('El mercado no tiene tiendas'); setMarketProduct(null); return }
       await loadCategoriasByTienda(mt.id)
       const todas = Object.values(mercadoTiendaCategorias.value).flat()
       const mtc = todas.find(c => c.categoria_id === producto.categoria_id)
-      if (!mtc) { showSnackbar('Agrega esta categoría al mercado primero'); return }
-      await mercadoProductosService.add({ mercado_tienda_categoria_id: mtc.id, producto_id: producto.id, cantidad: 1 })
+      if (!mtc) { showSnackbar('Agrega esta categoría al mercado primero'); setMarketProduct(null); return }
+      await mercadoProductosService.add({ mercado_tienda_categoria_id: mtc.id, producto_id: producto.id, cantidad: Number(marketCantidad) || 1 })
       showSnackbar(`${producto.nombre} → Mercado ✓`)
-    } catch (e) { showSnackbar('Error'); console.error(e) }
+    } catch { showSnackbar('Error al agregar') }
+    setMarketProduct(null)
   }
 
   if (isLoading) return <LoadingSpinner />
@@ -212,6 +230,25 @@ export default function ProductosPage() {
         }}
         onCancel={() => setDeleteAllOpen(false)}
       />
+
+      <Dialog open={marketProduct !== null} onClose={() => setMarketProduct(null)} fullWidth maxWidth="xs">
+        <DialogTitle>Agregar al mercado</DialogTitle>
+        <DialogContent>
+          <Typography variant="h6" gutterBottom>{marketProduct?.nombre}</Typography>
+          <TextField select fullWidth label="Cantidad" value={marketCantidad} onChange={e => setMarketCantidad(e.target.value)} sx={{ mb: 1 }}>
+            {Array.from({ length: 20 }, (_, i) => i + 1).map(n => (
+              <MenuItem key={n} value={n.toString()}>{n}</MenuItem>
+            ))}
+          </TextField>
+          <Typography variant="caption" color="text.secondary">
+            Se agregará al mercado activo en la categoría correspondiente.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setMarketProduct(null)}>Cancelar</Button>
+          <Button onClick={confirmAddToMarket} variant="contained">Agregar</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }
