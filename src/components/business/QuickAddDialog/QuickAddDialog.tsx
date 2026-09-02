@@ -34,7 +34,7 @@ export function QuickAddDialog({ open, categoriasCatalog, productosDisp, product
     if (productosIdsEnMercado.has(p.id)) return false
     if (!categoriaId) return true
     return p.categoria_id === categoriaId
-  })
+  }).filter((p, idx, arr) => arr.findIndex(x => x.nombre.toLowerCase() === p.nombre.toLowerCase()) === idx)
 
   useEffect(() => {
     if (open) {

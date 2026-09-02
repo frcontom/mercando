@@ -246,6 +246,7 @@ export default function MercadoDetailPage() {
                           ) : mp.precio > 0 ? (
                             <Typography variant="body2" sx={{ fontWeight: 700, color: mp.estado === 'encontrado' ? '#69f0ae' : 'text.disabled', flexShrink: 0 }}>{formatCurrency(mp.precio * (mp.estado === 'encontrado' && mp.cantidad_encontrada > 0 ? mp.cantidad_encontrada : mp.cantidad))}</Typography>
                           ) : null}
+                          <IconButton size="small" onClick={(e) => { e.stopPropagation(); setDeleteTarget({ type: 'producto', id: mp.id }) }}><DeleteIcon fontSize="small" /></IconButton>
                         </Box>
                       )
                     })
