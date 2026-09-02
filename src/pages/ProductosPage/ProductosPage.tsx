@@ -45,8 +45,8 @@ export default function ProductosPage() {
 
   useEffect(() => { loadCategorias(); loadProductos() }, [])
 
-  const categoriaId = categorias.value[tab]?.id ?? ''
-  const categoriaNombre = categorias.value[tab]?.nombre ?? ''
+  const categoriaId = tab === 0 ? '' : (categorias.value[tab - 1]?.id ?? '')
+  const categoriaNombre = tab === 0 ? 'Todos' : (categorias.value[tab - 1]?.nombre ?? '')
 
   const filtered = items.filter(p => {
     const matchCat = categoriaId ? p.categoria_id === categoriaId : true
@@ -147,6 +147,7 @@ export default function ProductosPage() {
       {categorias.value.length > 0 && (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, px: 2 }}>
           <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="scrollable" scrollButtons={false} sx={{ flex: 1, minHeight: 48 }}>
+            <Tab label="📦 Todos" sx={{ minHeight: 48, py: 1 }} />
             {categorias.value.map(c => (
               <Tab key={c.id} label={`${c.icono} ${c.nombre}`} sx={{ minHeight: 48, py: 1 }} />
             ))}
