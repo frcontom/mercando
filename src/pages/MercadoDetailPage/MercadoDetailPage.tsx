@@ -360,8 +360,15 @@ export default function MercadoDetailPage() {
               mc = mercadoCategorias.value.find(m => m.categoria_id === data.categoria_id)
             }
             if (!mc) { showSnackbar('Error al crear categoría'); return }
-            await supabase.from('mercado_productos').insert({ mercado_categoria_id: mc.id, producto_id: data.producto_id, cantidad: data.cantidad, cantidad_encontrada: data.cantidad_encontrada, precio: data.precio, estado: data.estado }).select().single()
-            showSnackbar('Producto agregado'); await loadProductosByCategoria(mc.id); setRefreshKey(k => k + 1); updatePendingCount()
+            const { data: existentes } = await supabase.from('mercado_productos').select('id, cantidad').eq('mercado_categoria_id', mc.id).eq('producto_id', data.producto_id)
+            if (existentes && existentes.length > 0) {
+              await supabase.from('mercado_productos').update({ cantidad: existentes[0].cantidad + data.cantidad }).eq('id', existentes[0].id)
+              showSnackbar('Producto actualizado (cantidad aumentada)')
+            } else {
+              await supabase.from('mercado_productos').insert({ mercado_categoria_id: mc.id, producto_id: data.producto_id, cantidad: data.cantidad, cantidad_encontrada: data.cantidad_encontrada, precio: data.precio, estado: data.estado }).select().single()
+              showSnackbar('Producto agregado')
+            }
+            await loadProductosByCategoria(mc.id); setRefreshKey(k => k + 1); updatePendingCount()
           } catch { showSnackbar('Error') }
         }}
         onClose={() => setQuickAddOpen(false)}

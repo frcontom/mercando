@@ -138,9 +138,17 @@ export default function ProductosPage() {
         mc = mercadoCategorias.value.find(c => c.categoria_id === producto.categoria_id)
       }
       if (!mc) { showSnackbar('Error al crear categoría'); setMarketProduct(null); return }
-      const { error } = await supabase.from('mercado_productos').insert({ mercado_categoria_id: mc.id, producto_id: producto.id, cantidad: Number(marketCantidad) || 1 }).select().single()
-      if (error) { showSnackbar('Error: ' + error.message); setMarketProduct(null); return }
-      showSnackbar(`${producto.nombre} → Mercado ✓`)
+      const nuevaCant = Number(marketCantidad) || 1
+      const { data: existentes } = await supabase.from('mercado_productos').select('id, cantidad').eq('mercado_categoria_id', mc.id).eq('producto_id', producto.id)
+      if (existentes && existentes.length > 0) {
+        const { error } = await supabase.from('mercado_productos').update({ cantidad: existentes[0].cantidad + nuevaCant }).eq('id', existentes[0].id)
+        if (error) { showSnackbar('Error: ' + error.message); setMarketProduct(null); return }
+        showSnackbar(`${producto.nombre} → cantidad actualizada ✓`)
+      } else {
+        const { error } = await supabase.from('mercado_productos').insert({ mercado_categoria_id: mc.id, producto_id: producto.id, cantidad: nuevaCant }).select().single()
+        if (error) { showSnackbar('Error: ' + error.message); setMarketProduct(null); return }
+        showSnackbar(`${producto.nombre} → Mercado ✓`)
+      }
     } catch (e) { console.error(e); showSnackbar('Error al agregar') }
     setMarketProduct(null)
   }
