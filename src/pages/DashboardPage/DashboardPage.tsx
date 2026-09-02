@@ -49,7 +49,7 @@ export default function DashboardPage() {
   const todosProductos = mercadoCategorias.value.flatMap(mc => getProductos(mc.id))
   const encontradosGlobal = todosProductos.filter(p => p.estado === 'encontrado').length
   const totalGlobal = todosProductos.reduce((s, p) => s + (p.subtotal ?? p.precio * p.cantidad), 0)
-  const totalEncontrados = todosProductos.filter(p => p.estado === 'encontrado').reduce((s, p) => s + (p.subtotal ?? p.precio * p.cantidad), 0)
+  const totalEncontrados = todosProductos.filter(p => p.estado === 'encontrado').reduce((s, p) => s + (p.subtotal ?? p.precio * (p.cantidad_encontrada > 0 ? p.cantidad_encontrada : p.cantidad)), 0)
   const restante = totalGlobal - totalEncontrados
   const pct = todosProductos.length > 0 ? (encontradosGlobal / todosProductos.length) * 100 : 0
 
@@ -110,7 +110,7 @@ export default function DashboardPage() {
               {mercadoCategorias.value.map(mc => {
                 const prods = getProductos(mc.id)
                 const enc = prods.filter(p => p.estado === 'encontrado').length
-                const total = prods.reduce((s, p) => s + (p.subtotal ?? p.precio * p.cantidad), 0)
+                const total = prods.reduce((s, p) => s + (p.subtotal ?? p.precio * (p.estado === 'encontrado' && p.cantidad_encontrada > 0 ? p.cantidad_encontrada : p.cantidad)), 0)
                 return (
                   <Card key={mc.id} onClick={() => navigate(`/mercados/${activo.id}`)} sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 2, py: 1.5, px: 2, borderRadius: 1, border: '1px solid rgba(105,240,174,0.06)', bgcolor: 'rgba(105,240,174,0.02)', position: 'relative', overflow: 'hidden', '&::before': { content: '""', position: 'absolute', top: '-60%', right: '-15%', width: 100, height: 100, borderRadius: '50%', background: 'radial-gradient(circle, rgba(105,240,174,0.05) 0%, transparent 70%)' }, '&:active': { transform: 'scale(0.98)' }, transition: 'all 0.2s ease' }}>
                     <Typography sx={{ fontSize: 32, position: 'relative', zIndex: 1 }}>{mc.categoria?.icono}</Typography>

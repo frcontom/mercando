@@ -169,7 +169,7 @@ export default function MercadoDetailPage() {
 
   const todosProductos = mercadoCategorias.value.flatMap(mc => getProductos(mc.id))
   const encontradosGlobal = todosProductos.filter(p => p.estado === 'encontrado').length
-  const totalEncontrados = todosProductos.filter(p => p.estado === 'encontrado').reduce((s, p) => s + (p.subtotal ?? p.precio * p.cantidad), 0)
+  const totalEncontrados = todosProductos.filter(p => p.estado === 'encontrado').reduce((s, p) => s + (p.subtotal ?? p.precio * (p.cantidad_encontrada > 0 ? p.cantidad_encontrada : p.cantidad)), 0)
 
   const categoriasDisponibles = categorias.value.filter(c => !mercadoCategorias.value.some(mc => mc.categoria_id === c.id))
   const productosIdsEnMercado = new Set(todosProductos.map(p => p.producto_id))
@@ -244,7 +244,7 @@ export default function MercadoDetailPage() {
                           {mp.estado === 'no_habia' ? (
                             <Box sx={{ bgcolor: 'rgba(255,152,0,0.15)', color: '#ff9800', fontSize: '0.6rem', fontWeight: 700, px: 1, py: 0.3, borderRadius: 1, flexShrink: 0 }}>No había</Box>
                           ) : mp.precio > 0 ? (
-                            <Typography variant="body2" sx={{ fontWeight: 700, color: mp.estado === 'encontrado' ? '#69f0ae' : 'text.disabled', flexShrink: 0 }}>{formatCurrency(mp.precio * mp.cantidad)}</Typography>
+                            <Typography variant="body2" sx={{ fontWeight: 700, color: mp.estado === 'encontrado' ? '#69f0ae' : 'text.disabled', flexShrink: 0 }}>{formatCurrency(mp.precio * (mp.estado === 'encontrado' && mp.cantidad_encontrada > 0 ? mp.cantidad_encontrada : mp.cantidad))}</Typography>
                           ) : null}
                         </Box>
                       )
