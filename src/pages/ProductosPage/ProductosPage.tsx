@@ -17,7 +17,7 @@ import Typography from '@mui/material/Typography'
 import MenuItem from '@mui/material/MenuItem'
 import InputAdornment from '@mui/material/InputAdornment'
 import SearchIcon from '@mui/icons-material/Search'
-import { productos as productosSignal, loadingProductos, loadProductos, categorias, loadCategorias, mercados, mercadoTiendas, mercadoTiendaCategorias, loadMercadoTiendas, loadCategoriasByTienda, showSnackbar } from '@/store'
+import { productos as productosSignal, loadingProductos, loadProductos, categorias, loadCategorias, mercados, loadMercados, mercadoTiendas, mercadoTiendaCategorias, loadMercadoTiendas, loadCategoriasByTienda, showSnackbar } from '@/store'
 import { mercadoProductosService } from '@/services'
 import { useSignalValue } from '@/hooks/useSignalValue'
 import { productosService } from '@/services'
@@ -43,7 +43,7 @@ export default function ProductosPage() {
   const [marketProduct, setMarketProduct] = useState<Producto | null>(null)
   const [marketCantidad, setMarketCantidad] = useState('1')
 
-  useEffect(() => { loadCategorias(); loadProductos() }, [])
+  useEffect(() => { loadCategorias(); loadProductos(); loadMercados() }, [])
 
   const categoriaId = tab === 0 ? '' : (categorias.value[tab - 1]?.id ?? '')
   const categoriaNombre = tab === 0 ? 'Todos' : (categorias.value[tab - 1]?.nombre ?? '')
