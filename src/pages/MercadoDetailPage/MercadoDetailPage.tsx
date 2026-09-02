@@ -347,13 +347,21 @@ export default function MercadoDetailPage() {
 
       <QuickAddDialog
         open={quickAddOpen}
-        categorias={mercadoCategorias.value}
+        categoriasCatalog={categorias.value}
         productosDisp={productos.value}
         productosIdsEnMercado={productosIdsEnMercado}
         onSave={async (data) => {
           try {
-            await supabase.from('mercado_productos').insert({ mercado_categoria_id: data.mercado_categoria_id, producto_id: data.producto_id, cantidad: data.cantidad, cantidad_encontrada: data.cantidad_encontrada, precio: data.precio, estado: data.estado }).select().single()
-            showSnackbar('Producto agregado'); await loadProductosByCategoria(data.mercado_categoria_id); setRefreshKey(k => k + 1); updatePendingCount()
+            if (!id) return
+            let mc = mercadoCategorias.value.find(m => m.categoria_id === data.categoria_id)
+            if (!mc) {
+              await mercadoCategoriasService.add(id, data.categoria_id)
+              await loadMercadoCategorias(id)
+              mc = mercadoCategorias.value.find(m => m.categoria_id === data.categoria_id)
+            }
+            if (!mc) { showSnackbar('Error al crear categoría'); return }
+            await supabase.from('mercado_productos').insert({ mercado_categoria_id: mc.id, producto_id: data.producto_id, cantidad: data.cantidad, cantidad_encontrada: data.cantidad_encontrada, precio: data.precio, estado: data.estado }).select().single()
+            showSnackbar('Producto agregado'); await loadProductosByCategoria(mc.id); setRefreshKey(k => k + 1); updatePendingCount()
           } catch { showSnackbar('Error') }
         }}
         onClose={() => setQuickAddOpen(false)}

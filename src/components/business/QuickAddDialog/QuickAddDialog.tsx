@@ -9,23 +9,21 @@ import Autocomplete from '@mui/material/Autocomplete'
 import MenuItem from '@mui/material/MenuItem'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import { categorias as categoriasList } from '@/store'
 import { ESTADOS_PRODUCTO, LABEL_ESTADOS } from '@/core/constants/estados'
-import type { EstadoProducto, Producto, MercadoCategoria } from '@/models'
+import type { EstadoProducto, Producto, Categoria } from '@/models'
 import { formatCurrency } from '@/core/utils/formatters'
 
 interface QuickAddDialogProps {
   open: boolean
-  categorias: MercadoCategoria[]
+  categoriasCatalog: Categoria[]
   productosDisp: Producto[]
   productosIdsEnMercado: Set<string>
-  onSave: (data: { mercado_categoria_id: string; producto_id: string; cantidad: number; precio: number; cantidad_encontrada: number; estado: EstadoProducto }) => Promise<void>
+  onSave: (data: { categoria_id: string; producto_id: string; cantidad: number; precio: number; cantidad_encontrada: number; estado: EstadoProducto }) => Promise<void>
   onClose: () => void
-  selectedCategoriaId?: string
 }
 
-export function QuickAddDialog({ open, categorias, productosDisp, productosIdsEnMercado, onSave, onClose, selectedCategoriaId }: QuickAddDialogProps) {
-  const [categoriaId, setCategoriaId] = useState(selectedCategoriaId ?? categorias[0]?.id ?? '')
+export function QuickAddDialog({ open, categoriasCatalog, productosDisp, productosIdsEnMercado, onSave, onClose }: QuickAddDialogProps) {
+  const [categoriaId, setCategoriaId] = useState(categoriasCatalog[0]?.id ?? '')
   const [producto, setProducto] = useState<Producto | null>(null)
   const [estado, setEstado] = useState<EstadoProducto>('pendiente')
   const [cantidad, setCantidad] = useState('1')
@@ -35,20 +33,18 @@ export function QuickAddDialog({ open, categorias, productosDisp, productosIdsEn
   const disponibles = productosDisp.filter(p => {
     if (productosIdsEnMercado.has(p.id)) return false
     if (!categoriaId) return true
-    const catRef = categoriasList.value.find(c => c.id === p.categoria_id)
-    const mc = categorias.find(c => c.id === categoriaId)
-    return catRef && mc ? p.categoria_id === mc.categoria_id : true
+    return p.categoria_id === categoriaId
   })
 
   useEffect(() => {
     if (open) {
-      setCategoriaId(selectedCategoriaId ?? categorias[0]?.id ?? '')
+      setCategoriaId(categoriasCatalog[0]?.id ?? '')
       setProducto(null)
       setEstado('pendiente')
       setCantidad('1')
       setPrecio('')
     }
-  }, [open, categorias, selectedCategoriaId])
+  }, [open, categoriasCatalog])
 
   useEffect(() => {
     if (estado === 'pendiente' || estado === 'no_habia') { setCantidad('0'); setPrecio('0') }
@@ -62,7 +58,7 @@ export function QuickAddDialog({ open, categorias, productosDisp, productosIdsEn
     try {
       const cant = Number(cantidad) || 0
       await onSave({
-        mercado_categoria_id: categoriaId,
+        categoria_id: categoriaId,
         producto_id: producto.id,
         cantidad: estado === 'pendiente' ? 1 : cant || 1,
         precio: estado === 'encontrado' ? (Number(precio) || 0) : 0,
@@ -80,8 +76,8 @@ export function QuickAddDialog({ open, categorias, productosDisp, productosIdsEn
       <DialogTitle>Agregar producto rápido</DialogTitle>
       <DialogContent>
         <TextField select fullWidth label="Categoría" value={categoriaId} onChange={e => { setCategoriaId(e.target.value); setProducto(null) }} sx={{ mb: 2, mt: 1 }}>
-          {categorias.map(c => (
-            <MenuItem key={c.id} value={c.id}>{c.categoria?.icono} {c.categoria?.nombre}</MenuItem>
+          {categoriasCatalog.map(c => (
+            <MenuItem key={c.id} value={c.id}>{c.icono} {c.nombre}</MenuItem>
           ))}
         </TextField>
         {categoriaId && (
