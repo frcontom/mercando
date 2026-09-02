@@ -3,7 +3,6 @@ export { list as mercados, selected as selectedMercado, loading as loadingMercad
 export { list as tiendas, loading as loadingTiendas, loadTiendas } from './tiendas.store'
 export { list as categorias, loading as loadingCategorias, loadCategorias } from './categorias.store'
 export { list as productos, loading as loadingProductos, loadProductos } from './productos.store'
-export { list as mercadoTiendas, loading as loadingMercadoTiendas, loadMercadoTiendas } from './mercado-tiendas.store'
-export { map as mercadoTiendaCategorias, loading as loadingMTCategorias, loadCategoriasByTienda, getCategoriasByTienda, clearCategorias } from './mercado-tienda-categorias.store'
+export { list as mercadoCategorias, loading as loadingMercadoCategorias, loadMercadoCategorias } from './mercado-categorias.store'
 export { map as mercadoProductos, loading as loadingMercadoProductos, loadProductosByCategoria, getProductosByCategoria, clearProductos } from './mercado-productos.store'
 export { snackbarMessage, snackbarOpen, showSnackbar, hideSnackbar, pendingCount, refreshHandler } from './ui.store'

@@ -4,11 +4,11 @@ import type { MercadoProducto, AddProductoDto, UpdateMercadoProductoDto } from '
 class MercadoProductosService {
   private table = 'mercado_productos'
 
-  async getByCategoria(mercadoTiendaCategoriaId: string): Promise<MercadoProducto[]> {
+  async getByCategoria(mercadoCategoriaId: string): Promise<MercadoProducto[]> {
     const { data } = await supabase
       .from(this.table)
       .select('*, producto:productos(*)')
-      .eq('mercado_tienda_categoria_id', mercadoTiendaCategoriaId)
+      .eq('mercado_categoria_id', mercadoCategoriaId)
       .order('created_at', { ascending: true })
     return data ?? []
   }

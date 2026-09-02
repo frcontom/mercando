@@ -5,35 +5,27 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
-import FormControl from '@mui/material/FormControl'
-import InputLabel from '@mui/material/InputLabel'
-import Select from '@mui/material/Select'
 import Autocomplete from '@mui/material/Autocomplete'
 import MenuItem from '@mui/material/MenuItem'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import { StoreIcon } from '@/components/business/StoreIcon'
 import { categorias as categoriasList } from '@/store'
 import { ESTADOS_PRODUCTO, LABEL_ESTADOS } from '@/core/constants/estados'
-import type { EstadoProducto, MercadoProducto, Producto, MercadoTienda, MercadoTiendaCategoria } from '@/models'
+import type { EstadoProducto, Producto, MercadoCategoria } from '@/models'
 import { formatCurrency } from '@/core/utils/formatters'
 
 interface QuickAddDialogProps {
   open: boolean
-  tiendas: MercadoTienda[]
-  categorias: MercadoTiendaCategoria[]
+  categorias: MercadoCategoria[]
   productosDisp: Producto[]
   productosIdsEnMercado: Set<string>
-  editItem?: MercadoProducto | null
-  onSave: (data: { mercado_tienda_categoria_id: string; producto_id: string; cantidad: number; precio: number; cantidad_encontrada: number; estado: EstadoProducto }) => Promise<void>
+  onSave: (data: { mercado_categoria_id: string; producto_id: string; cantidad: number; precio: number; cantidad_encontrada: number; estado: EstadoProducto }) => Promise<void>
   onClose: () => void
-  selectedTiendaId?: string
   selectedCategoriaId?: string
 }
 
-export function QuickAddDialog({ open, tiendas, categorias, productosDisp, productosIdsEnMercado, editItem, onSave, onClose, selectedTiendaId, selectedCategoriaId }: QuickAddDialogProps) {
-  const [tiendaId, setTiendaId] = useState(selectedTiendaId ?? tiendas[0]?.id ?? '')
-  const [categoriaId, setCategoriaId] = useState(selectedCategoriaId ?? '')
+export function QuickAddDialog({ open, categorias, productosDisp, productosIdsEnMercado, onSave, onClose, selectedCategoriaId }: QuickAddDialogProps) {
+  const [categoriaId, setCategoriaId] = useState(selectedCategoriaId ?? categorias[0]?.id ?? '')
   const [producto, setProducto] = useState<Producto | null>(null)
   const [estado, setEstado] = useState<EstadoProducto>('pendiente')
   const [cantidad, setCantidad] = useState('1')
@@ -44,20 +36,19 @@ export function QuickAddDialog({ open, tiendas, categorias, productosDisp, produ
     if (productosIdsEnMercado.has(p.id)) return false
     if (!categoriaId) return true
     const catRef = categoriasList.value.find(c => c.id === p.categoria_id)
-    const mtc = categorias.find(mtc => mtc.id === categoriaId)
-    return catRef && mtc ? p.categoria_id === mtc.categoria_id : true
+    const mc = categorias.find(c => c.id === categoriaId)
+    return catRef && mc ? p.categoria_id === mc.categoria_id : true
   })
 
   useEffect(() => {
     if (open) {
-      setTiendaId(selectedTiendaId ?? tiendas[0]?.id ?? '')
-      setCategoriaId(selectedCategoriaId ?? '')
+      setCategoriaId(selectedCategoriaId ?? categorias[0]?.id ?? '')
       setProducto(null)
       setEstado('pendiente')
       setCantidad('1')
       setPrecio('')
     }
-  }, [open, tiendas, selectedTiendaId, selectedCategoriaId])
+  }, [open, categorias, selectedCategoriaId])
 
   useEffect(() => {
     if (estado === 'pendiente' || estado === 'no_habia') { setCantidad('0'); setPrecio('0') }
@@ -71,7 +62,7 @@ export function QuickAddDialog({ open, tiendas, categorias, productosDisp, produ
     try {
       const cant = Number(cantidad) || 0
       await onSave({
-        mercado_tienda_categoria_id: categoriaId,
+        mercado_categoria_id: categoriaId,
         producto_id: producto.id,
         cantidad: estado === 'pendiente' ? 1 : cant || 1,
         precio: estado === 'encontrado' ? (Number(precio) || 0) : 0,
@@ -86,31 +77,13 @@ export function QuickAddDialog({ open, tiendas, categorias, productosDisp, produ
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
-      <DialogTitle>{editItem ? 'Editar producto' : 'Agregar producto rápido'}</DialogTitle>
+      <DialogTitle>Agregar producto rápido</DialogTitle>
       <DialogContent>
-        <FormControl fullWidth sx={{ mb: 2, mt: 1 }}>
-          <InputLabel>Tienda</InputLabel>
-          <Select label="Tienda" value={tiendaId} onChange={e => { setTiendaId(e.target.value); setCategoriaId(''); setProducto(null) }}
-            renderValue={(val) => {
-              const t = tiendas.find(ti => ti.id === val)
-              return <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><StoreIcon tienda={t?.tienda} size={24} />{t?.tienda?.nombre}</Box>
-            }}
-          >
-            {tiendas.map(t => (
-              <MenuItem key={t.id} value={t.id} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <StoreIcon tienda={t.tienda} size={24} /> {t.tienda?.nombre}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        {tiendaId && (
-          <TextField select fullWidth label="Categoría" value={categoriaId} onChange={e => { setCategoriaId(e.target.value); setProducto(null) }} sx={{ mb: 2 }}>
-            <MenuItem value="">Seleccionar categoría</MenuItem>
-            {categorias.filter(c => c.mercado_tienda_id === tiendaId).map(c => (
-              <MenuItem key={c.id} value={c.id}>{c.categoria?.icono} {c.categoria?.nombre}</MenuItem>
-            ))}
-          </TextField>
-        )}
+        <TextField select fullWidth label="Categoría" value={categoriaId} onChange={e => { setCategoriaId(e.target.value); setProducto(null) }} sx={{ mb: 2, mt: 1 }}>
+          {categorias.map(c => (
+            <MenuItem key={c.id} value={c.id}>{c.categoria?.icono} {c.categoria?.nombre}</MenuItem>
+          ))}
+        </TextField>
         {categoriaId && (
           <>
             <Autocomplete
@@ -131,17 +104,13 @@ export function QuickAddDialog({ open, tiendas, categorias, productosDisp, produ
                 </TextField>
                 <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
                   <TextField select label="Cantidad" value={cantidad} onChange={e => setCantidad(e.target.value)} disabled={disabled} sx={{ flex: 1 }}>
-                    {disabled ? <MenuItem value="0">0</MenuItem> : Array.from({ length: 20 }, (_, i) => i + 1).map(n => (
-                      <MenuItem key={n} value={n.toString()}>{n}</MenuItem>
-                    ))}
+                    {disabled ? <MenuItem value="0">0</MenuItem> : Array.from({ length: 20 }, (_, i) => i + 1).map(n => (<MenuItem key={n} value={n.toString()}>{n}</MenuItem>))}
                   </TextField>
                   <TextField type="text" label="Precio" value={precio} onChange={e => { const val = e.target.value.replace(/[^0-9]/g, ''); setPrecio(val) }} disabled={disabled} required={estado === 'encontrado'} slotProps={{ htmlInput: { inputMode: 'numeric' } }} sx={{ flex: 1 }} />
                 </Box>
                 {estado === 'encontrado' && precio && (
                   <Box sx={{ textAlign: 'center', mb: 1 }}>
-                    <Typography variant="body2" sx={{ color: '#69f0ae', fontWeight: 700 }}>
-                      {formatCurrency(Number(precio) * Number(cantidad))}
-                    </Typography>
+                    <Typography variant="body2" sx={{ color: '#69f0ae', fontWeight: 700 }}>{formatCurrency(Number(precio) * Number(cantidad))}</Typography>
                   </Box>
                 )}
               </>
@@ -151,9 +120,7 @@ export function QuickAddDialog({ open, tiendas, categorias, productosDisp, produ
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancelar</Button>
-        <Button onClick={handleSave} variant="contained" disabled={!producto || !categoriaId || saving || (estado === 'encontrado' && !precio)}>
-          {editItem ? 'Guardar cambios' : 'Agregar'}
-        </Button>
+        <Button onClick={handleSave} variant="contained" disabled={!producto || !categoriaId || saving || (estado === 'encontrado' && !precio)}>Agregar</Button>
       </DialogActions>
     </Dialog>
   )

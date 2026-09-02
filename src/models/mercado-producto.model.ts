@@ -2,7 +2,7 @@ import type { Producto } from './producto.model'
 
 export interface MercadoProducto {
   id: string
-  mercado_tienda_categoria_id: string
+  mercado_categoria_id: string
   producto_id: string
   precio: number
   cantidad: number
@@ -17,5 +17,5 @@ export interface MercadoProducto {
 
 export type EstadoProducto = 'pendiente' | 'encontrado' | 'no_habia'
 
-export type AddProductoDto = Pick<MercadoProducto, 'mercado_tienda_categoria_id' | 'producto_id' | 'cantidad'>
+export type AddProductoDto = Pick<MercadoProducto, 'mercado_categoria_id' | 'producto_id' | 'cantidad'>
 export type UpdateMercadoProductoDto = Partial<Pick<MercadoProducto, 'precio' | 'cantidad' | 'cantidad_encontrada' | 'estado' | 'observacion'>>

@@ -5,18 +5,18 @@ import { mercadoProductosService } from '@/services'
 export const map = signal<Record<string, MercadoProducto[]>>({})
 export const loading = signal(false)
 
-export async function loadProductosByCategoria(mercadoTiendaCategoriaId: string): Promise<void> {
+export async function loadProductosByCategoria(mercadoCategoriaId: string): Promise<void> {
   loading.value = true
   try {
-    const data = await mercadoProductosService.getByCategoria(mercadoTiendaCategoriaId)
-    map.value = { ...map.value, [mercadoTiendaCategoriaId]: data }
+    const data = await mercadoProductosService.getByCategoria(mercadoCategoriaId)
+    map.value = { ...map.value, [mercadoCategoriaId]: data }
   } finally {
     loading.value = false
   }
 }
 
-export function getProductosByCategoria(mercadoTiendaCategoriaId: string): MercadoProducto[] {
-  return map.value[mercadoTiendaCategoriaId] ?? []
+export function getProductosByCategoria(mercadoCategoriaId: string): MercadoProducto[] {
+  return map.value[mercadoCategoriaId] ?? []
 }
 
 export function clearProductos(): void {
