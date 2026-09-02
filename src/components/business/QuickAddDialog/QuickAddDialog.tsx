@@ -38,7 +38,7 @@ export function QuickAddDialog({ open, categoriasCatalog, productosDisp, product
 
   useEffect(() => {
     if (open) {
-      setCategoriaId(categoriasCatalog[0]?.id ?? '')
+      setCategoriaId('')
       setProducto(null)
       setEstado('pendiente')
       setCantidad('1')
@@ -52,13 +52,13 @@ export function QuickAddDialog({ open, categoriasCatalog, productosDisp, product
   }, [estado])
 
   async function handleSave() {
-    if (!producto || !categoriaId) return
+    if (!producto) return
     if (estado === 'encontrado' && !precio) return
     setSaving(true)
     try {
       const cant = Number(cantidad) || 0
       await onSave({
-        categoria_id: categoriaId,
+        categoria_id: categoriaId || producto.categoria_id,
         producto_id: producto.id,
         cantidad: estado === 'pendiente' ? 1 : cant || 1,
         precio: estado === 'encontrado' ? (Number(precio) || 0) : 0,
@@ -75,27 +75,26 @@ export function QuickAddDialog({ open, categoriasCatalog, productosDisp, product
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
       <DialogTitle>Agregar producto rápido</DialogTitle>
       <DialogContent>
-        <TextField select fullWidth label="Categoría" value={categoriaId} onChange={e => { setCategoriaId(e.target.value); setProducto(null) }} sx={{ mb: 2, mt: 1 }}>
+        <TextField select fullWidth label="Categoría (opcional)" value={categoriaId} onChange={e => { setCategoriaId(e.target.value); setProducto(null) }} sx={{ mb: 2, mt: 1 }}>
+          <MenuItem value="">📦 Todas las categorías</MenuItem>
           {categoriasCatalog.map(c => (
             <MenuItem key={c.id} value={c.id}>{c.icono} {c.nombre}</MenuItem>
           ))}
         </TextField>
-        {categoriaId && (
+        <Autocomplete
+          options={disponibles}
+          value={producto}
+          onChange={(_, v) => setProducto(v)}
+          getOptionLabel={o => o.nombre}
+          isOptionEqualToValue={(o, v) => o.id === v.id}
+          renderInput={params => <TextField {...params} label="Producto" sx={{ mb: 2 }} />}
+          noOptionsText="Sin resultados"
+          size="small"
+          fullWidth
+        />
+        {producto && (
           <>
-            <Autocomplete
-              options={disponibles}
-              value={producto}
-              onChange={(_, v) => setProducto(v)}
-              getOptionLabel={o => o.nombre}
-              isOptionEqualToValue={(o, v) => o.id === v.id}
-              renderInput={params => <TextField {...params} label="Producto" sx={{ mb: 2 }} />}
-              noOptionsText="Sin resultados"
-              size="small"
-              fullWidth
-            />
-            {producto && (
-              <>
-                <TextField select fullWidth label="Estado" value={estado} onChange={e => setEstado(e.target.value as EstadoProducto)} sx={{ mb: 2 }}>
+            <TextField select fullWidth label="Estado" value={estado} onChange={e => setEstado(e.target.value as EstadoProducto)} sx={{ mb: 2 }}>
                   {ESTADOS_PRODUCTO.map(e => (<MenuItem key={e} value={e}>{LABEL_ESTADOS[e]}</MenuItem>))}
                 </TextField>
                 <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
@@ -111,12 +110,10 @@ export function QuickAddDialog({ open, categoriasCatalog, productosDisp, product
                 )}
               </>
             )}
-          </>
-        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancelar</Button>
-        <Button onClick={handleSave} variant="contained" disabled={!producto || !categoriaId || saving || (estado === 'encontrado' && !precio)}>Agregar</Button>
+        <Button onClick={handleSave} variant="contained" disabled={!producto || saving || (estado === 'encontrado' && !precio)}>Agregar</Button>
       </DialogActions>
     </Dialog>
   )
