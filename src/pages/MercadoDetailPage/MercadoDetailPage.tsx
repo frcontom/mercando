@@ -204,7 +204,12 @@ export default function MercadoDetailPage() {
         <TextField fullWidth size="small" placeholder="Buscar producto…" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} sx={{ mb: 2 }} />
 
         {mercadoCategorias.value.length === 0 ? (
-          <EmptyState message="Agrega categorías a este mercado" />
+          <Box sx={{ textAlign: 'center' }}>
+            <EmptyState message="Agrega categorías a este mercado" />
+            <Button variant="contained" startIcon={<AddIcon />} onClick={() => setAddCategoriaOpen(true)}>
+              Agregar categoría
+            </Button>
+          </Box>
         ) : (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
             {mercadoCategorias.value.map(mc => {
