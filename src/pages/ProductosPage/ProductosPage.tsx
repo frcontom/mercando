@@ -18,6 +18,7 @@ import MenuItem from '@mui/material/MenuItem'
 import InputAdornment from '@mui/material/InputAdornment'
 import SearchIcon from '@mui/icons-material/Search'
 import { productos as productosSignal, loadingProductos, loadProductos, categorias, loadCategorias, mercados, loadMercados, mercadoCategorias, loadMercadoCategorias, showSnackbar } from '@/store'
+import { mercadoCategoriasService } from '@/services'
 import { supabase } from '@/services/supabase.client'
 import { useSignalValue } from '@/hooks/useSignalValue'
 import { productosService } from '@/services'
@@ -130,8 +131,13 @@ export default function ProductosPage() {
     if (!activo) { showSnackbar('No hay mercado activo'); setMarketProduct(null); return }
     try {
       await loadMercadoCategorias(activo.id)
-      const mc = mercadoCategorias.value.find(c => c.categoria_id === producto.categoria_id)
-      if (!mc) { showSnackbar('Agrega esta categoría al mercado primero'); setMarketProduct(null); return }
+      let mc = mercadoCategorias.value.find(c => c.categoria_id === producto.categoria_id)
+      if (!mc) {
+        await mercadoCategoriasService.add(activo.id, producto.categoria_id)
+        await loadMercadoCategorias(activo.id)
+        mc = mercadoCategorias.value.find(c => c.categoria_id === producto.categoria_id)
+      }
+      if (!mc) { showSnackbar('Error al crear categoría'); setMarketProduct(null); return }
       const { error } = await supabase.from('mercado_productos').insert({ mercado_categoria_id: mc.id, producto_id: producto.id, cantidad: Number(marketCantidad) || 1 }).select().single()
       if (error) { showSnackbar('Error: ' + error.message); setMarketProduct(null); return }
       showSnackbar(`${producto.nombre} → Mercado ✓`)
