@@ -115,7 +115,9 @@ export default function ProductosPage() {
   }
 
   function addToMarket(producto: Producto) {
+    console.log('[addToMarket] click en producto:', producto.nombre)
     const activo = mercados.value.find(m => m.estado === 'activo')
+    console.log('[addToMarket] mercado activo:', activo?.nombre ?? 'NO HAY')
     if (!activo) { showSnackbar('No hay mercado activo'); return }
     setMarketProduct(producto)
     setMarketCantidad('1')
