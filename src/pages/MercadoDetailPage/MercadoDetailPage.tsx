@@ -160,8 +160,18 @@ export default function MercadoDetailPage() {
 
   async function handleRemoveProducto() {
     if (!deleteTarget || deleteTarget.type !== 'producto') return
-    try { await mercadoProductosService.remove(deleteTarget.id); showSnackbar('Producto eliminado'); const mcatId = Object.values(mercadoProductos.value).flat().find(p => p.id === deleteTarget.id)?.mercado_categoria_id; if (mcatId) await loadProductosByCategoria(mcatId) }
-    catch { showSnackbar('Error') }
+    const mcatId = Object.values(mercadoProductos.value).flat().find(p => p.id === deleteTarget.id)?.mercado_categoria_id
+    try {
+      await mercadoProductosService.remove(deleteTarget.id)
+      showSnackbar('Producto eliminado')
+      if (mcatId) {
+        await loadProductosByCategoria(mcatId)
+        if (getProductosByCategoria(mcatId).length === 0) {
+          await mercadoCategoriasService.remove(mcatId)
+          if (id) await loadMercadoCategorias(id)
+        }
+      }
+    } catch { showSnackbar('Error') }
     finally { setDeleteTarget(null) }
   }
 
